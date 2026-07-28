@@ -70,39 +70,6 @@
     }
   }
   </script>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "2026 YKS tercihleri ne zaman yapılacak?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "2026-YKS tercih dönemi ÖSYM tarafından ilan edilecek tarihler arasında ÖSYM AİS (Aday İşlemleri Sistemi) üzerinden gerçekleştirilecektir."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Üniversite tercihi yaparken puan mı başarı sırası mı önemlidir?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Üniversite tercihlerinde en kritik kriter Başarı Sıralamasıdır. Sınavın zorluk derecesine göre puanlar her yıl değişebilir ancak başarı sıralamaları daha istikrarlı kılavuzluk sağlar."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "ÖSYM Tablo 3 ve Tablo 4 ne anlama gelir?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Tablo-3, 2 yıllık Ön Lisans (TYT) programlarını kapsar. Tablo-4 ise 4, 5 ve 6 yıllık Lisans (AYT - SAY, EA, SÖZ, DİL) programlarını içerir."
-        }
-      }
-    ]
-  }
-  </script>
 </head>
 <body>
 
@@ -238,11 +205,12 @@
             <th>Üniversite Adı</th>
             <th>Fakültesi / MYO</th>
             <th>Program Adı</th>
-            <th>Eğitim Tipi</th>
+            <th>Tür</th>
             <th>Puan Türü</th>
             <th>Kontenjan</th>
-            <th>2025 Başarı Sırası</th>
-            <th>2025 Taban Puan</th>
+            <th>Özel Koşullar</th>
+            <th>2025 Sıralama</th>
+            <th>2025 Puan</th>
           </tr>
         </thead>
         <tbody id="tableBody">
@@ -329,6 +297,19 @@
           <button id="btnExportXLSX" class="btn">📊 Excel İndir (.xlsx)</button>
           <button id="btnExportPDF" class="btn btn-primary">📄 PDF İndir</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Special Condition Explanation Modal -->
+  <div id="condModal" class="modal-overlay">
+    <div class="modal-content" style="max-width:550px;">
+      <div class="modal-header">
+        <h3 id="condModalTitle" style="color:var(--accent-primary);">📋 ÖSYM Özel Koşul Açıklaması</h3>
+        <button id="btnCloseCondModal" class="close-modal">&times;</button>
+      </div>
+      <div id="condModalBody" style="font-size:0.95rem; color:var(--text-primary); line-height:1.6; margin-top:14px;">
+        <!-- Condition text injected dynamically -->
       </div>
     </div>
   </div>
