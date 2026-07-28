@@ -354,40 +354,56 @@ th:hover {
 }
 
 td {
-  padding: 14px 16px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
   vertical-align: middle;
-  max-width: 300px;
-  word-break: break-word;
-  white-space: normal;
+  white-space: nowrap;
 }
 
-/* University name cell — always show full text */
+/* City / İl cell — always single line */
+th.col-city,
+td.cell-city {
+  white-space: nowrap;
+  min-width: 96px;
+  font-weight: 600;
+}
+
+/* University name cell — wraps for long names */
 td.cell-univ {
   min-width: 200px;
-  max-width: 340px;
+  max-width: 320px;
   word-break: break-word;
   white-space: normal;
   line-height: 1.45;
 }
 
-/* Program name cell */
+/* Program name cell — wraps for long names */
 td.cell-prog {
-  min-width: 160px;
-  max-width: 280px;
+  min-width: 150px;
+  max-width: 260px;
   word-break: break-word;
   white-space: normal;
+  line-height: 1.4;
 }
 
-/* Faculty / MYO cell */
+/* Faculty / MYO cell — wraps for long names */
 td.cell-fac {
-  min-width: 130px;
-  max-width: 240px;
+  min-width: 120px;
+  max-width: 220px;
   word-break: break-word;
   white-space: normal;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Tür (tip) cell — badge always stays on one line */
+th.col-tip,
+td.cell-tip {
+  white-space: nowrap;
+  min-width: 104px;
+  text-align: center;
 }
 
 tr:hover td {

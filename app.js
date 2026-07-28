@@ -308,14 +308,14 @@ function render() {
         </button>
       </td>
       <td class="code-cell">${item.code}</td>
-      <td><strong>${item.city}</strong></td>
+      <td class="cell-city"><strong>${item.city}</strong></td>
       <td class="cell-univ">
         <div>${item.univ}</div>
         <span class="badge ${badgeUnivClass}" style="margin-top:4px;">${item.univ_type}</span>
       </td>
       <td class="cell-fac">${item.fac}</td>
       <td class="cell-prog"><strong>${item.prog}</strong></td>
-      <td><span class="badge ${badgeEgitimClass}">${item.tip}</span></td>
+      <td class="cell-tip"><span class="badge ${badgeEgitimClass}">${item.tip}</span></td>
       <td><span class="badge" style="background:rgba(255,255,255,0.08);">${item.score_type}</span></td>
       <td style="text-align:center;">${item.quota_genel}</td>
       <td style="white-space:nowrap;">${condBadges}</td>
