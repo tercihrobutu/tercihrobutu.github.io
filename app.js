@@ -76,12 +76,29 @@ function getCondDescription(code) {
 // STATE MANAGEMENT
 // ============================================================
 let currentTab = 'lisans';
+
+function normalizeLeadingCodeNoise(value) {
+  const text = String(value || '').trim();
+  return text.replace(/^(?:\d+\s*,\s*)+\d+\s+(?=[A-ZÇĞİÖŞÜİÖŞÜa-zçğıöşüıâîûÄÖÜÀ-ÿ])/u, '').trim();
+}
+
+function normalizeRecord(item) {
+  if (!item || typeof item !== 'object') return item;
+  return {
+    ...item,
+    city: normalizeLeadingCodeNoise(item.city),
+    univ: normalizeLeadingCodeNoise(item.univ),
+    fac: normalizeLeadingCodeNoise(item.fac),
+    prog: normalizeLeadingCodeNoise(item.prog)
+  };
+}
+
 let dataStore = {
-  lisans: window.DATA_LISANS || [],
-  onlisans: window.DATA_ONLISANS || []
+  lisans: (window.DATA_LISANS || []).map(normalizeRecord),
+  onlisans: (window.DATA_ONLISANS || []).map(normalizeRecord)
 };
 
-let favorites = JSON.parse(localStorage.getItem('yks_tercih_favs') || '[]');
+let favorites = JSON.parse(localStorage.getItem('yks_tercih_favs') || '[]').map(normalizeRecord);
 let currentPage = 1;
 const itemsPerPage = 50;
 
@@ -409,10 +426,13 @@ function exportFavsXLSX() {
       'Eğitim Tipi': item.tip,
       'Program': item.prog,
       'Puan Türü': item.score_type,
-      'Kontenjan (Genel)': item.quota_genel,
-      'Özel Koşul Kodları': item.spec_cond,
-      '2025 Sıralama': item.rank && item.rank !== '...' ? parseInt(item.rank, 10) : item.rank,
-      '2025 Taban Puan': item.score
+      'Kontenjan (Genel)': item.quota_genel || '',
+      '34 Yaş Üstü Kadın Kontenjanı': item.quota_kadin34 || '',
+      'Okul Birincisi Kontenjanı': item.quota_okul1 || '',
+      'Şehit / Gazi Yakını Kontenjanı': item.quota_sehit_gazi || '',
+      'Özel Koşul ve Açıklamalar': item.spec_cond || '',
+      '2025 Sıralama': item.rank && item.rank !== '...' ? parseInt(item.rank, 10) : (item.rank || ''),
+      '2025 Taban Puan': item.score && item.score !== '----' ? parseFloat(item.score) : (item.score || '')
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -421,7 +441,7 @@ function exportFavsXLSX() {
     worksheet['!cols'] = [
       { wch: 6 }, { wch: 12 }, { wch: 14 }, { wch: 40 }, { wch: 18 },
       { wch: 30 }, { wch: 16 }, { wch: 40 }, { wch: 12 }, { wch: 18 },
-      { wch: 22 }, { wch: 14 }, { wch: 16 }
+      { wch: 22 }, { wch: 22 }, { wch: 24 }, { wch: 28 }, { wch: 16 }, { wch: 16 }
     ];
 
     const workbook = XLSX.utils.book_new();
