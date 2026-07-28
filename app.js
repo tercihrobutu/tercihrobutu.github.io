@@ -434,75 +434,100 @@ function exportFavsXLSX() {
 }
 
 // ============================================================
-// PDF EXPORT — html2pdf.js (Türkçe Karakter Sorunsuz)
+// PDF EXPORT — jsPDF + autoTable (En Güvenilir Yöntem)
 // ============================================================
 function exportFavsPDF() {
   if (favorites.length === 0) return alert('Listeniz boş!');
 
   try {
-    const element = document.createElement('div');
-    element.style.cssText = 'padding:20px; font-family:Arial,sans-serif; background:#fff; color:#0f172a;';
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
-    let rows = '';
-    favorites.forEach((item, idx) => {
-      const rankDisplay = item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-');
-      const scoreDisplay = item.score && item.score !== '----' ? parseFloat(item.score).toFixed(3) : '-';
-      const bg = idx % 2 === 0 ? '#f8fafc' : '#ffffff';
-      rows += `
-        <tr style="background:${bg}; border-bottom:1px solid #e2e8f0;">
-          <td style="padding:8px; text-align:center; font-weight:bold; color:#6366f1; width:32px;">${idx + 1}</td>
-          <td style="padding:8px; font-family:monospace; font-size:10px; color:#4f46e5;">${item.code}</td>
-          <td style="padding:8px; font-size:10px;">${item.city}</td>
-          <td style="padding:8px; font-size:10px;">${item.univ}</td>
-          <td style="padding:8px; font-size:10px; font-weight:bold;">${item.prog}</td>
-          <td style="padding:8px; text-align:center; font-size:10px;">${item.score_type}</td>
-          <td style="padding:8px; text-align:right; font-weight:bold; color:#6366f1; font-size:10px;">${rankDisplay}</td>
-          <td style="padding:8px; text-align:right; font-size:10px;">${scoreDisplay}</td>
-        </tr>`;
+    // ---- Başlık ----
+    doc.setFillColor(79, 70, 229);
+    doc.rect(0, 0, 297, 20, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('2026 YKS TERCIH LISTEM', 14, 13);
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`tercihrobutu.github.io  |  ${new Date().toLocaleDateString('tr-TR')}  |  Toplam: ${favorites.length} Program`, 150, 13);
+
+    // ---- Tablo Verisi ----
+    const tableData = favorites.map((item, idx) => {
+      const rank = item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-');
+      const score = item.score && item.score !== '----' ? parseFloat(item.score).toFixed(3) : '-';
+
+      // Türkçe karakterleri ASCII'ye dönüştür (jsPDF built-in font için)
+      const toAscii = s => String(s || '')
+        .replace(/Ğ/g,'G').replace(/ğ/g,'g')
+        .replace(/Ü/g,'U').replace(/ü/g,'u')
+        .replace(/Ş/g,'S').replace(/ş/g,'s')
+        .replace(/İ/g,'I').replace(/ı/g,'i')
+        .replace(/Ö/g,'O').replace(/ö/g,'o')
+        .replace(/Ç/g,'C').replace(/ç/g,'c');
+
+      return [
+        idx + 1,
+        item.code,
+        toAscii(item.city),
+        toAscii(item.univ),
+        toAscii(item.prog),
+        item.score_type,
+        rank,
+        score
+      ];
     });
 
-    element.innerHTML = `
-      <div style="border-bottom:3px solid #6366f1; padding-bottom:14px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <div style="font-size:20px; font-weight:900; color:#1e1b4b;">2026 YKS TERCIH LISTEM</div>
-          <div style="font-size:11px; color:#64748b; margin-top:4px;">tercihrobutu.github.io | ${new Date().toLocaleDateString('tr-TR')}</div>
-        </div>
-        <div style="background:#ede9fe; color:#4338ca; padding:8px 16px; border-radius:8px; font-weight:bold; font-size:13px;">
-          Toplam: ${favorites.length} Program
-        </div>
-      </div>
-      <table style="width:100%; border-collapse:collapse; font-size:10px;">
-        <thead>
-          <tr style="background:#4f46e5; color:white;">
-            <th style="padding:10px; text-align:center; width:32px;">#</th>
-            <th style="padding:10px;">OSYM Kodu</th>
-            <th style="padding:10px;">Il</th>
-            <th style="padding:10px;">Universite</th>
-            <th style="padding:10px;">Program</th>
-            <th style="padding:10px; text-align:center;">Puan</th>
-            <th style="padding:10px; text-align:right;">Siralama</th>
-            <th style="padding:10px; text-align:right;">Puan</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <div style="margin-top:24px; border-top:1px solid #cbd5e1; padding-top:10px; text-align:center; font-size:9px; color:#94a3b8;">
-        Bu liste tercihrobutu.github.io uzerinden olusturulmustur. Veriler OSYM 2026 YKS kilavuzuna dayanmaktadir.
-      </div>
-    `;
+    doc.autoTable({
+      startY: 24,
+      head: [['#', 'OSYM Kodu', 'Il', 'Universite', 'Program', 'Puan Turu', 'Siralama', '2025 Puan']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [99, 102, 241],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 9,
+        halign: 'center'
+      },
+      bodyStyles: {
+        fontSize: 8,
+        cellPadding: 3
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252]
+      },
+      columnStyles: {
+        0: { cellWidth: 10, halign: 'center', fontStyle: 'bold', textColor: [99, 102, 241] },
+        1: { cellWidth: 26, fontStyle: 'bold', textColor: [79, 70, 229] },
+        2: { cellWidth: 22 },
+        3: { cellWidth: 60 },
+        4: { cellWidth: 70 },
+        5: { cellWidth: 18, halign: 'center' },
+        6: { cellWidth: 24, halign: 'right', fontStyle: 'bold', textColor: [99, 102, 241] },
+        7: { cellWidth: 24, halign: 'right' }
+      },
+      margin: { left: 10, right: 10 },
+      didDrawPage: (data) => {
+        // Footer
+        const pageCount = doc.internal.getNumberOfPages();
+        doc.setFontSize(8);
+        doc.setTextColor(148, 163, 184);
+        doc.text(
+          `Sayfa ${data.pageNumber} / ${pageCount}   |   tercihrobutu.github.io`,
+          148, 207, { align: 'center' }
+        );
+      }
+    });
 
-    const opt = {
-      margin: [8, 8, 8, 8],
-      filename: 'YKS_Tercih_Listem_2026.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-    };
-
-    html2pdf().set(opt).from(element).save();
+    doc.save('YKS_Tercih_Listem_2026.pdf');
   } catch (err) {
     console.error('PDF export error:', err);
-    alert('PDF olusturulurken bir hata olustu.');
+    alert('PDF olusturulurken bir hata olustu: ' + err.message);
   }
 }
 
