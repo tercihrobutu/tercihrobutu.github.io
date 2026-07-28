@@ -76,29 +76,12 @@ function getCondDescription(code) {
 // STATE MANAGEMENT
 // ============================================================
 let currentTab = 'lisans';
-
-function normalizeLeadingCodeNoise(value) {
-  const text = String(value || '').trim();
-  return text.replace(/^(?:\d+\s*,\s*)+\d+\s+(?=[A-ZÇĞİÖŞÜİÖŞÜa-zçğıöşüıâîûÄÖÜÀ-ÿ])/u, '').trim();
-}
-
-function normalizeRecord(item) {
-  if (!item || typeof item !== 'object') return item;
-  return {
-    ...item,
-    city: normalizeLeadingCodeNoise(item.city),
-    univ: normalizeLeadingCodeNoise(item.univ),
-    fac: normalizeLeadingCodeNoise(item.fac),
-    prog: normalizeLeadingCodeNoise(item.prog)
-  };
-}
-
 let dataStore = {
-  lisans: (window.DATA_LISANS || []).map(normalizeRecord),
-  onlisans: (window.DATA_ONLISANS || []).map(normalizeRecord)
+  lisans: window.DATA_LISANS || [],
+  onlisans: window.DATA_ONLISANS || []
 };
 
-let favorites = JSON.parse(localStorage.getItem('yks_tercih_favs') || '[]').map(normalizeRecord);
+let favorites = JSON.parse(localStorage.getItem('yks_tercih_favs') || '[]');
 let currentPage = 1;
 const itemsPerPage = 50;
 
