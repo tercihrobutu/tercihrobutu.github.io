@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tercihrobutu.github.io/sitemap.xml
