@@ -52,9 +52,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
-  <!-- jsPDF & AutoTable Libraries for PDF Generation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <!-- SheetJS (Excel .xlsx) & html2pdf (PDF with full Turkish Unicode) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- JSON-LD Structured Data for Google Rich Snippets -->
   <script type="application/ld+json">
@@ -283,7 +283,7 @@
 
         <div class="faq-item">
           <div class="faq-question">Tercih Robotunda Favori Listenizi Nasıl İndirebilirsiniz? <span class="faq-arrow">▼</span></div>
-          <div class="faq-answer">Beğendiğiniz programların yanındaki yıldız (⭐) butonuna basarak listenize ekleyebilir, ardından "Tercih Listem" butonundan PDF veya Excel belgesi olarak bilgisayarınıza indirebilirsiniz.</div>
+          <div class="faq-answer">Beğendiğiniz programların yanındaki yıldız (⭐) butonuna basarak listenize ekleyebilir, ardından "Tercih Listem" butonundan PDF veya Excel (.xlsx) belgesi olarak bilgisayarınıza indirebilirsiniz.</div>
         </div>
 
         <div class="faq-item">
@@ -302,7 +302,7 @@
         <h2>⭐ Tercih Listem</h2>
         <button id="btnCloseModal" class="close-modal">&times;</button>
       </div>
-      <p style="color:var(--text-secondary); margin-bottom:16px;">Kaydettiğiniz programlar. Listenizi kontrol edebilir, PDF veya Excel/CSV olarak indirebilirsiniz.</p>
+      <p style="color:var(--text-secondary); margin-bottom:16px;">Kaydettiğiniz programlar. Listenizi kontrol edebilir, PDF veya Excel (.xlsx) olarak indirebilirsiniz.</p>
       
       <div class="table-wrap">
         <table>
@@ -326,7 +326,7 @@
       <div style="margin-top:20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
         <button id="btnClearFavs" class="btn" style="color:#f87171;">Tümünü Temizle</button>
         <div style="display:flex; gap:10px;">
-          <button id="btnExportCSV" class="btn">Excel / CSV</button>
+          <button id="btnExportXLSX" class="btn">📊 Excel İndir (.xlsx)</button>
           <button id="btnExportPDF" class="btn btn-primary">📄 PDF İndir</button>
         </div>
       </div>

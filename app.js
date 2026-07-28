@@ -102,7 +102,11 @@ function setupEventListeners() {
   document.getElementById('btnOpenList').addEventListener('click', openFavModal);
   document.getElementById('btnCloseModal').addEventListener('click', closeFavModal);
   document.getElementById('btnClearFavs').addEventListener('click', clearFavs);
-  document.getElementById('btnExportCSV').addEventListener('click', exportFavsCSV);
+
+  const btnExportXLSX = document.getElementById('btnExportXLSX');
+  if (btnExportXLSX) {
+    btnExportXLSX.addEventListener('click', exportFavsXLSX);
+  }
 
   const btnExportPDF = document.getElementById('btnExportPDF');
   if (btnExportPDF) {
@@ -307,70 +311,106 @@ function clearFavs() {
   }
 }
 
-function exportFavsCSV() {
+// Real XLSX Excel Export using SheetJS
+function exportFavsXLSX() {
   if (favorites.length === 0) return alert('Listeniz boş!');
-  
-  let csv = 'Sıra,ÖSYM Kodu,İl,Üniversite,Üniversite Türü,Fakülte,Eğitim Tipi,Program,Puan Türü,Kontenjan,Sıralama,Puan\n';
-  favorites.forEach((item, idx) => {
-    csv += `"${idx + 1}","${item.code}","${item.city}","${item.univ}","${item.univ_type}","${item.fac}","${item.tip}","${item.prog}","${item.score_type}","${item.quota_genel}","${item.rank}","${item.score}"\n`;
-  });
 
-  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'YKS_Tercih_Listem_2026.csv';
-  a.click();
+  try {
+    const data = favorites.map((item, idx) => ({
+      'Sıra': idx + 1,
+      'ÖSYM Kodu': item.code,
+      'İl': item.city,
+      'Üniversite': item.univ,
+      'Üniversite Türü': item.univ_type,
+      'Fakülte': item.fac,
+      'Eğitim Tipi': item.tip,
+      'Program': item.prog,
+      'Puan Türü': item.score_type,
+      'Kontenjan': item.quota_genel,
+      '2025 Sıralama': item.rank && item.rank !== '...' ? parseInt(item.rank, 10) : item.rank,
+      '2025 Puan': item.score
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Tercih Listem");
+    XLSX.writeFile(workbook, "YKS_Tercih_Listem_2026.xlsx");
+  } catch (err) {
+    console.error('XLSX export error:', err);
+    alert('Excel dosyası oluşturulurken bir hata oluştu.');
+  }
 }
 
+// Perfect PDF Export using html2pdf (100% Turkish Unicode Glyph Rendering)
 function exportFavsPDF() {
   if (favorites.length === 0) return alert('Listeniz boş!');
 
   try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('portrait', 'mm', 'a4');
+    const element = document.createElement('div');
+    element.style.padding = '20px';
+    element.style.fontFamily = "'Outfit', 'Inter', Arial, sans-serif";
+    element.style.color = '#0f172a';
+    element.style.background = '#ffffff';
 
-    doc.setFontSize(16);
-    doc.setTextColor(31, 41, 55);
-    doc.text("2026 YKS Tercih Listem", 14, 18);
-
-    doc.setFontSize(9);
-    doc.setTextColor(100, 116, 139);
-    doc.text(`Oluşturulma Tarihi: ${new Date().toLocaleDateString('tr-TR')} | Toplam Tercih: ${favorites.length} Program`, 14, 25);
-    doc.text("Kaynak: tercihrobutu.github.io", 14, 30);
-
-    const tableData = favorites.map((item, index) => [
-      index + 1,
-      item.code,
-      item.city,
-      item.univ,
-      item.prog,
-      item.score_type,
-      item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-')
-    ]);
-
-    doc.autoTable({
-      startY: 35,
-      head: [['#', 'ÖSYM Kodu', 'İl', 'Üniversite', 'Program', 'Tür', 'Sıralama']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: { fillColor: [99, 102, 241], textColor: [255, 255, 255], fontStyle: 'bold' },
-      styles: { fontSize: 8, cellPadding: 3 },
-      columnStyles: {
-        0: { cellWidth: 10 },
-        1: { cellWidth: 26 },
-        2: { cellWidth: 22 },
-        3: { cellWidth: 45 },
-        4: { cellWidth: 50 },
-        5: { cellWidth: 14 },
-        6: { cellWidth: 22 }
-      }
+    let tableRows = '';
+    favorites.forEach((item, idx) => {
+      const rankDisplay = item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-');
+      tableRows += `
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:10px; font-weight:bold; text-align:center; color:#6366f1;">${idx + 1}</td>
+          <td style="padding:10px; font-family:monospace; font-weight:bold; color:#4f46e5;">${item.code}</td>
+          <td style="padding:10px;">${item.city}</td>
+          <td style="padding:10px;">${item.univ}</td>
+          <td style="padding:10px; font-weight:bold;">${item.prog}</td>
+          <td style="padding:10px; text-align:center;">${item.score_type}</td>
+          <td style="padding:10px; text-align:right; font-weight:bold; color:#6366f1;">${rankDisplay}</td>
+        </tr>
+      `;
     });
 
-    doc.save('YKS_Tercih_Listem_2026.pdf');
+    element.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:3px solid #6366f1; padding-bottom:12px;">
+        <div>
+          <h1 style="font-size:22px; color:#1e1b4b; margin:0; font-weight:800;">🎓 2026 YKS TERCIH LISTEM</h1>
+          <p style="font-size:12px; color:#64748b; margin:6px 0 0;">Kaynak: tercihrobutu.github.io | Tarih: ${new Date().toLocaleDateString('tr-TR')}</p>
+        </div>
+        <div style="font-size:13px; font-weight:bold; background:#e0e7ff; color:#4338ca; padding:8px 16px; border-radius:8px;">
+          Toplam: ${favorites.length} Program
+        </div>
+      </div>
+      <table style="width:100%; border-collapse:collapse; font-size:11px; text-align:left;">
+        <thead>
+          <tr style="background:#4f46e5; color:white;">
+            <th style="padding:10px; width:35px; text-align:center;">#</th>
+            <th style="padding:10px;">ÖSYM Kodu</th>
+            <th style="padding:10px;">İl</th>
+            <th style="padding:10px;">Üniversite</th>
+            <th style="padding:10px;">Program</th>
+            <th style="padding:10px; text-align:center;">Puan Türü</th>
+            <th style="padding:10px; text-align:right;">2025 Sıralama</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>
+      <div style="margin-top:30px; border-top:1px solid #cbd5e1; padding-top:10px; font-size:10px; color:#94a3b8; text-align:center;">
+        Bu tercih listesi tercihrobutu.github.io YKS Tercih Robotu sistemi üzerinden oluşturulmuştur.
+      </div>
+    `;
+
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: 'YKS_Tercih_Listem_2026.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
   } catch (err) {
     console.error('PDF export error:', err);
-    alert('PDF oluşturulurken bir hata oluştu. Lütfen bağlantınızı kontrol ediniz.');
+    alert('PDF oluşturulurken bir hata oluştu.');
   }
 }
 
