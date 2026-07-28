@@ -70,6 +70,39 @@
     }
   }
   </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "2026 YKS tercihleri ne zaman yapılacak?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "2026-YKS tercih dönemi ÖSYM tarafından ilan edilecek tarihler arasında ÖSYM AİS (Aday İşlemleri Sistemi) üzerinden gerçekleştirilecektir."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Üniversite tercihi yaparken puan mı başarı sırası mı önemlidir?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Üniversite tercihlerinde en kritik kriter Başarı Sıralamasıdır. Sınavın zorluk derecesine göre puanlar her yıl değişebilir ancak başarı sıralamaları daha istikrarlı kılavuzluk sağlar."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "ÖSYM Tablo 3 ve Tablo 4 ne anlama gelir?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Tablo-3, 2 yıllık Ön Lisans (TYT) programlarını kapsar. Tablo-4 ise 4, 5 ve 6 yıllık Lisans (AYT - SAY, EA, SÖZ, DİL) programlarını içerir."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 
@@ -250,7 +283,7 @@
 
         <div class="faq-item">
           <div class="faq-question">Tercih Robotunda Favori Listenizi Nasıl İndirebilirsiniz? <span class="faq-arrow">▼</span></div>
-          <div class="faq-answer">Beğendiğiniz programların yanındaki yıldız (⭐) butonuna basarak listenize ekleyebilir, ardından "Tercih Listem" butonundan PDF belgesi olarak bilgisayarınıza indirebilirsiniz.</div>
+          <div class="faq-answer">Beğendiğiniz programların yanındaki yıldız (⭐) butonuna basarak listenize ekleyebilir, ardından "Tercih Listem" butonundan PDF veya Excel belgesi olarak bilgisayarınıza indirebilirsiniz.</div>
         </div>
 
         <div class="faq-item">
@@ -269,13 +302,13 @@
         <h2>⭐ Tercih Listem</h2>
         <button id="btnCloseModal" class="close-modal">&times;</button>
       </div>
-      <p style="color:var(--text-secondary); margin-bottom:16px;">Kaydettiğiniz programlar. Listenizi kontrol edebilir ve <strong>PDF İndir</strong> butonuna basarak bilgisayarınıza/telefonunuza belge olarak indirebilirsiniz.</p>
+      <p style="color:var(--text-secondary); margin-bottom:16px;">Kaydettiğiniz programlar. Listenizi kontrol edebilir, PDF veya Excel/CSV olarak indirebilirsiniz.</p>
       
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Sıra</th>
+              <th style="width:30px;">#</th>
               <th>Kod</th>
               <th>Üniversite</th>
               <th>Program</th>
