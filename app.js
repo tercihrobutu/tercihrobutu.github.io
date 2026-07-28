@@ -309,12 +309,12 @@ function render() {
       </td>
       <td class="code-cell">${item.code}</td>
       <td><strong>${item.city}</strong></td>
-      <td>
-        <div style="font-size:0.9rem;">${item.univ}</div>
+      <td class="cell-univ">
+        <div>${item.univ}</div>
         <span class="badge ${badgeUnivClass}" style="margin-top:4px;">${item.univ_type}</span>
       </td>
-      <td style="color:var(--text-secondary); font-size:0.85rem;">${item.fac}</td>
-      <td><strong>${item.prog}</strong></td>
+      <td class="cell-fac">${item.fac}</td>
+      <td class="cell-prog"><strong>${item.prog}</strong></td>
       <td><span class="badge ${badgeEgitimClass}">${item.tip}</span></td>
       <td><span class="badge" style="background:rgba(255,255,255,0.08);">${item.score_type}</span></td>
       <td style="text-align:center;">${item.quota_genel}</td>

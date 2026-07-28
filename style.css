@@ -335,6 +335,7 @@ table {
   border-collapse: collapse;
   text-align: left;
   font-size: 0.9rem;
+  table-layout: auto;
 }
 
 th {
@@ -357,6 +358,36 @@ td {
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
   vertical-align: middle;
+  max-width: 300px;
+  word-break: break-word;
+  white-space: normal;
+}
+
+/* University name cell — always show full text */
+td.cell-univ {
+  min-width: 200px;
+  max-width: 340px;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.45;
+}
+
+/* Program name cell */
+td.cell-prog {
+  min-width: 160px;
+  max-width: 280px;
+  word-break: break-word;
+  white-space: normal;
+}
+
+/* Faculty / MYO cell */
+td.cell-fac {
+  min-width: 130px;
+  max-width: 240px;
+  word-break: break-word;
+  white-space: normal;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
 tr:hover td {
@@ -598,5 +629,7 @@ footer a:hover {
   .hero h1 { font-size: 1.8rem; }
   .filters-grid { grid-template-columns: 1fr; }
   th, td { padding: 10px 12px; font-size: 0.82rem; }
+  td.cell-univ { min-width: 160px; max-width: 220px; }
+  td.cell-prog { min-width: 120px; max-width: 180px; }
   .seo-section { padding: 20px; }
 }
