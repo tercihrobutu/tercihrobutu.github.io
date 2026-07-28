@@ -103,6 +103,11 @@ function setupEventListeners() {
   document.getElementById('btnCloseModal').addEventListener('click', closeFavModal);
   document.getElementById('btnClearFavs').addEventListener('click', clearFavs);
   document.getElementById('btnExportCSV').addEventListener('click', exportFavsCSV);
+
+  const btnExportPDF = document.getElementById('btnExportPDF');
+  if (btnExportPDF) {
+    btnExportPDF.addEventListener('click', exportFavsPDF);
+  }
 }
 
 // FAQ Accordion Interactivity
@@ -272,14 +277,15 @@ function renderFavModal() {
   favBody.innerHTML = '';
 
   if (favorites.length === 0) {
-    favBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted);">Henüz tercih listenize program eklemediniz. Yıldız butonuna basarak ekleyebilirsiniz.</td></tr>`;
+    favBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">Henüz tercih listenize program eklemediniz. Yıldız butonuna basarak ekleyebilirsiniz.</td></tr>`;
     return;
   }
 
-  favorites.forEach(item => {
+  favorites.forEach((item, idx) => {
     const rankDisplay = item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-');
     const tr = document.createElement('tr');
     tr.innerHTML = `
+      <td style="font-weight:700; color:var(--accent-primary);">${idx + 1}</td>
       <td class="code-cell">${item.code}</td>
       <td>${item.univ}</td>
       <td><strong>${item.prog}</strong></td>
@@ -304,9 +310,9 @@ function clearFavs() {
 function exportFavsCSV() {
   if (favorites.length === 0) return alert('Listeniz boş!');
   
-  let csv = 'ÖSYM Kodu,İl,Üniversite,Üniversite Türü,Fakülte,Eğitim Tipi,Program,Puan Türü,Kontenjan,Sıralama,Puan\n';
-  favorites.forEach(item => {
-    csv += `"${item.code}","${item.city}","${item.univ}","${item.univ_type}","${item.fac}","${item.tip}","${item.prog}","${item.score_type}","${item.quota_genel}","${item.rank}","${item.score}"\n`;
+  let csv = 'Sıra,ÖSYM Kodu,İl,Üniversite,Üniversite Türü,Fakülte,Eğitim Tipi,Program,Puan Türü,Kontenjan,Sıralama,Puan\n';
+  favorites.forEach((item, idx) => {
+    csv += `"${idx + 1}","${item.code}","${item.city}","${item.univ}","${item.univ_type}","${item.fac}","${item.tip}","${item.prog}","${item.score_type}","${item.quota_genel}","${item.rank}","${item.score}"\n`;
   });
 
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -315,6 +321,57 @@ function exportFavsCSV() {
   a.href = url;
   a.download = 'YKS_Tercih_Listem_2026.csv';
   a.click();
+}
+
+function exportFavsPDF() {
+  if (favorites.length === 0) return alert('Listeniz boş!');
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('portrait', 'mm', 'a4');
+
+    doc.setFontSize(16);
+    doc.setTextColor(31, 41, 55);
+    doc.text("2026 YKS Tercih Listem", 14, 18);
+
+    doc.setFontSize(9);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Oluşturulma Tarihi: ${new Date().toLocaleDateString('tr-TR')} | Toplam Tercih: ${favorites.length} Program`, 14, 25);
+    doc.text("Kaynak: tercihrobutu.github.io", 14, 30);
+
+    const tableData = favorites.map((item, index) => [
+      index + 1,
+      item.code,
+      item.city,
+      item.univ,
+      item.prog,
+      item.score_type,
+      item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-')
+    ]);
+
+    doc.autoTable({
+      startY: 35,
+      head: [['#', 'ÖSYM Kodu', 'İl', 'Üniversite', 'Program', 'Tür', 'Sıralama']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [99, 102, 241], textColor: [255, 255, 255], fontStyle: 'bold' },
+      styles: { fontSize: 8, cellPadding: 3 },
+      columnStyles: {
+        0: { cellWidth: 10 },
+        1: { cellWidth: 26 },
+        2: { cellWidth: 22 },
+        3: { cellWidth: 45 },
+        4: { cellWidth: 50 },
+        5: { cellWidth: 14 },
+        6: { cellWidth: 22 }
+      }
+    });
+
+    doc.save('YKS_Tercih_Listem_2026.pdf');
+  } catch (err) {
+    console.error('PDF export error:', err);
+    alert('PDF oluşturulurken bir hata oluştu. Lütfen bağlantınızı kontrol ediniz.');
+  }
 }
 
 // Theme Switcher

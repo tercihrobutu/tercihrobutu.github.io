@@ -52,6 +52,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
+  <!-- jsPDF & AutoTable Libraries for PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
   <!-- JSON-LD Structured Data for Google Rich Snippets -->
   <script type="application/ld+json">
   {
@@ -64,39 +68,6 @@
       "target": "https://tercihrobutu.github.io/?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
-  }
-  </script>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "2026 YKS tercihleri ne zaman yapılacak?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "2026-YKS tercih dönemi ÖSYM tarafından ilan edilecek tarihler arasında ÖSYM AİS (Aday İşlemleri Sistemi) üzerinden gerçekleştirilecektir."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Üniversite tercihi yaparken puan mı başarı sırası mı önemlidir?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Üniversite tercihlerinde en kritik kriter Başarı Sıralamasıdır. Sınavın zorluk derecesine göre puanlar her yıl değişebilir ancak başarı sıralamaları daha istikrarlı kılavuzluk sağlar."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "ÖSYM Tablo 3 ve Tablo 4 ne anlama gelir?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Tablo-3, 2 yıllık Ön Lisans (TYT) programlarını kapsar. Tablo-4 ise 4, 5 ve 6 yıllık Lisans (AYT - SAY, EA, SÖZ, DİL) programlarını içerir."
-        }
-      }
-    ]
   }
   </script>
 </head>
@@ -279,7 +250,7 @@
 
         <div class="faq-item">
           <div class="faq-question">Tercih Robotunda Favori Listenizi Nasıl İndirebilirsiniz? <span class="faq-arrow">▼</span></div>
-          <div class="faq-answer">Beğendiğiniz programların yanındaki yıldız (⭐) butonuna basarak listenize ekleyebilir, ardından "Tercih Listem" butonundan Excel veya CSV olarak bilgisayarınıza indirebilirsiniz.</div>
+          <div class="faq-answer">Beğendiğiniz programların yanındaki yıldız (⭐) butonuna basarak listenize ekleyebilir, ardından "Tercih Listem" butonundan PDF belgesi olarak bilgisayarınıza indirebilirsiniz.</div>
         </div>
 
         <div class="faq-item">
@@ -298,12 +269,13 @@
         <h2>⭐ Tercih Listem</h2>
         <button id="btnCloseModal" class="close-modal">&times;</button>
       </div>
-      <p style="color:var(--text-secondary); margin-bottom:16px;">Kaydettiğiniz programlar. Listenizi kontrol edebilir ve Excel/CSV olarak indirebilirsiniz.</p>
+      <p style="color:var(--text-secondary); margin-bottom:16px;">Kaydettiğiniz programlar. Listenizi kontrol edebilir ve <strong>PDF İndir</strong> butonuna basarak bilgisayarınıza/telefonunuza belge olarak indirebilirsiniz.</p>
       
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
+              <th>Sıra</th>
               <th>Kod</th>
               <th>Üniversite</th>
               <th>Program</th>
@@ -318,9 +290,12 @@
         </table>
       </div>
 
-      <div style="margin-top:20px; display:flex; justify-content:space-between;">
+      <div style="margin-top:20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
         <button id="btnClearFavs" class="btn" style="color:#f87171;">Tümünü Temizle</button>
-        <button id="btnExportCSV" class="btn btn-primary">Excel / CSV İndir</button>
+        <div style="display:flex; gap:10px;">
+          <button id="btnExportCSV" class="btn">Excel / CSV</button>
+          <button id="btnExportPDF" class="btn btn-primary">📄 PDF İndir</button>
+        </div>
       </div>
     </div>
   </div>
