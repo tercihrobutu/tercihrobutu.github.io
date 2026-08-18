@@ -455,7 +455,12 @@ function render() {
     const badgeEgitimClass = item.tip === 'Uzaktan' ? 'badge-uzaktan' : (item.tip === 'AÖF' ? 'badge-aof' : 'badge-orgun');
 
     const rankDisplay = item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-');
-    const scoreDisplay = item.score && item.score !== '----' ? parseFloat(item.score).toFixed(5) : '-';
+    const placedCount = item.quota_placed !== undefined && item.quota_placed !== null ? item.quota_placed : '-';
+    const emptyCount = item.quota_empty !== undefined && item.quota_empty !== null ? item.quota_empty : 0;
+
+    const emptyBadge = emptyCount > 0
+      ? `<span class="badge" style="background:rgba(239, 68, 68, 0.2); color:#f87171; font-weight:800;">${emptyCount}</span>`
+      : `<span class="badge badge-devlet" style="font-size:0.75rem; opacity:0.8;">Doldu</span>`;
 
     const condBadges = buildCondBadges(item.spec_cond, item.prog);
 
@@ -468,17 +473,21 @@ function render() {
       <td class="code-cell">${item.code}</td>
       <td class="cell-city"><strong>${item.city}</strong></td>
       <td class="cell-univ">
-        <div>${item.univ}</div>
-        <span class="badge ${badgeUnivClass}" style="margin-top:4px;">${item.univ_type}</span>
+        <div style="font-weight:700; color:var(--text-primary); font-size:0.85rem; line-height:1.3;">${item.univ}</div>
+        <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">${item.fac}</div>
+        <span class="badge ${badgeUnivClass}" style="margin-top:3px; font-size:0.7rem; padding:1px 6px;">${item.univ_type}</span>
       </td>
-      <td class="cell-fac">${item.fac}</td>
-      <td class="cell-prog"><strong>${item.prog}</strong></td>
-      <td class="cell-tip"><span class="badge ${badgeEgitimClass}">${item.tip}</span></td>
-      <td><span class="badge" style="background:rgba(255,255,255,0.08);">${item.score_type}</span></td>
-      <td style="text-align:center;">${item.quota_genel}</td>
+      <td class="cell-prog">
+        <div style="font-weight:700; color:var(--text-primary); font-size:0.85rem; line-height:1.3;">${item.prog}</div>
+        <span class="badge ${badgeEgitimClass}" style="margin-top:3px; font-size:0.7rem; padding:1px 6px;">${item.tip}</span>
+      </td>
+      <td><span class="badge" style="background:rgba(255,255,255,0.08); font-size:0.75rem;">${item.score_type}</span></td>
+      <td style="text-align:center; font-weight:600;">${item.quota_genel || 0}</td>
+      <td style="text-align:center; font-weight:600; color:#38bdf8;">${placedCount}</td>
+      <td style="text-align:center;">${emptyBadge}</td>
       <td style="white-space:nowrap;">${condBadges}</td>
       <td style="text-align:right; font-weight:700; color:var(--accent-primary);">${rankDisplay}</td>
-      <td style="text-align:right; font-weight:600;">${scoreDisplay}</td>
+      <td style="text-align:right; font-weight:700; color:var(--text-primary);">${scoreDisplay}</td>
     `;
     tableBody.appendChild(tr);
   });

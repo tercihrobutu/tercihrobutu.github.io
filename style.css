@@ -300,6 +300,12 @@ header {
   border-color: var(--accent-primary);
 }
 
+.container {
+  max-width: 1550px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
 /* Results & Table Header */
 .results-meta {
   display: flex;
@@ -334,19 +340,20 @@ table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 0.9rem;
+  font-size: 0.84rem;
   table-layout: auto;
 }
 
 th {
-  background: rgba(15, 23, 42, 0.8);
-  padding: 14px 16px;
+  background: rgba(15, 23, 42, 0.85);
+  padding: 10px 10px;
   font-weight: 700;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
   cursor: pointer;
   user-select: none;
+  font-size: 0.82rem;
 }
 
 th:hover {
@@ -354,55 +361,39 @@ th:hover {
 }
 
 td {
-  padding: 12px 14px;
+  padding: 8px 10px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
   vertical-align: middle;
-  white-space: nowrap;
 }
 
 /* City / İl cell — always single line */
 th.col-city,
 td.cell-city {
   white-space: nowrap;
-  min-width: 96px;
   font-weight: 600;
 }
 
-/* University name cell — wraps for long names */
+/* University & Faculty combined cell */
 td.cell-univ {
-  min-width: 200px;
-  max-width: 320px;
-  word-break: break-word;
-  white-space: normal;
-  line-height: 1.45;
-}
-
-/* Program name cell — wraps for long names */
-td.cell-prog {
-  min-width: 150px;
+  min-width: 170px;
   max-width: 260px;
   word-break: break-word;
-  white-space: normal;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
-/* Faculty / MYO cell — wraps for long names */
-td.cell-fac {
-  min-width: 120px;
-  max-width: 220px;
+/* Program name cell */
+td.cell-prog {
+  min-width: 150px;
+  max-width: 240px;
   word-break: break-word;
-  white-space: normal;
-  font-size: 0.84rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
-/* Tür (tip) cell — badge always stays on one line */
+/* Tür (tip) cell */
 th.col-tip,
 td.cell-tip {
   white-space: nowrap;
-  min-width: 104px;
   text-align: center;
 }
 
