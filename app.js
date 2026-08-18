@@ -265,16 +265,38 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
   setupFAQAccordion();
   setupCondModal();
+  setupTrendModal();
   checkURLParams();
   populateCityFilter();
   render();
 });
 
-// Check URL Params for Search (SEO SearchAction support)
+// Check URL Params for Search & Filters (SEO Deep Linking Support)
 function checkURLParams() {
   const params = new URLSearchParams(window.location.search);
   const q = params.get('q');
+  const sehir = params.get('sehir');
+  const puan = params.get('puan');
+  const tur = params.get('tur');
+  const tab = params.get('tab');
+
+  if (tab === 'onlisans') switchTab('onlisans');
   if (q) searchInput.value = q;
+  if (sehir) filterCity.value = sehir;
+  if (puan) filterPuanType.value = puan;
+  if (tur) filterUnivType.value = tur;
+}
+
+function updateURLParams() {
+  const params = new URLSearchParams();
+  if (searchInput.value.trim()) params.set('q', searchInput.value.trim());
+  if (filterCity.value) params.set('sehir', filterCity.value);
+  if (filterPuanType.value) params.set('puan', filterPuanType.value);
+  if (filterUnivType.value) params.set('tur', filterUnivType.value);
+  if (currentTab !== 'lisans') params.set('tab', currentTab);
+
+  const newRelativePathQuery = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+  window.history.replaceState(null, '', newRelativePathQuery);
 }
 
 // Switch Tab
@@ -306,7 +328,7 @@ function populateCityFilter() {
 // Event Listeners
 function setupEventListeners() {
   [searchInput, filterCity, filterUnivType, filterPuanType, filterEgitimType, filterMaxRank, sortBySelect]
-    .forEach(el => el.addEventListener('input', () => { currentPage = 1; render(); }));
+    .forEach(el => el.addEventListener('input', () => { currentPage = 1; updateURLParams(); render(); }));
 
   prevPageBtn.addEventListener('click', () => {
     if (currentPage > 1) { currentPage--; render(); window.scrollTo({ top: 400, behavior: 'smooth' }); }
@@ -372,6 +394,181 @@ function showCondModal(codesStr, progName) {
   }
 
   bodyEl.innerHTML = html;
+  modal.classList.add('active');
+}
+
+// ============================================================
+// 2022-2026 TREND CHART MODAL (Chart.js Engine)
+// ============================================================
+let trendChartInstance = null;
+let activeTrendCode = null;
+let activeTrendMetric = 'score';
+
+function setupTrendModal() {
+  const modal = document.getElementById('trendModal');
+  const closeBtn = document.getElementById('btnCloseTrendModal');
+  if (closeBtn) closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+  if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+}
+
+function setTrendMetric(metric) {
+  activeTrendMetric = metric;
+  const btnScore = document.getElementById('btnTrendTabScore');
+  const btnRank = document.getElementById('btnTrendTabRank');
+  if (btnScore) btnScore.className = metric === 'score' ? 'btn btn-primary' : 'btn';
+  if (btnRank) btnRank.className = metric === 'rank' ? 'btn btn-primary' : 'btn';
+  if (activeTrendCode) renderTrendChart(activeTrendCode);
+}
+
+function showTrendChartModal(code) {
+  activeTrendCode = code;
+  setTrendMetric('score');
+}
+
+function renderTrendChart(code) {
+  const dataset = [...dataStore.lisans, ...dataStore.onlisans];
+  const item = dataset.find(x => x.code === code);
+  const trendInfo = (window.DATA_YKS_TREND || {})[code];
+
+  const modal = document.getElementById('trendModal');
+  const titleEl = document.getElementById('trendModalTitle');
+  const subEl = document.getElementById('trendModalSub');
+  const badgesEl = document.getElementById('trendBadges');
+
+  if (!modal) return;
+
+  const progTitle = item ? `${item.univ} - ${item.prog}` : (trendInfo ? `${trendInfo.univ} - ${trendInfo.prog}` : `Program #${code}`);
+  titleEl.innerHTML = activeTrendMetric === 'rank' ? '📉 2022-2026 Başarı Sıralaması Grafiği' : '📈 2022-2026 Taban Puan Grafiği';
+  subEl.innerHTML = `<strong>${progTitle}</strong> (ÖSYM Kodu: ${code})`;
+
+  const years = ['2022', '2023', '2024', '2025', '2026'];
+  const history = trendInfo ? trendInfo.history : {};
+  const scores = years.map(y => (history[y] && history[y].score ? parseFloat(history[y].score.toFixed(3)) : null));
+  const ranks = years.map(y => {
+    if (history[y] && history[y].rank) return history[y].rank;
+    if (y === '2026' && item && item.rank && item.rank !== '...') return parseInt(item.rank, 10);
+    return null;
+  });
+  const quotas = years.map(y => (history[y] && history[y].quota ? history[y].quota : null));
+
+  // Compute stats
+  const validScores = scores.filter(s => s !== null);
+  const minScore = validScores.length ? Math.min(...validScores).toFixed(3) : '-';
+  const maxScore = validScores.length ? Math.max(...validScores).toFixed(3) : '-';
+  const latestRank = item && item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item ? item.rank || '-' : '-');
+
+  badgesEl.innerHTML = `
+    <div class="trend-stat-card">
+      <div class="trend-stat-val" style="color:var(--accent-primary);">${minScore}</div>
+      <div class="trend-stat-lbl">En Düşük Taban Puan</div>
+    </div>
+    <div class="trend-stat-card">
+      <div class="trend-stat-val" style="color:#34d399;">${maxScore}</div>
+      <div class="trend-stat-lbl">En Yüksek Taban Puan</div>
+    </div>
+    <div class="trend-stat-card">
+      <div class="trend-stat-val" style="color:#38bdf8;">${latestRank}</div>
+      <div class="trend-stat-lbl">2026 Güncel Sıralama</div>
+    </div>
+  `;
+
+  const canvas = document.getElementById('trendChartCanvas');
+  if (canvas && typeof Chart !== 'undefined') {
+    if (trendChartInstance) {
+      trendChartInstance.destroy();
+    }
+
+    const isRankMode = activeTrendMetric === 'rank';
+    const mainDatasetLabel = isRankMode ? 'Başarı Sıralaması' : 'Taban Puan (En Küçük Puan)';
+    const mainData = isRankMode ? ranks : scores;
+    const mainColor = isRankMode ? '#38bdf8' : '#6366f1';
+    const mainBg = isRankMode ? 'rgba(56, 189, 248, 0.15)' : 'rgba(99, 102, 241, 0.15)';
+
+    const ctx = canvas.getContext('2d');
+    trendChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['2022', '2023', '2024', '2025', '2026'],
+        datasets: [
+          {
+            label: mainDatasetLabel,
+            data: mainData,
+            borderColor: mainColor,
+            backgroundColor: mainBg,
+            borderWidth: 3,
+            pointBackgroundColor: mainColor,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            tension: 0.3,
+            fill: true,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Kontenjan',
+            data: quotas,
+            borderColor: '#34d399',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            pointBackgroundColor: '#34d399',
+            pointRadius: 4,
+            tension: 0,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            labels: { color: '#94a3b8', font: { family: 'Outfit', size: 12 } }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                if (ctx.raw === null) return `${ctx.dataset.label}: Veri Yok`;
+                if (isRankMode && ctx.datasetIndex === 0) {
+                  return `${ctx.dataset.label}: ${parseInt(ctx.raw, 10).toLocaleString('tr-TR')}. Sıra`;
+                }
+                return `${ctx.dataset.label}: ${ctx.raw}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            ticks: { color: '#94a3b8' }
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            reverse: isRankMode,
+            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            ticks: {
+              color: mainColor,
+              callback: function(value) {
+                return isRankMode ? value.toLocaleString('tr-TR') + '.' : value;
+              }
+            },
+            title: { display: true, text: mainDatasetLabel, color: mainColor }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#34d399' },
+            title: { display: true, text: 'Kontenjan', color: '#34d399' }
+          }
+        }
+      }
+    });
+  }
+
   modal.classList.add('active');
 }
 
@@ -480,7 +677,10 @@ function render() {
       </td>
       <td class="cell-prog">
         <div style="font-weight:700; color:var(--text-primary); font-size:0.85rem; line-height:1.3;">${item.prog}</div>
-        <span class="badge ${badgeEgitimClass}" style="margin-top:3px; font-size:0.7rem; padding:1px 6px;">${item.tip}</span>
+        <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:3px;">
+          <span class="badge ${badgeEgitimClass}" style="font-size:0.7rem; padding:1px 6px;">${item.tip}</span>
+          <button class="btn-trend" onclick="showTrendChartModal('${item.code}')" title="2022-2025 YKS 4 Yıllık Değişim Grafiği">📈 4 Yıllık Grafik</button>
+        </div>
       </td>
       <td><span class="badge" style="background:rgba(255,255,255,0.08); font-size:0.75rem;">${item.score_type}</span></td>
       <td style="text-align:center; font-weight:600;">${item.quota_genel || 0}</td>
