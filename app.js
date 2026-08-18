@@ -292,14 +292,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Check URL Params for Search & Filters (SEO Deep Linking Support)
 function checkURLParams() {
-  const params = new URLSearchParams(window.location.search);
-  const q = params.get('q');
-  const sehir = params.get('sehir');
-  const puan = params.get('puan');
-  const tur = params.get('tur');
-  const tab = params.get('tab');
-  const minR = params.get('min_sira');
-  const maxR = params.get('max_sira');
+  const cleanSearch = (window.location.search || '').replace(/&amp;/g, '&');
+  const params = new URLSearchParams(cleanSearch);
+  const q = params.get('q') || params.get('amp;q');
+  const sehir = params.get('sehir') || params.get('amp;sehir');
+  const puan = params.get('puan') || params.get('amp;puan');
+  const tur = params.get('tur') || params.get('amp;tur');
+  const tab = params.get('tab') || params.get('amp;tab');
+  const minR = params.get('min_sira') || params.get('amp;min_sira');
+  const maxR = params.get('max_sira') || params.get('amp;max_sira');
 
   let cleanQ = '';
   if (q) {
@@ -313,18 +314,24 @@ function checkURLParams() {
 
   // 1. Explicit Tab or TYT Score Type
   if (tab === 'onlisans' || puan === 'TYT') {
-    switchTab('onlisans');
+    currentTab = 'onlisans';
   } else if (tab === 'lisans') {
-    switchTab('lisans');
+    currentTab = 'lisans';
   } else if (cleanQ) {
     // 2. Smart auto-discovery: if 0 matches in lisans but matches exist in onlisans, switch to onlisans!
     const normQ = turkishNormalize(cleanQ);
     const lisansMatches = (dataStore.lisans || []).some(item => turkishNormalize(item.univ + ' ' + item.prog).includes(normQ));
     const onlisansMatches = (dataStore.onlisans || []).some(item => turkishNormalize(item.univ + ' ' + item.prog).includes(normQ));
     if (!lisansMatches && onlisansMatches) {
-      switchTab('onlisans');
+      currentTab = 'onlisans';
     }
   }
+
+  // Set active class on tabs without triggering reset
+  const tabLisansBtn = document.getElementById('tabLisans');
+  const tabOnlisansBtn = document.getElementById('tabOnlisans');
+  if (tabLisansBtn) tabLisansBtn.classList.toggle('active', currentTab === 'lisans');
+  if (tabOnlisansBtn) tabOnlisansBtn.classList.toggle('active', currentTab === 'onlisans');
 
   if (sehir) {
     try {
@@ -333,8 +340,8 @@ function checkURLParams() {
       selectedCities = sehir.split(',').filter(Boolean);
     }
   }
-  if (puan) filterPuanType.value = puan;
-  if (tur) filterUnivType.value = tur;
+  if (puan && filterPuanType) filterPuanType.value = puan;
+  if (tur && filterUnivType) filterUnivType.value = tur;
   if (minR && filterMinRank) filterMinRank.value = minR;
   if (maxR && filterMaxRank) filterMaxRank.value = maxR;
 }
