@@ -55,8 +55,7 @@ def build_sitemap():
     print("Loading data...")
     lisans_data = load_data(LISANS_JS, 'DATA_LISANS')
     onlisans_data = load_data(ONLISANS_JS, 'DATA_ONLISANS')
-    all_items = lisans_data + onlisans_data
-    print(f"Loaded {len(all_items)} total programs.")
+    print(f"Loaded {len(lisans_data)} lisans and {len(onlisans_data)} onlisans programs.")
 
     urls = set()
 
@@ -67,58 +66,72 @@ def build_sitemap():
 
     # 2. Education Types (AÖF, Uzaktan, Örgün)
     for tip in ['AÖF', 'Uzaktan', 'Örgün']:
-        urls.add((f"{BASE_URL}?tur={tip}", '0.85', 'weekly'))
-        urls.add((f"{BASE_URL}?tur={tip}&tab=onlisans", '0.85', 'weekly'))
+        urls.add((f"{BASE_URL}?tab=lisans&tur={tip}", '0.85', 'weekly'))
+        urls.add((f"{BASE_URL}?tab=onlisans&tur={tip}", '0.85', 'weekly'))
 
-    # 3. Score Types
-    for puan in ['SAY', 'EA', 'SÖZ', 'DİL', 'TYT']:
-        urls.add((f"{BASE_URL}?puan={puan}", '0.85', 'weekly'))
+    # 3. Score Types (TYT belongs to onlisans, SAY/EA/SÖZ/DİL belong to lisans)
+    urls.add((f"{BASE_URL}?tab=onlisans&puan=TYT", '0.85', 'weekly'))
+    for puan in ['SAY', 'EA', 'SÖZ', 'DİL']:
+        urls.add((f"{BASE_URL}?tab=lisans&puan={puan}", '0.85', 'weekly'))
 
-    # 4. Extract Unique Cities, Universities, and Departments
+    # 4. Extract Unique Cities and Universities
     cities = set()
     universities = set()
-    departments = set()
+    lisans_depts = set()
+    onlisans_depts = set()
 
-    for item in all_items:
+    for item in lisans_data:
         c = clean_noise(item.get('city', ''))
         u = clean_noise(item.get('univ', ''))
         p = clean_noise(item.get('prog', ''))
-
-        if c:
-            cities.add(to_tr_title(c))
-        if u and len(u) > 3:
-            u_clean = to_tr_title(u)
-            if len(u_clean) > 3:
-                universities.add(u_clean)
+        if c: cities.add(to_tr_title(c))
+        if u and len(u) > 3: universities.add(to_tr_title(u))
         if p and len(p) > 2:
             p_clean = to_tr_title(p)
-            if len(p_clean) > 2:
-                departments.add(p_clean)
+            if len(p_clean) > 2: lisans_depts.add(p_clean)
 
-    print(f"Extracted: {len(cities)} cities, {len(universities)} universities, {len(departments)} departments.")
+    for item in onlisans_data:
+        c = clean_noise(item.get('city', ''))
+        u = clean_noise(item.get('univ', ''))
+        p = clean_noise(item.get('prog', ''))
+        if c: cities.add(to_tr_title(c))
+        if u and len(u) > 3: universities.add(to_tr_title(u))
+        if p and len(p) > 2:
+            p_clean = to_tr_title(p)
+            if len(p_clean) > 2: onlisans_depts.add(p_clean)
 
-    # 5. Add all Cities (81 il + yurt dışı)
+    print(f"Extracted: {len(cities)} cities, {len(universities)} universities, {len(lisans_depts)} lisans depts, {len(onlisans_depts)} onlisans depts.")
+
+    # 5. Add all Cities (for both Lisans and Önlisans)
     for city in sorted(cities):
         q_city = city.replace(' ', '%20')
-        urls.add((f"{BASE_URL}?sehir={q_city}", '0.8', 'weekly'))
+        urls.add((f"{BASE_URL}?tab=lisans&sehir={q_city}", '0.8', 'weekly'))
+        urls.add((f"{BASE_URL}?tab=onlisans&sehir={q_city}", '0.8', 'weekly'))
 
-    # 6. Add all Universities (200+ universities)
+    # 6. Add all Universities (for both Lisans and Önlisans)
     for univ in sorted(universities):
         q_univ = univ.replace(' ', '%20')
-        urls.add((f"{BASE_URL}?q={q_univ}", '0.8', 'weekly'))
+        urls.add((f"{BASE_URL}?tab=lisans&q={q_univ}", '0.8', 'weekly'))
+        urls.add((f"{BASE_URL}?tab=onlisans&q={q_univ}", '0.75', 'weekly'))
 
-    # 7. Add all Departments/Programs
-    for dept in sorted(departments):
+    # 7. Add Lisans Departments explicitly under tab=lisans
+    for dept in sorted(lisans_depts):
         q_dept = dept.replace(' ', '%20')
-        urls.add((f"{BASE_URL}?q={q_dept}", '0.8', 'weekly'))
+        urls.add((f"{BASE_URL}?tab=lisans&q={q_dept}", '0.8', 'weekly'))
 
-    # 8. City + Major Score Type Combinations for major metropolitan cities
+    # 8. Add Önlisans Departments explicitly under tab=onlisans
+    for dept in sorted(onlisans_depts):
+        q_dept = dept.replace(' ', '%20')
+        urls.add((f"{BASE_URL}?tab=onlisans&q={q_dept}", '0.8', 'weekly'))
+
+    # 9. Major Cities + Score Types
     major_cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Eskişehir', 'Kocaeli', 'Gaziantep', 'Samsun', 'Trabzon', 'Kayseri', 'Osmaniye']
     for mc in major_cities:
         if mc in cities:
             q_mc = mc.replace(' ', '%20')
-            for puan in ['SAY', 'EA', 'SÖZ', 'TYT']:
-                urls.add((f"{BASE_URL}?sehir={q_mc}&puan={puan}", '0.75', 'weekly'))
+            urls.add((f"{BASE_URL}?tab=onlisans&sehir={q_mc}&puan=TYT", '0.75', 'weekly'))
+            for puan in ['SAY', 'EA', 'SÖZ']:
+                urls.add((f"{BASE_URL}?tab=lisans&sehir={q_mc}&puan={puan}", '0.75', 'weekly'))
 
     print(f"Total unique URLs generated in sitemap: {len(urls)}")
 

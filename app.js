@@ -301,14 +301,31 @@ function checkURLParams() {
   const minR = params.get('min_sira');
   const maxR = params.get('max_sira');
 
-  if (tab === 'onlisans') switchTab('onlisans');
+  let cleanQ = '';
   if (q) {
     try {
-      searchInput.value = decodeURIComponent(q.replace(/\+/g, ' '));
+      cleanQ = decodeURIComponent(q.replace(/\+/g, ' '));
     } catch(e) {
-      searchInput.value = q.replace(/\+/g, ' ');
+      cleanQ = q.replace(/\+/g, ' ');
+    }
+    searchInput.value = cleanQ;
+  }
+
+  // 1. Explicit Tab or TYT Score Type
+  if (tab === 'onlisans' || puan === 'TYT') {
+    switchTab('onlisans');
+  } else if (tab === 'lisans') {
+    switchTab('lisans');
+  } else if (cleanQ) {
+    // 2. Smart auto-discovery: if 0 matches in lisans but matches exist in onlisans, switch to onlisans!
+    const normQ = turkishNormalize(cleanQ);
+    const lisansMatches = (dataStore.lisans || []).some(item => turkishNormalize(item.univ + ' ' + item.prog).includes(normQ));
+    const onlisansMatches = (dataStore.onlisans || []).some(item => turkishNormalize(item.univ + ' ' + item.prog).includes(normQ));
+    if (!lisansMatches && onlisansMatches) {
+      switchTab('onlisans');
     }
   }
+
   if (sehir) {
     try {
       selectedCities = decodeURIComponent(sehir.replace(/\+/g, ' ')).split(',').filter(Boolean);
