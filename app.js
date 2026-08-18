@@ -243,13 +243,15 @@ let favorites = JSON.parse(localStorage.getItem('yks_tercih_favs') || '[]').map(
 let currentPage = 1;
 const itemsPerPage = 50;
 
+let selectedCities = [];
+
 // Element References
 const tableBody = document.getElementById('tableBody');
 const searchInput = document.getElementById('searchInput');
-const filterCity = document.getElementById('filterCity');
 const filterUnivType = document.getElementById('filterUnivType');
 const filterPuanType = document.getElementById('filterPuanType');
 const filterEgitimType = document.getElementById('filterEgitimType');
+const filterMinRank = document.getElementById('filterMinRank');
 const filterMaxRank = document.getElementById('filterMaxRank');
 const sortBySelect = document.getElementById('sortBy');
 const filteredCountEl = document.getElementById('filteredCount');
@@ -263,6 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateFavBadge();
   setupTheme();
   setupEventListeners();
+  setupMultiSelectEvents();
   setupFAQAccordion();
   setupCondModal();
   setupTrendModal();
@@ -279,20 +282,26 @@ function checkURLParams() {
   const puan = params.get('puan');
   const tur = params.get('tur');
   const tab = params.get('tab');
+  const minR = params.get('min_sira');
+  const maxR = params.get('max_sira');
 
   if (tab === 'onlisans') switchTab('onlisans');
   if (q) searchInput.value = q;
-  if (sehir) filterCity.value = sehir;
+  if (sehir) selectedCities = sehir.split(',').filter(Boolean);
   if (puan) filterPuanType.value = puan;
   if (tur) filterUnivType.value = tur;
+  if (minR && filterMinRank) filterMinRank.value = minR;
+  if (maxR && filterMaxRank) filterMaxRank.value = maxR;
 }
 
 function updateURLParams() {
   const params = new URLSearchParams();
   if (searchInput.value.trim()) params.set('q', searchInput.value.trim());
-  if (filterCity.value) params.set('sehir', filterCity.value);
+  if (selectedCities.length > 0) params.set('sehir', selectedCities.join(','));
   if (filterPuanType.value) params.set('puan', filterPuanType.value);
   if (filterUnivType.value) params.set('tur', filterUnivType.value);
+  if (filterMinRank && filterMinRank.value) params.set('min_sira', filterMinRank.value);
+  if (filterMaxRank && filterMaxRank.value) params.set('max_sira', filterMaxRank.value);
   if (currentTab !== 'lisans') params.set('tab', currentTab);
 
   const newRelativePathQuery = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
@@ -310,24 +319,100 @@ function switchTab(tab) {
   render();
 }
 
-// Populate Cities Dropdown
+// Populate Multi-Select Cities Dropdown
 function populateCityFilter() {
   const dataset = dataStore[currentTab] || [];
   const cities = new Set();
   dataset.forEach(item => { if (item.city) cities.add(item.city); });
   const sortedCities = Array.from(cities).sort((a, b) => a.localeCompare(b, 'tr'));
-  filterCity.innerHTML = '<option value="">Tüm İller (81 İl + Yurtdışı)</option>';
+
+  const optionsList = document.getElementById('cityOptionsList');
+  if (!optionsList) return;
+
+  optionsList.innerHTML = '';
   sortedCities.forEach(city => {
-    const opt = document.createElement('option');
-    opt.value = city;
-    opt.textContent = city;
-    filterCity.appendChild(opt);
+    const isChecked = selectedCities.includes(city);
+    const label = document.createElement('label');
+    label.className = 'multi-select-option';
+    const safeCity = city.replace(/'/g, "\\'");
+    label.innerHTML = `
+      <input type="checkbox" value="${city}" ${isChecked ? 'checked' : ''} onchange="toggleCitySelect('${safeCity}')">
+      <span>${city}</span>
+    `;
+    optionsList.appendChild(label);
   });
+
+  updateCityMultiLabel();
+}
+
+function toggleCitySelect(city) {
+  if (selectedCities.includes(city)) {
+    selectedCities = selectedCities.filter(c => c !== city);
+  } else {
+    selectedCities.push(city);
+  }
+  updateCityMultiLabel();
+  currentPage = 1;
+  updateURLParams();
+  render();
+}
+
+function updateCityMultiLabel() {
+  const lbl = document.getElementById('cityMultiLabel');
+  if (!lbl) return;
+  if (selectedCities.length === 0) {
+    lbl.textContent = 'Tüm İller (81 İl + Yurtdışı)';
+  } else if (selectedCities.length === 1) {
+    lbl.textContent = `1 İl: ${selectedCities[0]}`;
+  } else {
+    lbl.textContent = `${selectedCities.length} İl Seçili (${selectedCities.slice(0, 2).join(', ')}...)`;
+  }
+}
+
+function setupMultiSelectEvents() {
+  const btn = document.getElementById('cityMultiBtn');
+  const dropdown = document.getElementById('cityDropdown');
+  const sInput = document.getElementById('citySearchInput');
+  const clearBtn = document.getElementById('btnClearCities');
+
+  if (btn && dropdown) {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('active');
+    });
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target) && e.target !== btn) {
+        dropdown.classList.remove('active');
+      }
+    });
+  }
+
+  if (sInput) {
+    sInput.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      const options = document.querySelectorAll('.multi-select-option');
+      options.forEach(opt => {
+        const txt = opt.textContent.toLowerCase();
+        opt.style.display = txt.includes(q) ? 'flex' : 'none';
+      });
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      selectedCities = [];
+      populateCityFilter();
+      currentPage = 1;
+      updateURLParams();
+      render();
+    });
+  }
 }
 
 // Event Listeners
 function setupEventListeners() {
-  [searchInput, filterCity, filterUnivType, filterPuanType, filterEgitimType, filterMaxRank, sortBySelect]
+  [searchInput, filterUnivType, filterPuanType, filterEgitimType, filterMinRank, filterMaxRank, sortBySelect]
+    .filter(Boolean)
     .forEach(el => el.addEventListener('input', () => { currentPage = 1; updateURLParams(); render(); }));
 
   prevPageBtn.addEventListener('click', () => {
@@ -572,17 +657,83 @@ function renderTrendChart(code) {
   modal.classList.add('active');
 }
 
+const BOLOGNA_DIRECT_MAP = {
+  'HACETTEPE': 'https://bologna.hacettepe.edu.tr/',
+  'İSTANBUL TEKNİK': 'https://www.sis.itu.edu.tr/TR/ogrenci/lisans-ders-planlari/planlar.php',
+  'ORTA DOĞU TEKNİK': 'https://oet.metu.edu.tr/',
+  'İSTANBUL ÜNİVERSİTESİ': 'https://ebs.istanbul.edu.tr/',
+  'MARMARA': 'https://llp.marmara.edu.tr/',
+  'YILDIZ TEKNİK': 'https://bologna.yildiz.edu.tr/',
+  'EGE': 'https://ebs.ege.edu.tr/',
+  'GAZİ ÜNİVERSİTESİ': 'https://ebs.gazi.edu.tr/',
+  'BOĞAZİÇİ': 'https://boun.edu.tr/',
+  'ANADOLU': 'https://www.anadolu.edu.tr/acikogretim/programlar',
+  'KATİP ÇELEBİ': 'https://ebs.ikcu.edu.tr/',
+  'AKDENİZ': 'https://bologna.akdeniz.edu.tr/'
+};
+
+const UNIV_DOMAIN_MAP = {
+  'MEDİPOL': 'medipol.edu.tr',
+  'HACETTEPE': 'hacettepe.edu.tr',
+  'İSTANBUL TEKNİK': 'itu.edu.tr',
+  'ORTA DOĞU TEKNİK': 'metu.edu.tr',
+  'BOĞAZİÇİ': 'boun.edu.tr',
+  'MARMARA': 'marmara.edu.tr',
+  'YILDIZ TEKNİK': 'yildiz.edu.tr',
+  'EGE': 'ege.edu.tr',
+  'DOKUZ EYLÜL': 'deu.edu.tr',
+  'GAZİ ÜNİVERSİTESİ': 'gazi.edu.tr',
+  'ANKARA ÜNİVERSİTESİ': 'ankara.edu.tr',
+  'ANKARA HACI BAYRAM': 'hacibayram.edu.tr',
+  'ANKARA YILDIRIM BEYAZIT': 'aybu.edu.tr',
+  'GAZİOSMANPAŞA': 'gop.edu.tr',
+  'TOKAT GAZİOSMANPAŞA': 'gop.edu.tr',
+  'ANADOLU ÜNİVERSİTESİ': 'anadolu.edu.tr',
+  'ESKİŞEHİR OSMANGAZİ': 'ogu.edu.tr',
+  'ESKİŞEHİR TEKNİK': 'eskisehir.edu.tr',
+  'ATATÜRK ÜNİVERSİTESİ': 'atauni.edu.tr',
+  'ÇUKUROVA': 'cu.edu.tr',
+  'AKDENİZ': 'akdeniz.edu.tr',
+  'DİCLE': 'dicle.edu.tr',
+  'FIRAT': 'firat.edu.tr',
+  'SELÇUK': 'selcuk.edu.tr',
+  'NECMETTİN ERBAKAN': 'erbakan.edu.tr',
+  'PAMUKKALE': 'pau.edu.tr',
+  'BURSA ULUDAĞ': 'uludag.edu.tr',
+  'KOCAELİ': 'kocaeli.edu.tr',
+  'SAKARYA': 'sakarya.edu.tr',
+  'ONDOKUZ MAYIS': 'omu.edu.tr',
+  'KARADENİZ TEKNİK': 'ktu.edu.tr',
+  'İNÖNÜ': 'inonu.edu.tr',
+  'SABANCI': 'sabanciuniv.edu',
+  'BİLKENT': 'bilkent.edu.tr',
+  'KOÇ ÜNİVERSİTESİ': 'ku.edu.tr',
+  'BAHÇEŞEHİR': 'bahcesehir.edu.tr',
+  'ÖZYEĞİN': 'ozyegin.edu.tr',
+  'YEDİTEPE': 'yeditepe.edu.tr'
+};
+
+function openCurriculumSearch(univ, prog) {
+  const cleanUniv = String(univ || '').replace(/\s*\([^)]*\)/g, '').trim();
+  const cleanProg = String(prog || '').replace(/\s*\([^)]*\)/g, '').trim();
+  
+  // Natural language question query designed to trigger Google AI Overview box
+  const query = `${cleanUniv} ${cleanProg} lisans önlisans tüm dönem ders müfredatı ve ders planı nedir`;
+  const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
 // ============================================================
 // CORE FILTER & RENDER ENGINE
 // ============================================================
 function getFilteredData() {
   const dataset = dataStore[currentTab] || [];
   const query = searchInput.value.toLowerCase().trim();
-  const city = filterCity.value;
   const univType = filterUnivType.value;
   const puanType = filterPuanType.value;
   const egitimType = filterEgitimType.value;
-  const maxRank = filterMaxRank.value ? parseInt(filterMaxRank.value, 10) : null;
+  const minRank = filterMinRank && filterMinRank.value ? parseInt(filterMinRank.value, 10) : null;
+  const maxRank = filterMaxRank && filterMaxRank.value ? parseInt(filterMaxRank.value, 10) : null;
   const sortBy = sortBySelect.value;
 
   let filtered = dataset.filter(item => {
@@ -590,10 +741,16 @@ function getFilteredData() {
       const targetStr = (item.univ + ' ' + item.prog + ' ' + item.fac + ' ' + item.code).toLowerCase();
       if (!targetStr.includes(query)) return false;
     }
-    if (city && item.city !== city) return false;
+    if (selectedCities.length > 0 && !selectedCities.includes(item.city)) return false;
     if (univType && item.univ_type !== univType) return false;
     if (puanType && item.score_type !== puanType) return false;
     if (egitimType && item.tip !== egitimType) return false;
+
+    if (minRank !== null) {
+      const r = parseInt(item.rank, 10);
+      if (isNaN(r) || r < minRank) return false;
+    }
+
     if (maxRank !== null) {
       const r = parseInt(item.rank, 10);
       if (isNaN(r) || r > maxRank) return false;
@@ -677,9 +834,10 @@ function render() {
       </td>
       <td class="cell-prog">
         <div style="font-weight:700; color:var(--text-primary); font-size:0.85rem; line-height:1.3;">${item.prog}</div>
-        <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:3px;">
+        <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap; margin-top:3px;">
           <span class="badge ${badgeEgitimClass}" style="font-size:0.7rem; padding:1px 6px;">${item.tip}</span>
-          <button class="btn-trend" onclick="showTrendChartModal('${item.code}')" title="2022-2025 YKS 4 Yıllık Değişim Grafiği">📈 4 Yıllık Grafik</button>
+          <button class="btn-trend" onclick="showTrendChartModal('${item.code}')" title="2022-2026 YKS 5 Yıllık Değişim Grafiği">📈 Grafik</button>
+          <button class="btn-trend" style="background:rgba(52,211,153,0.12); color:#34d399; border-color:rgba(52,211,153,0.3);" onclick="openCurriculumSearch('${(item.univ||'').replace(/'/g, "\\'")}', '${(item.prog||'').replace(/'/g, "\\'")}')" title="Google AI (Gemini) ile Ders Müfredatı Özet Bilgisi">📚 Dersler</button>
         </div>
       </td>
       <td><span class="badge" style="background:rgba(255,255,255,0.08); font-size:0.75rem;">${item.score_type}</span></td>

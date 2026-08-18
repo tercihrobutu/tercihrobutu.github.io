@@ -686,3 +686,95 @@ footer a:hover {
   margin-top: 2px;
 }
 
+/* Multi-Select City Dropdown */
+.multi-select-wrap {
+  position: relative;
+}
+
+.multi-select-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.multi-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-top: 6px;
+  box-shadow: var(--shadow-lg);
+  display: none;
+}
+
+.multi-select-dropdown.active {
+  display: block;
+}
+
+.multi-select-search {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.multi-select-search input {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: rgba(30, 41, 59, 0.8);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.btn-sm-clear {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.multi-select-options {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.multi-select-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.multi-select-option:hover {
+  background: rgba(99, 102, 241, 0.15);
+}
+

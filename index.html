@@ -151,10 +151,22 @@
       <!-- Filters Grid -->
       <div class="filters-grid">
         <div class="filter-group">
-          <label class="filter-label" for="filterCity">İl / Konum</label>
-          <select id="filterCity" class="filter-select">
-            <option value="">Tüm İller (81 İl + Yurtdışı)</option>
-          </select>
+          <label class="filter-label">İl / Konum (Çoklu Seçim)</label>
+          <div class="multi-select-wrap">
+            <button type="button" id="cityMultiBtn" class="filter-select multi-select-btn">
+              <span id="cityMultiLabel">Tüm İller (81 İl + Yurtdışı)</span>
+              <span class="arrow">▼</span>
+            </button>
+            <div id="cityDropdown" class="multi-select-dropdown">
+              <div class="multi-select-search">
+                <input type="text" id="citySearchInput" placeholder="İl ara...">
+                <button type="button" id="btnClearCities" class="btn-sm-clear">Temizle</button>
+              </div>
+              <div id="cityOptionsList" class="multi-select-options">
+                <!-- Checkboxes injected dynamically -->
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="filter-group">
@@ -192,7 +204,12 @@
         </div>
 
         <div class="filter-group">
-          <label class="filter-label" for="filterMaxRank">Maksimum Başarı Sırası</label>
+          <label class="filter-label" for="filterMinRank">Min. Başarı Sırası</label>
+          <input type="number" id="filterMinRank" class="filter-input" placeholder="Örn: 20000">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="filterMaxRank">Maks. Başarı Sırası</label>
           <input type="number" id="filterMaxRank" class="filter-input" placeholder="Örn: 100000">
         </div>
       </div>
