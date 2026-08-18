@@ -455,6 +455,7 @@ function render() {
     const badgeEgitimClass = item.tip === 'Uzaktan' ? 'badge-uzaktan' : (item.tip === 'AÖF' ? 'badge-aof' : 'badge-orgun');
 
     const rankDisplay = item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-');
+    const scoreDisplay = item.score && item.score !== '----' ? (typeof item.score === 'number' ? item.score.toFixed(5) : item.score) : (item.score || '-');
     const placedCount = item.quota_placed !== undefined && item.quota_placed !== null ? item.quota_placed : '-';
     const emptyCount = item.quota_empty !== undefined && item.quota_empty !== null ? item.quota_empty : 0;
 
