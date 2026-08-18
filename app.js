@@ -298,6 +298,8 @@ function checkURLParams() {
   const sehir = params.get('sehir') || params.get('amp;sehir');
   const puan = params.get('puan') || params.get('amp;puan');
   const tur = params.get('tur') || params.get('amp;tur');
+  const utur = params.get('utur') || params.get('amp;utur');
+  const egitim = params.get('egitim') || params.get('amp;egitim');
   const tab = params.get('tab') || params.get('amp;tab');
   const minR = params.get('min_sira') || params.get('amp;min_sira');
   const maxR = params.get('max_sira') || params.get('amp;max_sira');
@@ -341,7 +343,27 @@ function checkURLParams() {
     }
   }
   if (puan && filterPuanType) filterPuanType.value = puan;
-  if (tur && filterUnivType) filterUnivType.value = tur;
+
+  // Smart binding for Eğitim Tipi (Örgün / AÖF / Uzaktan / İkinci Öğretim)
+  const egitimVal = egitim || (['Örgün', 'AÖF', 'Uzaktan', 'İkinci Öğretim'].includes(tur) ? tur : '');
+  if (egitimVal && filterEgitimType) {
+    try {
+      filterEgitimType.value = decodeURIComponent(egitimVal.replace(/\+/g, ' '));
+    } catch(e) {
+      filterEgitimType.value = egitimVal;
+    }
+  }
+
+  // Smart binding for Üniversite Türü (Devlet / Vakıf / KKTC / Yurtdışı)
+  const univTurVal = utur || (!['Örgün', 'AÖF', 'Uzaktan', 'İkinci Öğretim'].includes(tur) ? tur : '');
+  if (univTurVal && filterUnivType) {
+    try {
+      filterUnivType.value = decodeURIComponent(univTurVal.replace(/\+/g, ' '));
+    } catch(e) {
+      filterUnivType.value = univTurVal;
+    }
+  }
+
   if (minR && filterMinRank) filterMinRank.value = minR;
   if (maxR && filterMaxRank) filterMaxRank.value = maxR;
 }
@@ -351,7 +373,8 @@ function updateURLParams() {
   if (searchInput.value.trim()) params.set('q', searchInput.value.trim());
   if (selectedCities.length > 0) params.set('sehir', selectedCities.join(','));
   if (filterPuanType.value) params.set('puan', filterPuanType.value);
-  if (filterUnivType.value) params.set('tur', filterUnivType.value);
+  if (filterUnivType.value) params.set('utur', filterUnivType.value);
+  if (filterEgitimType.value) params.set('egitim', filterEgitimType.value);
   if (filterMinRank && filterMinRank.value) params.set('min_sira', filterMinRank.value);
   if (filterMaxRank && filterMaxRank.value) params.set('max_sira', filterMaxRank.value);
   if (currentTab !== 'lisans') params.set('tab', currentTab);
