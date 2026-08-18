@@ -223,6 +223,22 @@ function normalizeLeadingCodeNoise(value) {
   return text.replace(/^(?:\d+\s*,\s*)+\d+\s+(?=[A-ZÇĞİÖŞÜİÖŞÜa-zçğıöşüıâîûÄÖÜÀ-ÿ])/u, '').trim();
 }
 
+function turkishNormalize(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/İ/g, 'i')
+    .replace(/I/g, 'ı')
+    .toLocaleLowerCase('tr-TR')
+    .replace(/ı/g, 'i')
+    .replace(/ğ/g, 'g')
+    .replace(/ü/g, 'u')
+    .replace(/ş/g, 's')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
+
 function normalizeRecord(item) {
   if (!item || typeof item !== 'object') return item;
   return {
@@ -286,8 +302,20 @@ function checkURLParams() {
   const maxR = params.get('max_sira');
 
   if (tab === 'onlisans') switchTab('onlisans');
-  if (q) searchInput.value = q;
-  if (sehir) selectedCities = sehir.split(',').filter(Boolean);
+  if (q) {
+    try {
+      searchInput.value = decodeURIComponent(q.replace(/\+/g, ' '));
+    } catch(e) {
+      searchInput.value = q.replace(/\+/g, ' ');
+    }
+  }
+  if (sehir) {
+    try {
+      selectedCities = decodeURIComponent(sehir.replace(/\+/g, ' ')).split(',').filter(Boolean);
+    } catch(e) {
+      selectedCities = sehir.split(',').filter(Boolean);
+    }
+  }
   if (puan) filterPuanType.value = puan;
   if (tur) filterUnivType.value = tur;
   if (minR && filterMinRank) filterMinRank.value = minR;
@@ -728,7 +756,7 @@ function openCurriculumSearch(univ, prog) {
 // ============================================================
 function getFilteredData() {
   const dataset = dataStore[currentTab] || [];
-  const query = searchInput.value.toLowerCase().trim();
+  const query = turkishNormalize(searchInput.value);
   const univType = filterUnivType.value;
   const puanType = filterPuanType.value;
   const egitimType = filterEgitimType.value;
@@ -738,7 +766,7 @@ function getFilteredData() {
 
   let filtered = dataset.filter(item => {
     if (query) {
-      const targetStr = (item.univ + ' ' + item.prog + ' ' + item.fac + ' ' + item.code).toLowerCase();
+      const targetStr = turkishNormalize(item.univ + ' ' + item.prog + ' ' + item.fac + ' ' + item.code);
       if (!targetStr.includes(query)) return false;
     }
     if (selectedCities.length > 0 && !selectedCities.includes(item.city)) return false;
