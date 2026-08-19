@@ -142,7 +142,8 @@ def build_sitemap():
     sorted_urls = sorted(list(urls), key=lambda x: (0 if x[0] == BASE_URL else 1, -float(x[1]), x[0]))
 
     for loc, priority, changefreq in sorted_urls:
-        xml_loc = loc.replace('&', '&amp;')
+        escaped_loc = urllib.parse.quote(loc, safe=':/?&=')
+        xml_loc = escaped_loc.replace('&', '&amp;')
         xml_lines.append('  <url>')
         xml_lines.append(f'    <loc>{xml_loc}</loc>')
         xml_lines.append(f'    <lastmod>{TODAY}</lastmod>')
