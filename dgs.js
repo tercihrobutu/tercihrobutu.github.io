@@ -24,7 +24,29 @@ const programsData = window.DATA_DGS_PROGRAMS || [];
 const mappingData = window.DATA_DGS_MAPPING || {};
 const mezuniyetList = window.DATA_DGS_MEZUNIYET_ALANLARI || [];
 const conditionsData = window.DATA_DGS_CONDITIONS || {};
-const trendDatabase = window.DATA_DGS_TREND || {};
+
+// Trend data lazy loader
+let trendLoadingPromise = null;
+function loadTrendData() {
+  if (window.DATA_DGS_TREND) return Promise.resolve(window.DATA_DGS_TREND);
+  if (!trendLoadingPromise) {
+    trendLoadingPromise = new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'data/dgs_trend.js';
+      script.onload = () => resolve(window.DATA_DGS_TREND || {});
+      script.onerror = () => resolve({});
+      document.head.appendChild(script);
+    });
+  }
+  return trendLoadingPromise;
+}
+
+// Background preload after initial render
+if (typeof window !== 'undefined') {
+  window.addEventListener('load', () => {
+    setTimeout(loadTrendData, 1000);
+  });
+}
 
 let selectedCities = [];
 let currentPage = 1;
@@ -558,9 +580,13 @@ function showTrendChartModal(code) {
   activeTrendCode = code;
   setTrendMetric('score');
   trendModal.classList.add('active');
+  loadTrendData().then(() => {
+    renderTrendChart(code);
+  });
 }
 
 function renderTrendChart(code) {
+  const trendDatabase = window.DATA_DGS_TREND || {};
   const item = programsData.find(x => x.code === code);
   const trendInfo = trendDatabase[code];
   const titleEl = document.getElementById('trendModalTitle');
