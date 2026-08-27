@@ -102,38 +102,74 @@ def build_sitemap():
 
     print(f"Extracted: {len(cities)} cities, {len(universities)} universities, {len(lisans_depts)} lisans depts, {len(onlisans_depts)} onlisans depts.")
 
-    # 5. Add all Cities (for both Lisans and Önlisans)
+    # ============================================================
+    # 5. YKS URLs under yks.html
+    # ============================================================
+    YKS_URL = f"{BASE_URL}yks.html"
+    urls.add((YKS_URL, '0.9', 'daily'))
+    urls.add((f"{YKS_URL}?tab=lisans", '0.9', 'daily'))
+    urls.add((f"{YKS_URL}?tab=onlisans", '0.9', 'daily'))
+
+    # Add all Cities for YKS
     for city in sorted(cities):
         q_city = city.replace(' ', '%20')
-        urls.add((f"{BASE_URL}?tab=lisans&sehir={q_city}", '0.8', 'weekly'))
-        urls.add((f"{BASE_URL}?tab=onlisans&sehir={q_city}", '0.8', 'weekly'))
+        urls.add((f"{YKS_URL}?tab=lisans&sehir={q_city}", '0.8', 'weekly'))
+        urls.add((f"{YKS_URL}?tab=onlisans&sehir={q_city}", '0.8', 'weekly'))
 
-    # 6. Add all Universities (for both Lisans and Önlisans)
+    # Add all Universities for YKS
     for univ in sorted(universities):
         q_univ = univ.replace(' ', '%20')
-        urls.add((f"{BASE_URL}?tab=lisans&q={q_univ}", '0.8', 'weekly'))
-        urls.add((f"{BASE_URL}?tab=onlisans&q={q_univ}", '0.75', 'weekly'))
+        urls.add((f"{YKS_URL}?tab=lisans&q={q_univ}", '0.8', 'weekly'))
+        urls.add((f"{YKS_URL}?tab=onlisans&q={q_univ}", '0.75', 'weekly'))
 
-    # 7. Add Lisans Departments explicitly under tab=lisans
+    # Add Lisans Departments explicitly under tab=lisans
     for dept in sorted(lisans_depts):
         q_dept = dept.replace(' ', '%20')
-        urls.add((f"{BASE_URL}?tab=lisans&q={q_dept}", '0.8', 'weekly'))
+        urls.add((f"{YKS_URL}?tab=lisans&q={q_dept}", '0.8', 'weekly'))
 
-    # 8. Add Önlisans Departments explicitly under tab=onlisans
+    # Add Önlisans Departments explicitly under tab=onlisans
     for dept in sorted(onlisans_depts):
         q_dept = dept.replace(' ', '%20')
-        urls.add((f"{BASE_URL}?tab=onlisans&q={q_dept}", '0.8', 'weekly'))
+        urls.add((f"{YKS_URL}?tab=onlisans&q={q_dept}", '0.8', 'weekly'))
 
-    # 9. Major Cities + Score Types
+    # Major Cities + Score Types
     major_cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Eskişehir', 'Kocaeli', 'Gaziantep', 'Samsun', 'Trabzon', 'Kayseri', 'Osmaniye']
     for mc in major_cities:
         if mc in cities:
             q_mc = mc.replace(' ', '%20')
-            urls.add((f"{BASE_URL}?tab=onlisans&sehir={q_mc}&puan=TYT", '0.75', 'weekly'))
+            urls.add((f"{YKS_URL}?tab=onlisans&sehir={q_mc}&puan=TYT", '0.75', 'weekly'))
             for puan in ['SAY', 'EA', 'SÖZ']:
-                urls.add((f"{BASE_URL}?tab=lisans&sehir={q_mc}&puan={puan}", '0.75', 'weekly'))
+                urls.add((f"{YKS_URL}?tab=lisans&sehir={q_mc}&puan={puan}", '0.75', 'weekly'))
 
-    print(f"Total unique URLs generated in sitemap: {len(urls)}")
+    # ============================================================
+    # 6. 2026 DGS (Dikey Geçiş Sınavı) URLs (Root & dgs.html)
+    # ============================================================
+    urls.add((BASE_URL, '1.0', 'daily'))
+    DGS_URL = f"{BASE_URL}dgs.html"
+    urls.add((DGS_URL, '0.9', 'daily'))
+    for puan in ['SAY', 'EA', 'SÖZ']:
+        urls.add((f"{BASE_URL}?puan={puan}", '0.85', 'weekly'))
+        urls.add((f"{DGS_URL}?puan={puan}", '0.85', 'weekly'))
+    for tur in ['Devlet', 'Vakıf', 'KKTC']:
+        urls.add((f"{BASE_URL}?tur={tur}", '0.8', 'weekly'))
+        urls.add((f"{DGS_URL}?tur={tur}", '0.8', 'weekly'))
+
+    # Load DGS Mapping for Önlisans Mezuniyet Alanları
+    DGS_MAPPING_JS = os.path.join(REPO_ROOT, 'data', 'dgs_mapping.js')
+    if os.path.exists(DGS_MAPPING_JS):
+        with open(DGS_MAPPING_JS, 'r', encoding='utf-8') as f:
+            dgs_text = f.read()
+        m = re.search(r'window\.DATA_DGS_MEZUNIYET_ALANLARI\s*=\s*(\[.*?\]);?\s*$', dgs_text, re.DOTALL)
+        if m:
+            dgs_mezuniyet = json.loads(m.group(1))
+            for item in dgs_mezuniyet:
+                name = item.get('name', '')
+                if name and len(name) > 2:
+                    q_m = name.replace(' ', '%20')
+                    urls.add((f"{BASE_URL}?mezuniyet={q_m}", '0.8', 'weekly'))
+                    urls.add((f"{DGS_URL}?mezuniyet={q_m}", '0.8', 'weekly'))
+
+    print(f"Total unique URLs generated in sitemap (YKS + DGS): {len(urls)}")
 
     # Write XML
     xml_lines = ['<?xml version="1.0" encoding="UTF-8"?>']
