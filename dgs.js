@@ -942,6 +942,12 @@ function exportFavsExcel() {
 function checkURLParams() {
   const params = new URLSearchParams(window.location.search);
 
+  // 1. Smart redirect for past Google indexed YKS links (?tab=lisans / ?tab=onlisans)
+  if (params.has('tab') || params.has('amp;tab')) {
+    window.location.replace('yks.html' + window.location.search);
+    return;
+  }
+
   // Search
   const q = params.get('q');
   if (q) searchInput.value = decodeURIComponent(q);
