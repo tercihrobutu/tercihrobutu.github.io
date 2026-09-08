@@ -20,10 +20,10 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 
   <!-- SEO Primary Meta Tags -->
-  <title>2026 DGS Tercih Robotu | ÖSYM Dikey Geçiş Kontenjanları ve Taban Puanları</title>
-  <meta name="title" content="2026 DGS Tercih Robotu | ÖSYM Dikey Geçiş Kontenjanları ve Taban Puanları">
-  <meta name="description" content="2026 ÖSYM DGS Tercih Robotu ile 7.060 lisans programını, 2024-2025 taban puanlarını ve 850+ ön lisans mezuniyet alanını anında filtreleyin. Kontenjan değişimleri ve trend grafiği ile tercih listenizi hazırlayın.">
-  <meta name="keywords" content="dgs tercih robotu 2026, dgs tercih robotu, dgs taban puanları 2025, dgs kontenjanları 2026, dgs grafik, dgs ek yerleştirme taban puanları, dikey geçiş sınavı tercih, dgs tablo 1, dgs tablo 2">
+  <title>2026 DGS Yerleştirme Sonuçları & Tercih Robotu | Taban Puanları ve Boş Kontenjanlar</title>
+  <meta name="title" content="2026 DGS Yerleştirme Sonuçları & Tercih Robotu | Taban Puanları ve Boş Kontenjanlar">
+  <meta name="description" content="2026 ÖSYM DGS Yerleştirme Sonuçları açıklandı! 7.060 lisans programının en küçük ve en büyük taban puanları, yerleşen sayıları, boş kontenjanları ve 850+ ön lisans mezuniyet eşleştirmesi ile ek tercih listenizi hazırlayın.">
+  <meta name="keywords" content="2026 dgs yerleştirme sonuçları, dgs taban puanları 2026, dgs boş kontenjanlar, dgs ek tercih robotu, dgs yerleştirme puanları, dgs en küçük puanlar, dgs dikey geçiş tercih robotu">
   <meta name="robots" content="index, follow">
   <meta name="language" content="Turkish">
   <meta name="author" content="Tercih Robutu">
@@ -135,8 +135,8 @@
 
     <!-- Hero Section -->
     <section class="hero">
-      <h1>2026 DGS Tercih Robotu & Taban Puanları</h1>
-      <p>ÖSYM 2026-DGS Tablo-1 kılavuzu, 2024-2025 Yerleştirme Taban Puanları ve Tablo-2 Ön Lisans Eşleştirmesi ile 7.060 lisans programını ve kontenjan değişimlerini anında karşılaştırın.</p>
+      <h1>2026 DGS Yerleştirme Sonuçları & Taban Puanları</h1>
+      <p>ÖSYM 2026-DGS Yerleştirme Sonuçlarına ilişkin En Küçük ve En Büyük Puanlar, Boş Kontenjanlar ve Tablo-2 Ön Lisans Eşleştirmesi ile 7.060 lisans programını anında inceleyin.</p>
       
       <div class="stats-grid">
         <div class="stat-card">
@@ -148,8 +148,8 @@
           <div class="stat-label">Ön Lisans Mezuniyet Alanı</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number">2024-2026</div>
-          <div class="stat-label">Taban Puan & Kontenjan Arşivi</div>
+          <div class="stat-number">2026</div>
+          <div class="stat-label">Yerleştirme Sonuçları & Boş Kontenjan</div>
         </div>
       </div>
     </section>
@@ -175,22 +175,30 @@
       <!-- Search Input -->
       <div class="search-bar-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" class="search-input" placeholder="Üniversite adı veya bölüm yazın... (Örn: Bilgisayar Mühendisliği, Hukuk, Mimarlık, Hemşirelik)">
+        <input 
+          type="text" 
+          id="searchInput" 
+          class="search-input" 
+          placeholder="Üniversite, fakülte, program adı veya ÖSYM kodu ile anında ara... (Örn: Hukuk, Bilgisayar, Hemşirelik)"
+          autocomplete="off"
+        >
       </div>
 
       <!-- Filters Grid -->
       <div class="filters-grid">
         <div class="filter-group">
-          <label class="filter-label">İl / Konum (Çoklu Seçim)</label>
-          <div class="multi-select-wrap">
-            <button type="button" id="cityMultiBtn" class="filter-select multi-select-btn">
-              <span id="cityMultiLabel">Tüm İller (81 İl + KKTC)</span>
+          <label class="filter-label" for="cityMultiBtn">Şehir Seçimi</label>
+          <div class="multi-select-container" id="cityMultiContainer">
+            <button type="button" class="multi-select-btn" id="cityMultiBtn">
+              <span id="cityMultiLabel">Tüm Şehirler</span>
               <span class="arrow">▼</span>
             </button>
-            <div id="cityDropdown" class="multi-select-dropdown">
-              <div class="multi-select-search">
-                <input type="text" id="citySearchInput" placeholder="İl ara...">
-                <button type="button" id="btnClearCities" class="btn-sm-clear">Temizle</button>
+            <div class="multi-select-dropdown" id="cityDropdown">
+              <div class="multi-select-search-wrap">
+                <input type="text" id="citySearchInput" class="multi-select-search" placeholder="İl ara...">
+              </div>
+              <div class="multi-select-actions">
+                <button type="button" class="btn-clear-cities" id="btnClearCities">Seçimi Temizle</button>
               </div>
               <div id="cityOptionsList" class="multi-select-options">
                 <!-- Injected dynamically -->
@@ -245,10 +253,11 @@
         <button id="btnResetFilters" class="btn" style="padding:6px 12px; font-size:0.85rem;">Filtreleri Sıfırla</button>
         <label for="sortBy" style="font-size:0.85rem; color:var(--text-secondary);">Sıralama Ölçütü:</label>
         <select id="sortBy" class="filter-select" style="padding:6px 12px;">
+          <option value="puan26_desc">2026 Taban Puan (Yüksek -> Düşük)</option>
+          <option value="puan26_asc">2026 Taban Puan (Düşük -> Yüksek)</option>
+          <option value="bos_desc">Boş Kontenjan (Çoktan Aza) [Ek Tercih]</option>
           <option value="kont_desc">2026 Kontenjan (Çoktan Aza)</option>
           <option value="puan25_desc">2025 Taban Puan (Yüksek -> Düşük)</option>
-          <option value="puan25_asc">2025 Taban Puan (Düşük -> Yüksek)</option>
-          <option value="puan24_desc">2024 Taban Puan (Yüksek -> Düşük)</option>
           <option value="prog_asc">Program Adı (A-Z)</option>
           <option value="univ_asc">Üniversite Adı (A-Z)</option>
         </select>
@@ -266,11 +275,12 @@
             <th>Üniversite / Fakülte</th>
             <th>Program Adı</th>
             <th style="width:48px;">Puan</th>
-            <th style="width:70px; text-align:center;">2026 Kont.</th>
-            <th style="width:65px; text-align:center; color:var(--text-secondary);">2025 Kont.</th>
+            <th style="width:55px; text-align:center;">Kont.</th>
+            <th style="width:55px; text-align:center; color:#38bdf8;">Yerleşen</th>
+            <th style="width:65px; text-align:center; color:#f87171;">Boş Kont.</th>
             <th style="width:75px;">Koşullar</th>
-            <th style="text-align:right; width:85px;">2025 Puan</th>
-            <th style="text-align:right; width:85px;">2024 Puan</th>
+            <th style="text-align:right; width:90px;">2026 Puanı</th>
+            <th style="text-align:right; width:85px; color:var(--text-secondary);">2025 Puan</th>
           </tr>
         </thead>
         <tbody id="tableBody">
@@ -320,7 +330,7 @@
               <th>İl</th>
               <th>Puan</th>
               <th>Kont.</th>
-              <th>2025 Puan</th>
+              <th>2026 Puan</th>
               <th>Kaldır</th>
             </tr>
           </thead>
