@@ -142,16 +142,14 @@ def build_sitemap():
                 urls.add((f"{YKS_URL}?tab=lisans&sehir={q_mc}&puan={puan}", '0.75', 'weekly'))
 
     # ============================================================
-    # 6. 2026 DGS (Dikey Geçiş Sınavı) URLs (Root & dgs.html)
+    # 6. 2026 DGS (Dikey Geçiş Sınavı) URLs (under dgs.html)
     # ============================================================
     urls.add((BASE_URL, '1.0', 'daily'))
     DGS_URL = f"{BASE_URL}dgs.html"
-    urls.add((DGS_URL, '0.9', 'daily'))
+    urls.add((DGS_URL, '0.95', 'daily'))
     for puan in ['SAY', 'EA', 'SÖZ']:
-        urls.add((f"{BASE_URL}?puan={puan}", '0.85', 'weekly'))
         urls.add((f"{DGS_URL}?puan={puan}", '0.85', 'weekly'))
     for tur in ['Devlet', 'Vakıf', 'KKTC']:
-        urls.add((f"{BASE_URL}?tur={tur}", '0.8', 'weekly'))
         urls.add((f"{DGS_URL}?tur={tur}", '0.8', 'weekly'))
 
     # Load DGS Mapping for Önlisans Mezuniyet Alanları
@@ -166,10 +164,9 @@ def build_sitemap():
                 name = item.get('name', '')
                 if name and len(name) > 2:
                     q_m = name.replace(' ', '%20')
-                    urls.add((f"{BASE_URL}?mezuniyet={q_m}", '0.8', 'weekly'))
                     urls.add((f"{DGS_URL}?mezuniyet={q_m}", '0.8', 'weekly'))
 
-    print(f"Total unique URLs generated in sitemap (YKS + DGS): {len(urls)}")
+    print(f"Total unique URLs generated in sitemap (Portal + YKS + DGS): {len(urls)}")
 
     # Write XML
     xml_lines = ['<?xml version="1.0" encoding="UTF-8"?>']
