@@ -908,6 +908,7 @@ function getFilteredData() {
     if (sortBy === 'ek_bos_desc') return (b.ek_bos_genel || 0) - (a.ek_bos_genel || 0);
     if (sortBy === 'ek_yer_desc') return (b.ek_yer_genel || 0) - (a.ek_yer_genel || 0);
     if (sortBy === 'ek_kont_desc') return (b.ek_kont_genel || 0) - (a.ek_kont_genel || 0);
+    if (sortBy === 'quota_total_desc') return ((b.quota_total || b.quota_genel) || 0) - ((a.quota_total || a.quota_genel) || 0);
     if (sortBy === 'rank_asc') return (parseInt(a.rank, 10) || 9999999) - (parseInt(b.rank, 10) || 9999999);
     if (sortBy === 'rank_desc') return (parseInt(b.rank, 10) || 0) - (parseInt(a.rank, 10) || 0);
     if (sortBy === 'score_desc') return (parseFloat(b.score) || 0) - (parseFloat(a.score) || 0);
@@ -948,7 +949,7 @@ function render() {
   tableBody.innerHTML = '';
 
   if (pageItems.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:40px; color:var(--text-muted);">Aramanıza uygun üniversite programı bulunamadı.</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="15" style="text-align:center; padding:40px; color:var(--text-muted);">Aramanıza uygun üniversite programı bulunamadı.</td></tr>`;
     return;
   }
 
@@ -961,6 +962,21 @@ function render() {
 
     const rankDisplay = item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-');
     
+    // (Tercih Listesinde / Kılavuzunda Belirtilen Toplam Kontenjan)
+    const totalQuota = item.quota_total || ((item.quota_genel || 0) + (item.quota_kadin34 || 0) + (item.quota_okul1 || 0) + (item.quota_sehit_gazi || 0));
+    let totalKontDisplay = `<div style="font-weight:700; color:var(--text-primary); font-size:0.9rem;" title="Genel: ${item.quota_genel || 0}, Okul 1.: ${item.quota_okul1 || 0}, 34Y Kadın: ${item.quota_kadin34 || 0}, Şehit/Gazi: ${item.quota_sehit_gazi || 0}">${totalQuota}</div>`;
+    if ((item.quota_okul1 || 0) > 0 || (item.quota_kadin34 || 0) > 0 || (item.quota_sehit_gazi || 0) > 0) {
+      const subParts = [];
+      if (item.quota_okul1 > 0) subParts.push(`OB:${item.quota_okul1}`);
+      if (item.quota_kadin34 > 0) subParts.push(`34Y:${item.quota_kadin34}`);
+      if (item.quota_sehit_gazi > 0) subParts.push(`ŞG:${item.quota_sehit_gazi}`);
+      totalKontDisplay += `<div style="font-size:0.65rem; color:var(--text-muted);" title="Özel Kontenjan Dağılımı">${subParts.join(' ')}</div>`;
+    }
+
+    // İlk Yerleştirme Yerleşen Aday Sayısı
+    const firstYer = item.quota_placed !== undefined && item.quota_placed !== null ? item.quota_placed : '-';
+    const firstYerDisplay = `<div style="font-weight:600; color:var(--text-secondary); font-size:0.9rem;">${firstYer}</div>`;
+
     // Official 2026 Ek Yerleştirme numbers
     const hasEk = item.has_ek_sonuc;
     const ekGenel = item.ek_kont_genel || 0;
@@ -1064,6 +1080,8 @@ function render() {
         </div>
       </td>
       <td><span class="badge" style="background:rgba(255,255,255,0.08); font-size:0.75rem;">${item.score_type}</span></td>
+      <td style="text-align:center;">${totalKontDisplay}</td>
+      <td style="text-align:center;">${firstYerDisplay}</td>
       <td style="text-align:center;">${ekKontDisplay}</td>
       <td style="text-align:center;">${yerlesenDisplay}</td>
       <td style="text-align:center;">${emptyBadge}</td>
@@ -1112,12 +1130,18 @@ function renderFavModal() {
   favBody.innerHTML = '';
 
   if (favorites.length === 0) {
-    favBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">Henüz tercih listenize program eklemediniz. Yıldız butonuna basarak ekleyebilirsiniz.</td></tr>`;
+    favBody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding:30px; color:var(--text-muted);">Henüz tercih listenize program eklemediniz. Yıldız butonuna basarak ekleyebilirsiniz.</td></tr>`;
     return;
   }
 
   favorites.forEach((item, idx) => {
     const rankDisplay = item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-');
+    const totalQuota = item.quota_total || ((item.quota_genel || 0) + (item.quota_kadin34 || 0) + (item.quota_okul1 || 0) + (item.quota_sehit_gazi || 0));
+    const firstYer = item.quota_placed !== undefined && item.quota_placed !== null ? item.quota_placed : '-';
+    const ekKont = item.has_ek_sonuc ? (item.ek_kont_genel || 0) : '-';
+    const ekBos = item.has_ek_sonuc ? (item.ek_bos_genel !== undefined ? item.ek_bos_genel : Math.max(0, (item.ek_kont_genel || 0) - (item.ek_yer_genel || 0))) : '-';
+    const ekScore = item.ek_min_puan_str || (item.has_ek_sonuc ? (item.ek_yer_genel === 0 ? 'Yerl. Yok' : 'Dolmadı') : '-');
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="font-weight:700; color:var(--accent-primary);">${idx + 1}</td>
@@ -1125,7 +1149,12 @@ function renderFavModal() {
       <td>${item.univ}</td>
       <td><strong>${item.prog}</strong></td>
       <td>${item.city}</td>
-      <td>${rankDisplay}</td>
+      <td style="text-align:center; font-weight:700;">${totalQuota}</td>
+      <td style="text-align:center;">${firstYer}</td>
+      <td style="text-align:center;">${ekKont}</td>
+      <td style="text-align:center; color:${ekBos === 0 ? 'var(--text-muted)' : '#f87171'}; font-weight:700;">${ekBos}</td>
+      <td style="text-align:right; font-weight:700; color:#34d399;">${ekScore}</td>
+      <td style="text-align:right;">${rankDisplay}</td>
       <td><button class="btn" style="color:#f87171; padding:4px 8px;" onclick="toggleFav('${item.code}')">✕</button></td>
     `;
     favBody.appendChild(tr);
@@ -1164,6 +1193,8 @@ function exportFavsXLSX() {
         'Eğitim Tipi': item.tip,
         'Program': item.prog,
         'Puan Türü': item.score_type,
+        'Tercih Kılavuzu Toplam Kontenjan': item.quota_total || ((item.quota_genel || 0) + (item.quota_kadin34 || 0) + (item.quota_okul1 || 0) + (item.quota_sehit_gazi || 0)),
+        'İlk Yerleşen': item.quota_placed !== undefined && item.quota_placed !== null ? item.quota_placed : '',
         '2026 Ek Kontenjan': item.ek_kont_genel || 0,
         '2026 Ek Yerleşen': item.ek_yer_genel || 0,
         '2026 Kalan Boş': item.ek_bos_genel !== undefined ? item.ek_bos_genel : Math.max(0, (item.ek_kont_genel || 0) - (item.ek_yer_genel || 0)),
@@ -1178,10 +1209,10 @@ function exportFavsXLSX() {
     const worksheet = XLSX.utils.json_to_sheet(data);
 
     worksheet['!cols'] = [
-      { wch: 6 }, { wch: 12 }, { wch: 14 }, { wch: 38 }, { wch: 18 },
-      { wch: 28 }, { wch: 14 }, { wch: 38 }, { wch: 10 }, { wch: 16 },
-      { wch: 16 }, { wch: 16 }, { wch: 22 }, { wch: 22 }, { wch: 18 },
-      { wch: 18 }, { wch: 24 }
+      { wch: 6 }, { wch: 12 }, { wch: 14 }, { wch: 36 }, { wch: 18 },
+      { wch: 28 }, { wch: 14 }, { wch: 36 }, { wch: 10 }, { wch: 20 },
+      { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 22 },
+      { wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 24 }
     ];
 
     const workbook = XLSX.utils.book_new();
@@ -1228,6 +1259,8 @@ function exportFavsPDF() {
 
     // ---- Tablo Verisi ----
     const tableData = favorites.map((item, idx) => {
+      const totalQuota = String(item.quota_total || ((item.quota_genel || 0) + (item.quota_kadin34 || 0) + (item.quota_okul1 || 0) + (item.quota_sehit_gazi || 0)));
+      const firstYer = item.quota_placed !== undefined && item.quota_placed !== null ? String(item.quota_placed) : '-';
       const ekScore = item.ek_min_puan_str || (item.has_ek_sonuc ? (item.ek_yer_genel === 0 ? 'Yerl. Yok' : 'Dolmadi') : '-');
       const firstScore = item.score && item.score !== '----' && item.score !== '' ? (typeof item.score === 'number' ? item.score.toFixed(3) : item.score) : '-';
       const firstRank = item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-');
@@ -1242,6 +1275,8 @@ function exportFavsPDF() {
         toAscii(item.univ),
         toAscii(item.prog),
         item.score_type,
+        totalQuota,
+        firstYer,
         ekKont,
         ekYer,
         ekBos,
@@ -1253,36 +1288,38 @@ function exportFavsPDF() {
 
     doc.autoTable({
       startY: 24,
-      head: [['#', 'OSYM Kodu', 'Il', 'Universite', 'Program', 'Puan', 'Ek Kont.', 'Yerlesen', 'Kalan Bos', 'Ek Taban', 'Ilk Sira', 'Ilk Taban']],
+      head: [['#', 'OSYM Kodu', 'Il', 'Universite', 'Program', 'Puan', 'Top. Kont.', 'Ilk Yer.', 'Ek Kont.', 'Ek Yer.', 'Kalan Bos', 'Ek Taban', 'Ilk Sira', 'Ilk Taban']],
       body: tableData,
       theme: 'grid',
       headStyles: {
         fillColor: [99, 102, 241],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 8.5,
+        fontSize: 8,
         halign: 'center'
       },
       bodyStyles: {
-        fontSize: 7.5,
-        cellPadding: 2.5
+        fontSize: 7,
+        cellPadding: 2
       },
       alternateRowStyles: {
         fillColor: [248, 250, 252]
       },
       columnStyles: {
-        0: { cellWidth: 8, halign: 'center', fontStyle: 'bold', textColor: [99, 102, 241] },
-        1: { cellWidth: 22, fontStyle: 'bold', textColor: [79, 70, 229] },
-        2: { cellWidth: 18 },
-        3: { cellWidth: 50 },
-        4: { cellWidth: 55 },
-        5: { cellWidth: 12, halign: 'center' },
-        6: { cellWidth: 15, halign: 'center' },
-        7: { cellWidth: 15, halign: 'center', textColor: [56, 189, 248] },
-        8: { cellWidth: 16, halign: 'center', fontStyle: 'bold', textColor: [239, 68, 68] },
-        9: { cellWidth: 22, halign: 'right', fontStyle: 'bold', textColor: [52, 211, 153] },
-        10: { cellWidth: 20, halign: 'right', fontStyle: 'bold', textColor: [99, 102, 241] },
-        11: { cellWidth: 20, halign: 'right' }
+        0: { cellWidth: 7, halign: 'center', fontStyle: 'bold', textColor: [99, 102, 241] },
+        1: { cellWidth: 20, fontStyle: 'bold', textColor: [79, 70, 229] },
+        2: { cellWidth: 16 },
+        3: { cellWidth: 44 },
+        4: { cellWidth: 48 },
+        5: { cellWidth: 10, halign: 'center' },
+        6: { cellWidth: 14, halign: 'center', fontStyle: 'bold' },
+        7: { cellWidth: 12, halign: 'center' },
+        8: { cellWidth: 13, halign: 'center' },
+        9: { cellWidth: 13, halign: 'center', textColor: [56, 189, 248] },
+        10: { cellWidth: 14, halign: 'center', fontStyle: 'bold', textColor: [239, 68, 68] },
+        11: { cellWidth: 20, halign: 'right', fontStyle: 'bold', textColor: [52, 211, 153] },
+        12: { cellWidth: 18, halign: 'right', fontStyle: 'bold', textColor: [99, 102, 241] },
+        13: { cellWidth: 18, halign: 'right' }
       },
       margin: { left: 10, right: 10 },
       didDrawPage: (data) => {

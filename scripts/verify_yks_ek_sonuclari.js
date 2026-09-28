@@ -73,10 +73,20 @@ console.log(`[PASS] Verified new program 300900115: 5/20 yerleşen, 15 boş, Tab
 const grandKont = lisansKont + onlisansKont;
 const grandYer = lisansYer + onlisansYer;
 const grandMin = lisansMinCount + onlisansMinCount;
+
+const lisansGuideKont = lisans.reduce((acc, x) => acc + (x.quota_total || 0), 0);
+const onlisansGuideKont = onlisans.reduce((acc, x) => acc + (x.quota_total || 0), 0);
+const grandGuideKont = lisansGuideKont + onlisansGuideKont;
+
 console.log(`\n--- GRAND TOTALS ---`);
+console.log(`Total Tercih Kılavuzu Kontenjan: ${grandGuideKont.toLocaleString()} (Lisans: ${lisansGuideKont.toLocaleString()}, Ön Lisans: ${onlisansGuideKont.toLocaleString()})`);
 console.log(`Total Ek Kontenjan: ${grandKont.toLocaleString()} (Expected 114,819)`);
 console.log(`Total Ek Yerleşen: ${grandYer.toLocaleString()} (Expected 57,148)`);
 console.log(`Total Taban Puan Oluşan: ${grandMin.toLocaleString()} (Expected 11,805)`);
+
+assert.strictEqual(lisansGuideKont, 408244, 'Lisans tercih kılavuzu toplam kontenjan mismatch');
+assert.strictEqual(onlisansGuideKont, 371626, 'Onlisans tercih kılavuzu toplam kontenjan mismatch');
+assert.strictEqual(grandGuideKont, 779870, 'Grand total tercih kılavuzu kontenjan mismatch (Expected 779,870)');
 assert.strictEqual(grandKont, 114819, 'Grand total kontenjan mismatch');
 assert.strictEqual(grandYer, 57148, 'Grand total yerleşen mismatch');
 assert.strictEqual(grandMin, 11805, 'Grand total taban puan mismatch');
@@ -84,12 +94,16 @@ assert.strictEqual(grandMin, 11805, 'Grand total taban puan mismatch');
 // 3. Verify HTML files
 const yksHtml = fs.readFileSync('yks.html', 'utf8');
 assert(yksHtml.includes('2026 YKS Ek Yerleştirme Sonuçları & Taban Puanları'), 'yks.html title missing');
+assert(yksHtml.includes('779,870'), 'yks.html stat 779,870 missing');
 assert(yksHtml.includes('114,819'), 'yks.html stat 114,819 missing');
 assert(yksHtml.includes('57,148'), 'yks.html stat 57,148 missing');
 assert(yksHtml.includes('54,577'), 'yks.html stat 54,577 missing');
 assert(yksHtml.includes('11,805'), 'yks.html stat 11,805 missing');
+assert(yksHtml.includes('Toplam Kont.'), 'yks.html Toplam Kont. column header missing');
+assert(yksHtml.includes('İlk Yerl.'), 'yks.html İlk Yerl. column header missing');
 assert(yksHtml.includes('id="filterEkStatus"'), 'yks.html filterEkStatus select missing');
 assert(yksHtml.includes('value="ek_puan_desc"'), 'yks.html ek_puan_desc sort missing');
+assert(yksHtml.includes('value="quota_total_desc"'), 'yks.html quota_total_desc sort missing');
 console.log('[PASS] Verified yks.html structure, stats, and filter controls');
 
 const indexHtml = fs.readFileSync('index.html', 'utf8');
@@ -102,8 +116,11 @@ console.log('[PASS] Verified index.html gateway card and top banner');
 const appJs = fs.readFileSync('app.js', 'utf8');
 assert(appJs.includes('filterEkStatus'), 'app.js missing filterEkStatus');
 assert(appJs.includes('ek_puan_desc'), 'app.js missing ek_puan_desc sort');
+assert(appJs.includes('quota_total_desc'), 'app.js missing quota_total_desc sort');
 assert(appJs.includes('ek_bos_desc'), 'app.js missing ek_bos_desc sort');
+assert(appJs.includes('quota_total'), 'app.js missing quota_total field reference');
+assert(appJs.includes('Tercih Kılavuzu Toplam Kontenjan'), 'app.js missing Tercih Kılavuzu Toplam Kontenjan export header');
 assert(appJs.includes('YKS_2026_Ek_Yerlestirme_Listem'), 'app.js missing updated export filename');
 console.log('[PASS] Verified app.js engine references');
 
-console.log('\n🎉 ALL 18 AUTOMATED CHECKS PASSED SUCCESSFULLY!\n');
+console.log('\n🎉 ALL 24 AUTOMATED CHECKS PASSED SUCCESSFULLY!\n');

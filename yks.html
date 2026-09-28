@@ -146,6 +146,10 @@
       
       <div class="stats-grid">
         <div class="stat-card">
+          <div class="stat-number" style="color:#a78bfa;">779,870</div>
+          <div class="stat-label">Tercih Kılavuzu Toplam Kontenjan</div>
+        </div>
+        <div class="stat-card">
           <div class="stat-number" style="color:var(--accent-primary);">114,819</div>
           <div class="stat-label">Toplam Ek Kontenjan</div>
         </div>
@@ -279,6 +283,7 @@
           <option value="ek_bos_desc">Kalan Boş Kontenjan (Çoktan Aza)</option>
           <option value="ek_yer_desc">Ek Yerleşen Sayısı (Çoktan Aza)</option>
           <option value="ek_kont_desc">Ek Kontenjan (Çoktan Aza)</option>
+          <option value="quota_total_desc">Tercih Listesi Toplam Kontenjanı (Çoktan Aza)</option>
           <option value="rank_asc">İlk Başarı Sırası (En Yüksek -> Düşük)</option>
           <option value="rank_desc">İlk Başarı Sırası (Düşük -> Yüksek)</option>
           <option value="score_desc">İlk Taban Puanı (Yüksek -> Düşük)</option>
@@ -300,8 +305,10 @@
             <th>Üniversite / Fakülte</th>
             <th>Program Adı</th>
             <th style="width:45px;">Puan</th>
+            <th style="width:55px; text-align:center;" title="(Tercih Listesinde Belirtilen Toplam Kontenjan)">Toplam Kont.<br><span style="font-size:0.68rem; color:var(--text-muted); font-weight:normal;">[Tercih Kılavuzu]</span></th>
+            <th style="width:50px; text-align:center;" title="İlk Yerleşen Aday Sayısı">İlk Yerl.</th>
             <th style="width:50px; text-align:center;" title="2026 Genel Ek Kontenjan">Ek Kont.</th>
-            <th style="width:50px; text-align:center; color:#38bdf8;" title="2026 Ek Yerleşen Aday Sayısı">Yerleşen</th>
+            <th style="width:50px; text-align:center; color:#38bdf8;" title="2026 Ek Yerleşen Aday Sayısı">Ek Yerl.</th>
             <th style="width:65px; text-align:center; color:#f87171;" title="Ek Yerleştirme Sonrası Kalan Boş Kontenjan">Kalan Boş</th>
             <th style="text-align:right; width:95px; color:#34d399;" title="2026 ÖSYM Ek Yerleştirme Taban Puanı">Ek Taban<br><span style="font-size:0.68rem; color:#34d399; font-weight:normal;">[Ek Sonuç]</span></th>
             <th style="text-align:right; width:80px;" title="2026 İlk Yerleştirme Başarı Sıralaması">İlk Sıralama</th>
@@ -375,6 +382,11 @@
               <th>Üniversite</th>
               <th>Program</th>
               <th>İl</th>
+              <th style="text-align:center;">Toplam Kont.</th>
+              <th style="text-align:center;">İlk Yerl.</th>
+              <th style="text-align:center;">Ek Kont.</th>
+              <th style="text-align:center;">Kalan Boş</th>
+              <th style="text-align:right;">Ek Taban</th>
               <th>Sıralama</th>
               <th>Kaldır</th>
             </tr>

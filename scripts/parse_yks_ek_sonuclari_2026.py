@@ -142,6 +142,7 @@ def main():
     # 3. Merge Lisans
     matched_lisans = 0
     for item in lisans_data:
+        item["quota_total"] = (item.get("quota_genel", 0) or 0) + (item.get("quota_kadin34", 0) or 0) + (item.get("quota_okul1", 0) or 0) + (item.get("quota_sehit_gazi", 0) or 0)
         code = str(item["code"])
         if code in lisans_excel:
             matched_lisans += 1
@@ -205,6 +206,7 @@ def main():
     matched_onlisans = 0
     existing_onlisans_codes = set()
     for item in onlisans_data:
+        item["quota_total"] = (item.get("quota_genel", 0) or 0) + (item.get("quota_kadin34", 0) or 0) + (item.get("quota_okul1", 0) or 0) + (item.get("quota_sehit_gazi", 0) or 0)
         code = str(item["code"])
         existing_onlisans_codes.add(code)
         if code in onlisans_excel:
@@ -285,6 +287,7 @@ def main():
             "quota_kadin34": info["ek_kont_kadin34"],
             "quota_okul1": 0,
             "quota_sehit_gazi": info["ek_kont_sehit_gazi"],
+            "quota_total": info["ek_kont_genel"] + info["ek_kont_kadin34"] + info["ek_kont_sehit_gazi"],
             "spec_cond": "18, 19, 21, 22, 23, 24, 64, 132",
             "score": "",
             "score_max": "----",
@@ -328,15 +331,20 @@ def main():
         tot_yer = sum(x.get("ek_yer_total", 0) for x in dataset if x.get("has_ek_sonuc"))
         tot_bos = sum(x.get("ek_bos_total", 0) for x in dataset if x.get("has_ek_sonuc"))
         has_min = sum(1 for x in dataset if x.get("has_ek_sonuc") and x.get("ek_min_puan") is not None)
-        return tot_kont, tot_yer, tot_bos, has_min
+        tot_guide_kont = sum(x.get("quota_total", 0) for x in dataset)
+        return tot_kont, tot_yer, tot_bos, has_min, tot_guide_kont
 
-    l_kont, l_yer, l_bos, l_min = compute_totals(lisans_data)
-    o_kont, o_yer, o_bos, o_min = compute_totals(onlisans_data)
+    l_kont, l_yer, l_bos, l_min, l_guide_kont = compute_totals(lisans_data)
+    o_kont, o_yer, o_bos, o_min, o_guide_kont = compute_totals(onlisans_data)
 
     print("\n--- MERGE VERIFICATION ---")
-    print(f"Lisans: Kont={l_kont:,}, Yer={l_yer:,}, Bos={l_bos:,}, TabanOlusan={l_min:,}")
-    print(f"Onlisans: Kont={o_kont:,}, Yer={o_yer:,}, Bos={o_bos:,}, TabanOlusan={o_min:,}")
-    print(f"Grand Total: Kont={l_kont+o_kont:,}, Yer={l_yer+o_yer:,}, Bos={l_bos+o_bos:,}, TabanOlusan={l_min+o_min:,}")
+    print(f"Lisans: TercihKılavuzKont={l_guide_kont:,}, EkKont={l_kont:,}, Yer={l_yer:,}, Bos={l_bos:,}, TabanOlusan={l_min:,}")
+    print(f"Onlisans: TercihKılavuzKont={o_guide_kont:,}, EkKont={o_kont:,}, Yer={o_yer:,}, Bos={o_bos:,}, TabanOlusan={o_min:,}")
+    print(f"Grand Total: TercihKılavuzKont={l_guide_kont+o_guide_kont:,}, EkKont={l_kont+o_kont:,}, Yer={l_yer+o_yer:,}, Bos={l_bos+o_bos:,}, TabanOlusan={l_min+o_min:,}")
+
+    assert l_guide_kont == 408244, f"Lisans quota_total mismatch: {l_guide_kont}"
+    assert o_guide_kont == 371626, f"Onlisans quota_total mismatch: {o_guide_kont}"
+    assert l_guide_kont + o_guide_kont == 779870, f"Grand quota_total mismatch: {l_guide_kont + o_guide_kont}"
 
     assert l_kont == 50278, f"Lisans Kont mismatch: {l_kont}"
     assert l_yer == 15085, f"Lisans Yer mismatch: {l_yer}"
