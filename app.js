@@ -275,6 +275,7 @@ const pageInfoEl = document.getElementById('pageInfo');
 const prevPageBtn = document.getElementById('prevPageBtn');
 const favCountBadge = document.getElementById('favCountBadge');
 const filterOnlyEkKont = document.getElementById('filterOnlyEkKont');
+const filterEkStatus = document.getElementById('filterEkStatus');
 const btnResetFilters = document.getElementById('btnResetFilters');
 
 // Initialization
@@ -305,7 +306,14 @@ function checkURLParams() {
   const minR = params.get('min_sira') || params.get('amp;min_sira');
   const maxR = params.get('max_sira') || params.get('amp;max_sira');
   const onlyEk = params.get('only_ek') || params.get('amp;only_ek');
+  const ekDurum = params.get('ek_durum') || params.get('amp;ek_durum');
   const sirala = params.get('sirala') || params.get('amp;sirala');
+
+  if (ekDurum && filterEkStatus) {
+    filterEkStatus.value = ekDurum;
+  } else if (onlyEk === '0' && filterEkStatus) {
+    filterEkStatus.value = 'all';
+  }
 
   if (filterOnlyEkKont) {
     filterOnlyEkKont.checked = onlyEk !== '0';
@@ -388,8 +396,8 @@ function updateURLParams() {
   if (filterEgitimType.value) params.set('egitim', filterEgitimType.value);
   if (filterMinRank && filterMinRank.value) params.set('min_sira', filterMinRank.value);
   if (filterMaxRank && filterMaxRank.value) params.set('max_sira', filterMaxRank.value);
-  if (filterOnlyEkKont && !filterOnlyEkKont.checked) params.set('only_ek', '0');
-  if (sortBySelect && sortBySelect.value && sortBySelect.value !== 'ek_kont_desc') params.set('sirala', sortBySelect.value);
+  if (filterEkStatus && filterEkStatus.value && filterEkStatus.value !== 'has_ek_sonuc') params.set('ek_durum', filterEkStatus.value);
+  if (sortBySelect && sortBySelect.value && sortBySelect.value !== 'ek_puan_desc') params.set('sirala', sortBySelect.value);
   if (currentTab !== 'lisans') params.set('tab', currentTab);
 
   const newRelativePathQuery = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
@@ -499,12 +507,23 @@ function setupMultiSelectEvents() {
 
 // Event Listeners
 function setupEventListeners() {
-  [searchInput, filterUnivType, filterPuanType, filterEgitimType, filterMinRank, filterMaxRank, sortBySelect]
+  [searchInput, filterUnivType, filterPuanType, filterEgitimType, filterMinRank, filterMaxRank, sortBySelect, filterEkStatus]
     .filter(Boolean)
     .forEach(el => el.addEventListener('input', () => { currentPage = 1; updateURLParams(); render(); }));
 
+  if (filterEkStatus) {
+    filterEkStatus.addEventListener('change', () => {
+      currentPage = 1;
+      updateURLParams();
+      render();
+    });
+  }
+
   if (filterOnlyEkKont) {
     filterOnlyEkKont.addEventListener('change', () => {
+      if (filterEkStatus) {
+        filterEkStatus.value = filterOnlyEkKont.checked ? 'has_ek_sonuc' : 'all';
+      }
       currentPage = 1;
       updateURLParams();
       render();
@@ -543,8 +562,9 @@ function resetFilters() {
   selectedCities = [];
   updateCityMultiLabel();
   document.querySelectorAll('#cityOptionsList input[type="checkbox"]').forEach(cb => { cb.checked = false; });
+  if (filterEkStatus) filterEkStatus.value = 'has_ek_sonuc';
   if (filterOnlyEkKont) filterOnlyEkKont.checked = true;
-  if (sortBySelect) sortBySelect.value = 'ek_kont_desc';
+  if (sortBySelect) sortBySelect.value = 'ek_puan_desc';
   currentPage = 1;
   updateURLParams();
   render();
@@ -851,11 +871,15 @@ function getFilteredData() {
   const egitimType = filterEgitimType.value;
   const minRank = filterMinRank && filterMinRank.value ? parseInt(filterMinRank.value, 10) : null;
   const maxRank = filterMaxRank && filterMaxRank.value ? parseInt(filterMaxRank.value, 10) : null;
-  const onlyEkKont = filterOnlyEkKont ? filterOnlyEkKont.checked : false;
-  const sortBy = sortBySelect.value;
+  const ekStatus = filterEkStatus ? filterEkStatus.value : 'has_ek_sonuc';
+  const sortBy = sortBySelect ? sortBySelect.value : 'ek_puan_desc';
 
   let filtered = dataset.filter(item => {
-    if (onlyEkKont && (item.ek_kont_genel || 0) <= 0) return false;
+    if (ekStatus === 'has_ek_sonuc' && !item.has_ek_sonuc) return false;
+    if (ekStatus === 'ek_bos' && (!item.has_ek_sonuc || (item.ek_bos_genel || 0) <= 0)) return false;
+    if (ekStatus === 'ek_yerlesen' && (!item.has_ek_sonuc || (item.ek_yer_genel || 0) <= 0)) return false;
+    if (ekStatus === 'ek_puan_var' && (!item.has_ek_sonuc || item.ek_min_puan === null || item.ek_min_puan === undefined)) return false;
+    if (ekStatus === 'ek_tam_dolu' && (!item.has_ek_sonuc || (item.ek_kont_genel || 0) <= 0 || (item.ek_bos_genel || 0) > 0)) return false;
 
     if (query) {
       const targetStr = turkishNormalize(item.univ + ' ' + item.prog + ' ' + item.fac + ' ' + item.code);
@@ -879,11 +903,15 @@ function getFilteredData() {
   });
 
   filtered.sort((a, b) => {
+    if (sortBy === 'ek_puan_desc') return (b.ek_min_puan || 0) - (a.ek_min_puan || 0);
+    if (sortBy === 'ek_puan_asc') return (a.ek_min_puan || 9999) - (b.ek_min_puan || 9999);
+    if (sortBy === 'ek_bos_desc') return (b.ek_bos_genel || 0) - (a.ek_bos_genel || 0);
+    if (sortBy === 'ek_yer_desc') return (b.ek_yer_genel || 0) - (a.ek_yer_genel || 0);
     if (sortBy === 'ek_kont_desc') return (b.ek_kont_genel || 0) - (a.ek_kont_genel || 0);
     if (sortBy === 'rank_asc') return (parseInt(a.rank, 10) || 9999999) - (parseInt(b.rank, 10) || 9999999);
     if (sortBy === 'rank_desc') return (parseInt(b.rank, 10) || 0) - (parseInt(a.rank, 10) || 0);
-    if (sortBy === 'score_desc') return (parseFloat(b.ek_score_gk ?? b.score) || 0) - (parseFloat(a.ek_score_gk ?? a.score) || 0);
-    if (sortBy === 'score_asc') return (parseFloat(a.ek_score_gk ?? a.score) || 9999) - (parseFloat(b.ek_score_gk ?? b.score) || 9999);
+    if (sortBy === 'score_desc') return (parseFloat(b.score) || 0) - (parseFloat(a.score) || 0);
+    if (sortBy === 'score_asc') return (parseFloat(a.score) || 9999) - (parseFloat(b.score) || 9999);
     if (sortBy === 'univ_asc') return a.univ.localeCompare(b.univ, 'tr');
     if (sortBy === 'prog_asc') return a.prog.localeCompare(b.prog, 'tr');
     return 0;
@@ -920,7 +948,7 @@ function render() {
   tableBody.innerHTML = '';
 
   if (pageItems.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding:40px; color:var(--text-muted);">Aramanıza uygun üniversite programı bulunamadı.</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:40px; color:var(--text-muted);">Aramanıza uygun üniversite programı bulunamadı.</td></tr>`;
     return;
   }
 
@@ -932,37 +960,83 @@ function render() {
     const badgeEgitimClass = item.tip === 'Uzaktan' ? 'badge-uzaktan' : (item.tip === 'AÖF' ? 'badge-aof' : 'badge-orgun');
 
     const rankDisplay = item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-');
-    const placedCount = item.quota_placed !== undefined && item.quota_placed !== null ? item.quota_placed : '-';
     
-    // Official 2026 Ek Kontenjan
-    const ekGenel = item.ek_kont_genel !== undefined ? item.ek_kont_genel : (item.quota_empty || 0);
-    const ekSG = item.ek_kont_sehit_gazi || 0;
-    const ek34Y = item.ek_kont_kadin34 || 0;
+    // Official 2026 Ek Yerleştirme numbers
+    const hasEk = item.has_ek_sonuc;
+    const ekGenel = item.ek_kont_genel || 0;
+    const ekYer = item.ek_yer_genel || 0;
+    const ekBos = item.ek_bos_genel !== undefined ? item.ek_bos_genel : Math.max(0, ekGenel - ekYer);
+    const ekSG_kont = item.ek_kont_sehit_gazi || 0;
+    const ekSG_yer = item.ek_yer_sehit_gazi || 0;
+    const ek34Y_kont = item.ek_kont_kadin34 || 0;
+    const ek34Y_yer = item.ek_yer_kadin34 || 0;
 
-    let emptyBadge = '';
-    if (ekGenel > 0) {
-      emptyBadge = `<span class="badge" style="background:rgba(239, 68, 68, 0.2); color:#f87171; font-weight:800; font-size:0.85rem;" title="Genel Ek Kontenjan: ${ekGenel}">${ekGenel}</span>`;
-      if (ekSG > 0) {
-        emptyBadge += `<div style="margin-top:2px;"><span class="badge" style="background:rgba(234, 179, 8, 0.18); color:#facc15; font-size:0.68rem;" title="Şehit / Gazi Yakını Ek Kontenjanı: ${ekSG}">ŞG: ${ekSG}</span></div>`;
+    // Ek Kontenjan Cell
+    let ekKontDisplay = '';
+    if (hasEk) {
+      ekKontDisplay = `<div style="font-weight:700; color:var(--text-primary); font-size:0.9rem;">${ekGenel}</div>`;
+      if (ek34Y_kont > 0) {
+        ekKontDisplay += `<div style="font-size:0.68rem; color:#c084fc;" title="34 Yaş Üstü Kadın Ek Kontenjanı">34Y: ${ek34Y_kont}</div>`;
       }
-      if (ek34Y > 0) {
-        emptyBadge += `<div style="margin-top:2px;"><span class="badge" style="background:rgba(168, 85, 247, 0.18); color:#c084fc; font-size:0.68rem;" title="34 Yaş Üstü Kadın Ek Kontenjanı: ${ek34Y}">34Y: ${ek34Y}</span></div>`;
+      if (ekSG_kont > 0) {
+        ekKontDisplay += `<div style="font-size:0.68rem; color:#facc15;" title="Şehit/Gazi Yakını Ek Kontenjanı">ŞG: ${ekSG_kont}</div>`;
       }
     } else {
-      emptyBadge = `<span class="badge badge-devlet" style="font-size:0.75rem; opacity:0.7;">Doldu</span>`;
+      ekKontDisplay = `<span style="color:var(--text-muted); font-size:0.8rem;">—</span>`;
     }
 
-    // Taban Puan display
-    let scoreDisplay = '';
-    if (item.ek_score_gk !== undefined && item.ek_score_gk !== null) {
-      scoreDisplay = `<div style="font-weight:700; color:var(--text-primary); font-size:0.9rem;">${typeof item.ek_score_gk === 'number' ? item.ek_score_gk.toFixed(5) : item.ek_score_gk}</div>`;
-    } else if (item.score && item.score !== '----' && item.score !== '') {
-      const sVal = typeof item.score === 'number' ? item.score.toFixed(5) : item.score;
-      scoreDisplay = `<div style="font-weight:700; color:var(--text-primary); font-size:0.9rem;">${sVal}</div>`;
-    } else if (ekGenel > 0) {
-      scoreDisplay = `<div style="font-weight:700; color:var(--text-primary); font-size:0.85rem;">—</div><span class="badge" style="background:rgba(52, 211, 153, 0.15); color:#34d399; font-size:0.68rem; padding:1px 4px; display:inline-block; margin-top:2px;" title="Kontenjan ilk yerleştirmede dolmadığı için taban puan oluşmamıştır; puan şartı aranmaz.">Taban Yok</span>`;
+    // Yerleşen Cell
+    let yerlesenDisplay = '';
+    if (hasEk) {
+      yerlesenDisplay = `<div style="font-weight:700; color:#38bdf8; font-size:0.9rem;">${ekYer}</div>`;
+      if (ek34Y_yer > 0) {
+        yerlesenDisplay += `<div style="font-size:0.68rem; color:#c084fc;" title="34 Yaş Üstü Kadın Ek Yerleşen">34Y: ${ek34Y_yer}</div>`;
+      }
+      if (ekSG_yer > 0) {
+        yerlesenDisplay += `<div style="font-size:0.68rem; color:#facc15;" title="Şehit/Gazi Yakını Ek Yerleşen">ŞG: ${ekSG_yer}</div>`;
+      }
     } else {
-      scoreDisplay = `<div style="color:var(--text-muted); font-size:0.85rem;">—</div>`;
+      yerlesenDisplay = `<span style="color:var(--text-muted); font-size:0.8rem;">—</span>`;
+    }
+
+    // Kalan Boş Kontenjan Cell
+    let emptyBadge = '';
+    if (!hasEk) {
+      emptyBadge = `<span class="badge" style="background:rgba(255,255,255,0.05); color:var(--text-muted); font-size:0.7rem;">Ek Kont. Yok</span>`;
+    } else if (ekBos === 0) {
+      emptyBadge = `<span class="badge badge-devlet" style="font-size:0.75rem; font-weight:700;">Doldu</span>`;
+    } else {
+      emptyBadge = `<span class="badge" style="background:rgba(239, 68, 68, 0.2); color:#f87171; font-weight:800; font-size:0.82rem;" title="Genel Kalan Boş: ${ekBos}">${ekBos} Boş</span>`;
+      if (item.ek_bos_kadin34 > 0) {
+        emptyBadge += `<div style="margin-top:2px;"><span class="badge" style="background:rgba(168, 85, 247, 0.18); color:#c084fc; font-size:0.68rem;" title="34 Yaş Kadın Kalan Boş: ${item.ek_bos_kadin34}">34Y: ${item.ek_bos_kadin34}</span></div>`;
+      }
+      if (item.ek_bos_sehit_gazi > 0) {
+        emptyBadge += `<div style="margin-top:2px;"><span class="badge" style="background:rgba(234, 179, 8, 0.18); color:#facc15; font-size:0.68rem;" title="Şehit/Gazi Kalan Boş: ${item.ek_bos_sehit_gazi}">ŞG: ${item.ek_bos_sehit_gazi}</span></div>`;
+      }
+    }
+
+    // Ek Taban Puan Display
+    let ekScoreDisplay = '';
+    if (item.ek_min_puan_str) {
+      ekScoreDisplay = `<div style="font-weight:800; color:#34d399; font-size:0.92rem;">${item.ek_min_puan_str}</div>`;
+      if (item.ek_max_puan_str && item.ek_max_puan_str !== item.ek_min_puan_str) {
+        ekScoreDisplay += `<div style="font-size:0.68rem; color:var(--text-muted);" title="Tavan Puan">Tav: ${item.ek_max_puan_str}</div>`;
+      }
+    } else if (hasEk && ekYer === 0 && ekGenel > 0) {
+      ekScoreDisplay = `<span class="badge" style="background:rgba(239,68,68,0.12); color:#f87171; font-size:0.72rem; padding:2px 6px;" title="Kontenjana hiç aday yerleşmemiştir.">Yerleşen Yok</span>`;
+    } else if (hasEk && ekYer < ekGenel) {
+      ekScoreDisplay = `<span class="badge" style="background:rgba(245,158,11,0.15); color:#fbbf24; font-size:0.72rem; padding:2px 6px;" title="Kontenjan dolmadığı için taban puan oluşmamıştır.">Dolmadı</span>`;
+    } else {
+      ekScoreDisplay = `<div style="color:var(--text-muted); font-size:0.85rem;">—</div>`;
+    }
+
+    // İlk Yerleştirme Taban Puan Display
+    let firstScoreDisplay = '';
+    if (item.score && item.score !== '----' && item.score !== '') {
+      const sVal = typeof item.score === 'number' ? item.score.toFixed(5) : item.score;
+      firstScoreDisplay = `<div style="font-weight:600; color:var(--text-secondary); font-size:0.88rem;">${sVal}</div>`;
+    } else {
+      firstScoreDisplay = `<div style="color:var(--text-muted); font-size:0.85rem;">—</div>`;
     }
 
     const condCodes = [item.spec_cond, item.ek_spec_cond].filter(Boolean).join(', ');
@@ -990,12 +1064,13 @@ function render() {
         </div>
       </td>
       <td><span class="badge" style="background:rgba(255,255,255,0.08); font-size:0.75rem;">${item.score_type}</span></td>
-      <td style="text-align:center; font-weight:600;">${item.quota_genel || 0}</td>
-      <td style="text-align:center; font-weight:600; color:#38bdf8;">${placedCount}</td>
+      <td style="text-align:center;">${ekKontDisplay}</td>
+      <td style="text-align:center;">${yerlesenDisplay}</td>
       <td style="text-align:center;">${emptyBadge}</td>
-      <td style="white-space:nowrap;">${condBadges}</td>
+      <td style="text-align:right;">${ekScoreDisplay}</td>
       <td style="text-align:right; font-weight:700; color:var(--accent-primary);">${rankDisplay}</td>
-      <td style="text-align:right; font-weight:700; color:var(--text-primary);">${scoreDisplay}</td>
+      <td style="text-align:right;">${firstScoreDisplay}</td>
+      <td style="white-space:nowrap;">${condBadges}</td>
     `;
     tableBody.appendChild(tr);
   });
@@ -1075,9 +1150,9 @@ function exportFavsXLSX() {
 
   try {
     const data = favorites.map((item, idx) => {
-      const ekScore = item.ek_score_gk !== undefined && item.ek_score_gk !== null
-        ? parseFloat(item.ek_score_gk)
-        : (item.score && item.score !== '----' && item.score !== '' ? parseFloat(item.score) : 'Taban Yok');
+      const ekScore = item.ek_min_puan !== null && item.ek_min_puan !== undefined
+        ? item.ek_min_puan
+        : (item.has_ek_sonuc ? (item.ek_yer_genel === 0 ? 'Yerleşen Yok' : 'Dolmadı') : 'Ek Kont. Yok');
 
       return {
         'Sıra': idx + 1,
@@ -1089,28 +1164,29 @@ function exportFavsXLSX() {
         'Eğitim Tipi': item.tip,
         'Program': item.prog,
         'Puan Türü': item.score_type,
-        'Kontenjan (İlk)': item.quota_genel || '',
-        'Boş Kontenjan (Ek Tercih)': item.ek_kont_genel !== undefined ? item.ek_kont_genel : (item.quota_empty || 0),
-        'Şehit / Gazi Ek Kont.': item.ek_kont_sehit_gazi || 0,
-        '34 Yaş Kadın Ek Kont.': item.ek_kont_kadin34 || 0,
-        'Özel Koşul ve Açıklamalar': [item.spec_cond, item.ek_spec_cond].filter(Boolean).join(', '),
-        'Başarı Sıralaması': item.rank && item.rank !== '...' ? parseInt(item.rank, 10) : (item.rank || ''),
-        '2026 Ek Tercih Taban Puanı': ekScore
+        '2026 Ek Kontenjan': item.ek_kont_genel || 0,
+        '2026 Ek Yerleşen': item.ek_yer_genel || 0,
+        '2026 Kalan Boş': item.ek_bos_genel !== undefined ? item.ek_bos_genel : Math.max(0, (item.ek_kont_genel || 0) - (item.ek_yer_genel || 0)),
+        '2026 Ek Yerleştirme Taban Puanı': ekScore,
+        '2026 Ek Yerleştirme Tavan Puanı': item.ek_max_puan || '',
+        '2026 İlk Taban Puanı': item.score && item.score !== '----' ? item.score : '',
+        '2026 İlk Başarı Sırası': item.rank && item.rank !== '...' ? parseInt(item.rank, 10) : (item.rank || ''),
+        'Özel Koşul ve Açıklamalar': [item.spec_cond, item.ek_spec_cond].filter(Boolean).join(', ')
       };
     });
 
     const worksheet = XLSX.utils.json_to_sheet(data);
 
-    // Column widths
     worksheet['!cols'] = [
-      { wch: 6 }, { wch: 12 }, { wch: 14 }, { wch: 40 }, { wch: 18 },
-      { wch: 30 }, { wch: 16 }, { wch: 40 }, { wch: 12 }, { wch: 16 },
-      { wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 28 }, { wch: 16 }, { wch: 22 }
+      { wch: 6 }, { wch: 12 }, { wch: 14 }, { wch: 38 }, { wch: 18 },
+      { wch: 28 }, { wch: 14 }, { wch: 38 }, { wch: 10 }, { wch: 16 },
+      { wch: 16 }, { wch: 16 }, { wch: 22 }, { wch: 22 }, { wch: 18 },
+      { wch: 18 }, { wch: 24 }
     ];
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Tercih Listesi');
-    const fileName = `YKS_Ek_Tercih_Listesi_${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Ek Yerleştirme Listesi');
+    const fileName = `YKS_2026_Ek_Yerlestirme_Listem_${new Date().toISOString().slice(0,10)}.xlsx`;
     XLSX.writeFile(workbook, fileName);
   } catch (err) {
     console.error('Excel export error:', err);
@@ -1135,28 +1211,29 @@ function exportFavsPDF() {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('2026 YKS EK TERCIH LISTEM', 14, 13);
+    doc.text('2026 YKS EK YERLESTIRME LISTEM', 14, 13);
 
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text(`tercihrobutu.github.io  |  ${new Date().toLocaleDateString('tr-TR')}  |  Toplam: ${favorites.length} Program`, 150, 13);
 
+    // Türkçe karakterleri ASCII'ye dönüştür (jsPDF built-in font için)
+    const toAscii = s => String(s || '')
+      .replace(/Ğ/g,'G').replace(/ğ/g,'g')
+      .replace(/Ü/g,'U').replace(/ü/g,'u')
+      .replace(/Ş/g,'S').replace(/ş/g,'s')
+      .replace(/İ/g,'I').replace(/ı/g,'i')
+      .replace(/Ö/g,'O').replace(/ö/g,'o')
+      .replace(/Ç/g,'C').replace(/ç/g,'c');
+
     // ---- Tablo Verisi ----
     const tableData = favorites.map((item, idx) => {
-      const rank = item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-');
-      const score = item.ek_score_gk !== undefined && item.ek_score_gk !== null
-        ? parseFloat(item.ek_score_gk).toFixed(3)
-        : (item.score && item.score !== '----' && item.score !== '' ? parseFloat(item.score).toFixed(3) : 'Taban Yok');
-      const ekKont = String(item.ek_kont_genel !== undefined ? item.ek_kont_genel : (item.quota_empty || 0));
-
-      // Türkçe karakterleri ASCII'ye dönüştür (jsPDF built-in font için)
-      const toAscii = s => String(s || '')
-        .replace(/Ğ/g,'G').replace(/ğ/g,'g')
-        .replace(/Ü/g,'U').replace(/ü/g,'u')
-        .replace(/Ş/g,'S').replace(/ş/g,'s')
-        .replace(/İ/g,'I').replace(/ı/g,'i')
-        .replace(/Ö/g,'O').replace(/ö/g,'o')
-        .replace(/Ç/g,'C').replace(/ç/g,'c');
+      const ekScore = item.ek_min_puan_str || (item.has_ek_sonuc ? (item.ek_yer_genel === 0 ? 'Yerl. Yok' : 'Dolmadi') : '-');
+      const firstScore = item.score && item.score !== '----' && item.score !== '' ? (typeof item.score === 'number' ? item.score.toFixed(3) : item.score) : '-';
+      const firstRank = item.rank && item.rank !== '...' ? parseInt(item.rank, 10).toLocaleString('tr-TR') : (item.rank || '-');
+      const ekKont = String(item.ek_kont_genel || 0);
+      const ekYer = String(item.ek_yer_genel || 0);
+      const ekBos = String(item.ek_bos_genel !== undefined ? item.ek_bos_genel : Math.max(0, (item.ek_kont_genel || 0) - (item.ek_yer_genel || 0)));
 
       return [
         idx + 1,
@@ -1166,44 +1243,49 @@ function exportFavsPDF() {
         toAscii(item.prog),
         item.score_type,
         ekKont,
-        rank,
-        score
+        ekYer,
+        ekBos,
+        ekScore,
+        firstRank,
+        firstScore
       ];
     });
 
     doc.autoTable({
       startY: 24,
-      head: [['#', 'OSYM Kodu', 'Il', 'Universite', 'Program', 'Puan', 'Ek Kont.', 'Siralama', 'Ek Taban Puan']],
+      head: [['#', 'OSYM Kodu', 'Il', 'Universite', 'Program', 'Puan', 'Ek Kont.', 'Yerlesen', 'Kalan Bos', 'Ek Taban', 'Ilk Sira', 'Ilk Taban']],
       body: tableData,
       theme: 'grid',
       headStyles: {
         fillColor: [99, 102, 241],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 9,
+        fontSize: 8.5,
         halign: 'center'
       },
       bodyStyles: {
-        fontSize: 8,
-        cellPadding: 3
+        fontSize: 7.5,
+        cellPadding: 2.5
       },
       alternateRowStyles: {
         fillColor: [248, 250, 252]
       },
       columnStyles: {
-        0: { cellWidth: 10, halign: 'center', fontStyle: 'bold', textColor: [99, 102, 241] },
-        1: { cellWidth: 26, fontStyle: 'bold', textColor: [79, 70, 229] },
-        2: { cellWidth: 22 },
-        3: { cellWidth: 55 },
-        4: { cellWidth: 65 },
-        5: { cellWidth: 16, halign: 'center' },
-        6: { cellWidth: 18, halign: 'center', fontStyle: 'bold', textColor: [239, 68, 68] },
-        7: { cellWidth: 22, halign: 'right', fontStyle: 'bold', textColor: [99, 102, 241] },
-        8: { cellWidth: 24, halign: 'right' }
+        0: { cellWidth: 8, halign: 'center', fontStyle: 'bold', textColor: [99, 102, 241] },
+        1: { cellWidth: 22, fontStyle: 'bold', textColor: [79, 70, 229] },
+        2: { cellWidth: 18 },
+        3: { cellWidth: 50 },
+        4: { cellWidth: 55 },
+        5: { cellWidth: 12, halign: 'center' },
+        6: { cellWidth: 15, halign: 'center' },
+        7: { cellWidth: 15, halign: 'center', textColor: [56, 189, 248] },
+        8: { cellWidth: 16, halign: 'center', fontStyle: 'bold', textColor: [239, 68, 68] },
+        9: { cellWidth: 22, halign: 'right', fontStyle: 'bold', textColor: [52, 211, 153] },
+        10: { cellWidth: 20, halign: 'right', fontStyle: 'bold', textColor: [99, 102, 241] },
+        11: { cellWidth: 20, halign: 'right' }
       },
       margin: { left: 10, right: 10 },
       didDrawPage: (data) => {
-        // Footer
         const pageCount = doc.internal.getNumberOfPages();
         doc.setFontSize(8);
         doc.setTextColor(148, 163, 184);
@@ -1214,7 +1296,7 @@ function exportFavsPDF() {
       }
     });
 
-    doc.save('YKS_Tercih_Listem_2026.pdf');
+    doc.save('YKS_2026_Ek_Yerlestirme_Listem.pdf');
   } catch (err) {
     console.error('PDF export error:', err);
     alert('PDF olusturulurken bir hata olustu: ' + err.message);
