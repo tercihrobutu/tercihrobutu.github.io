@@ -99,7 +99,8 @@ const requiredIds = [
   'sortBy', 'btnResetFilters', 'btnTriggerFavs', 'favCountBadgeBottom', 'filteredCount',
   'tableBody', 'prevPageBtn', 'nextPageBtn', 'pageInfo',
   'btnOpenList', 'favCountBadge', 'listModal', 'btnCloseModal', 'favTableBody',
-  'btnClearFavs', 'btnExportXLSX', 'btnExportPDF',
+  'btnClearFavs', 'btnExportXLSX', 'btnExportPDF', 'btnShareFavsWA',
+  'btnShareWhatsApp', 'btnCopyLink',
   'condModal', 'btnCloseCondModal', 'condModalTitle', 'condModalBody',
   'trendModal', 'btnCloseTrendModal', 'trendModalTitle', 'trendModalSub', 'trendContent',
   'themeToggle', 'tabAll', 'tabKlinik', 'tabTemel'

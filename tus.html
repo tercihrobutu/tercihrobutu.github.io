@@ -132,7 +132,13 @@
           </div>
         </div>
       </div>
-      <div style="display:flex; gap:8px;">
+      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <button id="btnShareWhatsApp" class="btn" style="padding:6px 14px; font-size:0.82rem; background:rgba(37,211,102,0.15); color:#25d366; border:1px solid rgba(37,211,102,0.4); font-weight:700; cursor:pointer;">
+          💬 Hekim Gruplarında Paylaş
+        </button>
+        <button id="btnCopyLink" class="btn" style="padding:6px 12px; font-size:0.82rem; color:var(--text-secondary); border:1px solid var(--border-color); cursor:pointer;">
+          🔗 Bağlantıyı Kopyala
+        </button>
         <a href="https://ais.osym.gov.tr" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding:6px 14px; font-size:0.82rem; text-decoration:none; background:#0284c7; color:#fff; font-weight:700; border-color:#0284c7;">
           ÖSYM AIS Tercih Yap ↗
         </a>
@@ -377,7 +383,8 @@
 
       <div style="margin-top:20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
         <button id="btnClearFavs" class="btn" style="color:#f87171;">Tümünü Temizle</button>
-        <div style="display:flex; gap:10px;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button id="btnShareFavsWA" class="btn" style="border-color:#25d366; color:#25d366;">💬 Listemi WhatsApp'ta Paylaş</button>
           <button id="btnExportXLSX" class="btn" style="border-color:#10b981; color:#10b981;">📊 Excel İndir (.xlsx)</button>
           <button id="btnExportPDF" class="btn btn-primary" style="background:#0284c7; border-color:#0284c7;">📄 PDF İndir</button>
         </div>

@@ -70,6 +70,9 @@ const favTableBody = document.getElementById('favTableBody');
 const btnClearFavs = document.getElementById('btnClearFavs');
 const btnExportXLSX = document.getElementById('btnExportXLSX');
 const btnExportPDF = document.getElementById('btnExportPDF');
+const btnShareWhatsApp = document.getElementById('btnShareWhatsApp');
+const btnCopyLink = document.getElementById('btnCopyLink');
+const btnShareFavsWA = document.getElementById('btnShareFavsWA');
 
 const condModal = document.getElementById('condModal');
 const btnCloseCondModal = document.getElementById('btnCloseCondModal');
@@ -369,6 +372,9 @@ function setupEventListeners() {
   if (btnClearFavs) btnClearFavs.addEventListener('click', clearFavs);
   if (btnExportXLSX) btnExportXLSX.addEventListener('click', exportFavsXLSX);
   if (btnExportPDF) btnExportPDF.addEventListener('click', exportFavsPDF);
+  if (btnShareWhatsApp) btnShareWhatsApp.addEventListener('click', shareSiteWhatsApp);
+  if (btnCopyLink) btnCopyLink.addEventListener('click', copySiteLink);
+  if (btnShareFavsWA) btnShareFavsWA.addEventListener('click', shareFavsWhatsApp);
 
   // Conditions Modal
   if (btnCloseCondModal) {
@@ -856,3 +862,51 @@ function exportFavsPDF() {
     alert('PDF oluşturulurken bir hata oluştu: ' + err.message);
   }
 }
+
+// ============================================================
+// SHARE & COPY FUNCTIONS
+// ============================================================
+function shareSiteWhatsApp() {
+  const text = `🩺 2026 TUS 2. Dönem Tercih Robotu: ÖSYM resmi kontenjanları (2.941 kadro, 8.637 kontenjan, 42 branş) ve son 3 dönemin resmi taban puanları ışık hızında ve reklamsız burada:\n\n👉 https://tercihrobutu.github.io/tus.html`;
+  const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
+function copySiteLink() {
+  const url = 'https://tercihrobutu.github.io/tus.html';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      if (btnCopyLink) {
+        const orig = btnCopyLink.innerHTML;
+        btnCopyLink.innerHTML = '✓ Kopyalandı!';
+        btnCopyLink.style.color = '#10b981';
+        btnCopyLink.style.borderColor = '#10b981';
+        setTimeout(() => {
+          btnCopyLink.innerHTML = orig;
+          btnCopyLink.style.color = '';
+          btnCopyLink.style.borderColor = '';
+        }, 2200);
+      }
+    });
+  } else {
+    prompt('Sayfa bağlantısı:', url);
+  }
+}
+
+function shareFavsWhatsApp() {
+  if (!favorites || favorites.length === 0) {
+    alert('Lütfen önce tercih listenize en az bir uzmanlık programı ekleyiniz.');
+    return;
+  }
+
+  let text = `🩺 2026 TUS 2. Dönem Tercih Listem (${favorites.length} Program):\n\n`;
+  favorites.forEach((fav, i) => {
+    const score = fav.min_2026_1 && fav.min_2026_1 !== '--' ? `(26/1 Taban: ${fav.min_2026_1})` : '';
+    text += `${i + 1}. ${fav.code} - ${fav.kurum} | ${fav.brans} [${fav.city}] ${score}\n`;
+  });
+  text += `\n🔗 Tercih Robotu: https://tercihrobutu.github.io/tus.html`;
+
+  const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
