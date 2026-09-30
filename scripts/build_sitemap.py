@@ -166,7 +166,42 @@ def build_sitemap():
                     q_m = name.replace(' ', '%20')
                     urls.add((f"{DGS_URL}?mezuniyet={q_m}", '0.8', 'weekly'))
 
-    print(f"Total unique URLs generated in sitemap (Portal + YKS + DGS): {len(urls)}")
+    # ============================================================
+    # 7. 2026 TUS (Tıpta Uzmanlık Eğitimi Giriş Sınavı) URLs
+    # ============================================================
+    TUS_URL = f"{BASE_URL}tus.html"
+    urls.add((TUS_URL, '0.95', 'daily'))
+    urls.add((f"{TUS_URL}?pt=K", '0.85', 'weekly'))
+    urls.add((f"{TUS_URL}?pt=T", '0.85', 'weekly'))
+
+    TUS_PROGRAMS_JS = os.path.join(REPO_ROOT, 'data', 'tus_programs.js')
+    if os.path.exists(TUS_PROGRAMS_JS):
+        with open(TUS_PROGRAMS_JS, 'r', encoding='utf-8') as f:
+            tus_text = f.read()
+        m = re.search(r'window\.DATA_TUS_PROGRAMS\s*=\s*(\[.*?\]);?\s*$', tus_text, re.DOTALL)
+        if m:
+            tus_data = json.loads(m.group(1))
+            tus_branches = set()
+            tus_cities = set()
+            for prog in tus_data:
+                b = prog.get('brans', '')
+                c = prog.get('sehir', '')
+                if b: tus_branches.add(b)
+                if c: tus_cities.add(c)
+            for b in sorted(tus_branches):
+                q_b = urllib.parse.quote(b)
+                urls.add((f"{TUS_URL}?brans={q_b}", '0.8', 'weekly'))
+            for c in sorted(tus_cities):
+                q_c = urllib.parse.quote(c)
+                urls.add((f"{TUS_URL}?sehir={q_c}", '0.75', 'weekly'))
+
+    # ============================================================
+    # 8. 2026 Mühendislik Tamamlama & ÖZYES URLs
+    # ============================================================
+    urls.add((f"{BASE_URL}muhendislik.html", '0.9', 'daily'))
+    urls.add((f"{BASE_URL}ozyes.html", '0.9', 'daily'))
+
+    print(f"Total unique URLs generated in sitemap (Portal + YKS + DGS + TUS + Mühendislik + ÖZYES): {len(urls)}")
 
     # Write XML
     xml_lines = ['<?xml version="1.0" encoding="UTF-8"?>']
