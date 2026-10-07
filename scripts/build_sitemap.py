@@ -199,7 +199,14 @@ def build_sitemap():
     # 8. 2026 Mühendislik Tamamlama & ÖZYES URLs
     # ============================================================
     urls.add((f"{BASE_URL}muhendislik.html", '0.9', 'daily'))
+    urls.add((f"{BASE_URL}muhendislik.html?durum=placed2026", '0.85', 'weekly'))
+    urls.add((f"{BASE_URL}muhendislik.html?durum=empty2026", '0.85', 'weekly'))
+
     urls.add((f"{BASE_URL}ozyes.html", '0.9', 'daily'))
+    urls.add((f"{BASE_URL}ozyes.html?kategori=erkek", '0.85', 'weekly'))
+    urls.add((f"{BASE_URL}ozyes.html?kategori=kadin", '0.85', 'weekly'))
+    urls.add((f"{BASE_URL}ozyes.html?kategori=milli", '0.8', 'weekly'))
+    urls.add((f"{BASE_URL}ozyes.html?kategori=engelli", '0.8', 'weekly'))
 
     print(f"Total unique URLs generated in sitemap (Portal + YKS + DGS + TUS + Mühendislik + ÖZYES): {len(urls)}")
 

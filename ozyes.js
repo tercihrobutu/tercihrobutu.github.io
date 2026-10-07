@@ -34,6 +34,7 @@ const searchInput = document.getElementById('searchInput');
 const filterUnivType = document.getElementById('filterUnivType');
 const filterProgramType = document.getElementById('filterProgramType');
 const filterAkreditasyon = document.getElementById('filterAkreditasyon');
+const filterStatus = document.getElementById('filterStatus');
 const sortBySelect = document.getElementById('sortBy');
 const btnResetFilters = document.getElementById('btnResetFilters');
 const filteredCountEl = document.getElementById('filteredCount');
@@ -103,36 +104,56 @@ function updateSortOptions() {
 
   if (currentCategory === 'erkek') {
     optionsHtml = `
-      <option value="puan_e_desc">2025 Erkek Taban Puanı (Yüksek -> Düşük)</option>
-      <option value="puan_e_asc">2025 Erkek Taban Puanı (Düşük -> Yüksek)</option>
-      <option value="sira_e_asc">2025 Erkek Başarı Sırası (En İyi -> Son)</option>
+      <option value="min26_e_desc">2026 Erkek Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="min26_e_asc">2026 Erkek Taban Puanı (Düşük -> Yüksek)</option>
+      <option value="yer26_e_desc">2026 Erkek Yerleşen (Çoktan Aza)</option>
+      <option value="bos26_tot_desc">2026 Boş Kontenjan (Çoktan Aza)</option>
       <option value="kont_e_desc">2026 Erkek Kontenjanı (Çoktan Aza)</option>
-      <option value="kont_tot_desc">Toplam Kontenjan (Çoktan Aza)</option>
-      <option value="puan_k_desc">2025 Kadın Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="puan_e_desc">2025 Erkek Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="sira_e_asc">2025 Erkek Başarı Sırası (En İyi -> Son)</option>
       <option value="prog_asc">Program Adı (A-Z)</option>
       <option value="univ_asc">Üniversite Adı (A-Z)</option>
     `;
   } else if (currentCategory === 'kadin') {
     optionsHtml = `
-      <option value="puan_k_desc">2025 Kadın Taban Puanı (Yüksek -> Düşük)</option>
-      <option value="puan_k_asc">2025 Kadın Taban Puanı (Düşük -> Yüksek)</option>
-      <option value="sira_k_asc">2025 Kadın Başarı Sırası (En İyi -> Son)</option>
+      <option value="min26_k_desc">2026 Kadın Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="min26_k_asc">2026 Kadın Taban Puanı (Düşük -> Yüksek)</option>
+      <option value="yer26_k_desc">2026 Kadın Yerleşen (Çoktan Aza)</option>
+      <option value="bos26_tot_desc">2026 Boş Kontenjan (Çoktan Aza)</option>
       <option value="kont_k_desc">2026 Kadın Kontenjanı (Çoktan Aza)</option>
-      <option value="kont_tot_desc">Toplam Kontenjan (Çoktan Aza)</option>
-      <option value="puan_e_desc">2025 Erkek Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="puan_k_desc">2025 Kadın Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="sira_k_asc">2025 Kadın Başarı Sırası (En İyi -> Son)</option>
+      <option value="prog_asc">Program Adı (A-Z)</option>
+      <option value="univ_asc">Üniversite Adı (A-Z)</option>
+    `;
+  } else if (currentCategory === 'milli') {
+    optionsHtml = `
+      <option value="min26_milli_e_desc">2026 Millî Erkek Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="min26_milli_k_desc">2026 Millî Kadın Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="yer26_tot_desc">2026 Toplam Yerleşen (Çoktan Aza)</option>
+      <option value="kont_tot_desc">2026 Toplam Kontenjan (Çoktan Aza)</option>
+      <option value="prog_asc">Program Adı (A-Z)</option>
+      <option value="univ_asc">Üniversite Adı (A-Z)</option>
+    `;
+  } else if (currentCategory === 'engelli') {
+    optionsHtml = `
+      <option value="min26_eng_e_desc">2026 Engelli Erkek Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="min26_eng_k_desc">2026 Engelli Kadın Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="yer26_tot_desc">2026 Toplam Yerleşen (Çoktan Aza)</option>
+      <option value="kont_tot_desc">2026 Toplam Kontenjan (Çoktan Aza)</option>
       <option value="prog_asc">Program Adı (A-Z)</option>
       <option value="univ_asc">Üniversite Adı (A-Z)</option>
     `;
   } else {
-    // 'tum', 'milli', 'engelli'
+    // 'tum'
     optionsHtml = `
+      <option value="min26_e_desc">2026 Erkek Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="min26_k_desc">2026 Kadın Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="yer26_tot_desc">2026 Toplam Yerleşen (Çoktan Aza)</option>
+      <option value="bos26_tot_desc">2026 Boş Kontenjan (Çoktan Aza)</option>
       <option value="kont_tot_desc">2026 Toplam Kontenjan (Çoktan Aza)</option>
       <option value="puan_e_desc">2025 Erkek Taban Puanı (Yüksek -> Düşük)</option>
       <option value="puan_k_desc">2025 Kadın Taban Puanı (Yüksek -> Düşük)</option>
-      <option value="sira_e_asc">2025 Erkek Başarı Sırası (En İyi -> Son)</option>
-      <option value="sira_k_asc">2025 Kadın Başarı Sırası (En İyi -> Son)</option>
-      <option value="kont_e_desc">2026 Erkek Kontenjanı (Çoktan Aza)</option>
-      <option value="kont_k_desc">2026 Kadın Kontenjanı (Çoktan Aza)</option>
       <option value="prog_asc">Program Adı (A-Z)</option>
       <option value="univ_asc">Üniversite Adı (A-Z)</option>
     `;
@@ -240,6 +261,7 @@ function setupEventListeners() {
   filterUnivType.addEventListener('change', () => { currentPage = 1; render(); });
   filterProgramType.addEventListener('change', () => { currentPage = 1; render(); });
   filterAkreditasyon.addEventListener('change', () => { currentPage = 1; render(); });
+  if (filterStatus) filterStatus.addEventListener('change', () => { currentPage = 1; render(); });
   sortBySelect.addEventListener('change', () => { currentPage = 1; render(); });
 
   catTabs.forEach(btn => {
@@ -253,6 +275,7 @@ function setupEventListeners() {
     filterUnivType.value = '';
     filterProgramType.value = '';
     filterAkreditasyon.value = '';
+    if (filterStatus) filterStatus.value = '';
     selectedCities = [];
     cityOptionsList.querySelectorAll('input').forEach(i => i.checked = false);
     updateCityMultiLabel();
@@ -324,6 +347,7 @@ function getFilteredData() {
   const univType = filterUnivType.value;
   const progFilter = filterProgramType.value;
   const akred = filterAkreditasyon.value;
+  const statusVal = filterStatus ? filterStatus.value : '';
   const sortBy = sortBySelect.value;
 
   let filtered = programsData.filter(item => {
@@ -346,7 +370,12 @@ function getFilteredData() {
     if (akred === 'SPORAK' && !item.akreditasyon) return false;
     if (akred === 'TYC' && !item.tyc) return false;
 
-    // 6. Category specific minimum filter (e.g. must have quota in selected category)
+    // 6. Kontenjan Durumu
+    if (statusVal === 'placed2026' && (item.yer_2026_toplam || 0) <= 0) return false;
+    if (statusVal === 'full2026' && (item.bos_2026_toplam !== 0)) return false;
+    if (statusVal === 'empty2026' && (item.bos_2026_toplam || 0) <= 0) return false;
+
+    // 7. Category specific minimum filter (e.g. must have quota in selected category)
     if (currentCategory === 'erkek' && item.kont_genel_e <= 0) return false;
     if (currentCategory === 'kadin' && item.kont_genel_k <= 0) return false;
     if (currentCategory === 'milli' && (item.kont_milli_e + item.kont_milli_k) <= 0) return false;
@@ -357,7 +386,29 @@ function getFilteredData() {
 
   // Sorting
   filtered.sort((a, b) => {
-    // Erkek
+    // 2026 Yerleştirme Taban Puanları & Sıralamaları
+    if (sortBy === 'min26_e_desc') return (b.min_2026_e_val || 0) - (a.min_2026_e_val || 0);
+    if (sortBy === 'min26_e_asc') {
+      const va = a.min_2026_e_val != null ? a.min_2026_e_val : 9999;
+      const vb = b.min_2026_e_val != null ? b.min_2026_e_val : 9999;
+      return va - vb;
+    }
+    if (sortBy === 'min26_k_desc') return (b.min_2026_k_val || 0) - (a.min_2026_k_val || 0);
+    if (sortBy === 'min26_k_asc') {
+      const va = a.min_2026_k_val != null ? a.min_2026_k_val : 9999;
+      const vb = b.min_2026_k_val != null ? b.min_2026_k_val : 9999;
+      return va - vb;
+    }
+    if (sortBy === 'yer26_e_desc') return (b.yer_2026_e || 0) - (a.yer_2026_e || 0);
+    if (sortBy === 'yer26_k_desc') return (b.yer_2026_k || 0) - (a.yer_2026_k || 0);
+    if (sortBy === 'yer26_tot_desc') return (b.yer_2026_toplam || 0) - (a.yer_2026_toplam || 0);
+    if (sortBy === 'bos26_tot_desc') return (b.bos_2026_toplam || 0) - (a.bos_2026_toplam || 0);
+    if (sortBy === 'min26_milli_e_desc') return (b.min_2026_milli_e_val || 0) - (a.min_2026_milli_e_val || 0);
+    if (sortBy === 'min26_milli_k_desc') return (b.min_2026_milli_k_val || 0) - (a.min_2026_milli_k_val || 0);
+    if (sortBy === 'min26_eng_e_desc') return (b.min_2026_eng_e_val || 0) - (a.min_2026_eng_e_val || 0);
+    if (sortBy === 'min26_eng_k_desc') return (b.min_2026_eng_k_val || 0) - (a.min_2026_eng_k_val || 0);
+
+    // 2025 Taban Puanları
     if (sortBy === 'puan_e_desc') return (b.puan_2025_e_val || 0) - (a.puan_2025_e_val || 0);
     if (sortBy === 'puan_e_asc') {
       const va = a.puan_2025_e_val || 9999;
@@ -371,7 +422,6 @@ function getFilteredData() {
     }
     if (sortBy === 'kont_e_desc') return (b.kont_genel_e || 0) - (a.kont_genel_e || 0);
 
-    // Kadın
     if (sortBy === 'puan_k_desc') return (b.puan_2025_k_val || 0) - (a.puan_2025_k_val || 0);
     if (sortBy === 'puan_k_asc') {
       const va = a.puan_2025_k_val || 9999;
@@ -448,35 +498,90 @@ function render() {
 
     let qE, qK, pE, sE, pK, sK;
 
-    if (currentCategory === 'milli') {
-      qE = item.kont_milli_e;
-      qK = item.kont_milli_k;
-      pE = item.puan_2025_milli_e;
-      sE = item.sira_2025_milli_e;
-      pK = item.puan_2025_milli_k;
-      sK = item.sira_2025_milli_k;
+    let qCellHtml = '';
+    let scoreCol1Html = '';
+    let scoreCol2Html = '';
+
+    if (currentCategory === 'erkek') {
+      qCellHtml = `
+        <span class="badge-kont" style="background:rgba(59,130,246,0.18); color:#60a5fa; font-weight:800; font-size:0.85rem; padding:3px 7px;">${item.kont_genel_e} Kont.</span>
+        <div style="font-size:0.75rem; margin-top:3px; font-weight:700; color:#10b981;">${item.yer_2026_e || 0} Yerleşen</div>
+      `;
+      scoreCol1Html = `
+        <div style="font-weight:700; color:#60a5fa; font-size:0.88rem;">${item.min_2026_e && item.min_2026_e !== '--' ? item.min_2026_e : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">
+          ${item.max_2026_e && item.max_2026_e !== '--' ? `Tavan: ${item.max_2026_e}` : '—'}
+        </div>
+      `;
+      scoreCol2Html = `
+        <div style="font-weight:600; color:var(--text-primary); font-size:0.85rem;">${item.puan_2025_e && item.puan_2025_e !== '--' ? item.puan_2025_e : '<span style="color:var(--text-muted);">—</span>'}</div>
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.sira_2025_e && item.sira_2025_e !== '--' ? `Sıra: ${item.sira_2025_e}` : '—'}</div>
+      `;
+    } else if (currentCategory === 'kadin') {
+      qCellHtml = `
+        <span class="badge-kont" style="background:rgba(236,72,153,0.18); color:#f472b6; font-weight:800; font-size:0.85rem; padding:3px 7px;">${item.kont_genel_k} Kont.</span>
+        <div style="font-size:0.75rem; margin-top:3px; font-weight:700; color:#10b981;">${item.yer_2026_k || 0} Yerleşen</div>
+      `;
+      scoreCol1Html = `
+        <div style="font-weight:700; color:#f472b6; font-size:0.88rem;">${item.min_2026_k && item.min_2026_k !== '--' ? item.min_2026_k : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">
+          ${item.max_2026_k && item.max_2026_k !== '--' ? `Tavan: ${item.max_2026_k}` : '—'}
+        </div>
+      `;
+      scoreCol2Html = `
+        <div style="font-weight:600; color:var(--text-primary); font-size:0.85rem;">${item.puan_2025_k && item.puan_2025_k !== '--' ? item.puan_2025_k : '<span style="color:var(--text-muted);">—</span>'}</div>
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.sira_2025_k && item.sira_2025_k !== '--' ? `Sıra: ${item.sira_2025_k}` : '—'}</div>
+      `;
+    } else if (currentCategory === 'milli') {
+      qCellHtml = `
+        <div style="font-size:0.8rem; font-weight:700; color:#60a5fa;">♂ ${item.kont_milli_e} (Yer: ${item.yer_2026_milli_e || 0})</div>
+        <div style="font-size:0.8rem; font-weight:700; color:#f472b6; margin-top:2px;">♀ ${item.kont_milli_k} (Yer: ${item.yer_2026_milli_k || 0})</div>
+      `;
+      scoreCol1Html = `
+        <div style="font-weight:700; color:#60a5fa; font-size:0.88rem;">${item.min_2026_milli_e && item.min_2026_milli_e !== '--' ? item.min_2026_milli_e : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.puan_2025_milli_e && item.puan_2025_milli_e !== '--' ? `25: ${item.puan_2025_milli_e}` : '—'}</div>
+      `;
+      scoreCol2Html = `
+        <div style="font-weight:700; color:#f472b6; font-size:0.88rem;">${item.min_2026_milli_k && item.min_2026_milli_k !== '--' ? item.min_2026_milli_k : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.puan_2025_milli_k && item.puan_2025_milli_k !== '--' ? `25: ${item.puan_2025_milli_k}` : '—'}</div>
+      `;
     } else if (currentCategory === 'engelli') {
-      qE = item.kont_engelli_e;
-      qK = item.kont_engelli_k;
-      pE = item.puan_2025_eng_e;
-      sE = item.sira_2025_eng_e;
-      pK = item.puan_2025_eng_k;
-      sK = item.sira_2025_eng_k;
+      qCellHtml = `
+        <div style="font-size:0.8rem; font-weight:700; color:#60a5fa;">♂ ${item.kont_engelli_e} (Yer: ${item.yer_2026_eng_e || 0})</div>
+        <div style="font-size:0.8rem; font-weight:700; color:#f472b6; margin-top:2px;">♀ ${item.kont_engelli_k} (Yer: ${item.yer_2026_eng_k || 0})</div>
+      `;
+      scoreCol1Html = `
+        <div style="font-weight:700; color:#60a5fa; font-size:0.88rem;">${item.min_2026_eng_e && item.min_2026_eng_e !== '--' ? item.min_2026_eng_e : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.puan_2025_eng_e && item.puan_2025_eng_e !== '--' ? `25: ${item.puan_2025_eng_e}` : '—'}</div>
+      `;
+      scoreCol2Html = `
+        <div style="font-weight:700; color:#f472b6; font-size:0.88rem;">${item.min_2026_eng_k && item.min_2026_eng_k !== '--' ? item.min_2026_eng_k : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.puan_2025_eng_k && item.puan_2025_eng_k !== '--' ? `25: ${item.puan_2025_eng_k}` : '—'}</div>
+      `;
     } else {
-      // 'tum', 'erkek', 'kadin'
-      qE = item.kont_genel_e;
-      qK = item.kont_genel_k;
-      pE = item.puan_2025_e;
-      sE = item.sira_2025_e;
-      pK = item.puan_2025_k;
-      sK = item.sira_2025_k;
+      // 'tum' (Tüm Kontenjanlar)
+      qCellHtml = `
+        <div style="font-weight:800; font-size:0.85rem; color:var(--text-primary);">${item.kont_2026_toplam} Kont.</div>
+        <div style="font-size:0.75rem; margin-top:2px;">
+          <span style="color:#10b981; font-weight:700;">${item.yer_2026_toplam} Yer.</span>
+          ${item.bos_2026_toplam > 0 ? `<span style="color:#ef4444; font-weight:700; margin-left:3px;">(${item.bos_2026_toplam} Boş)</span>` : `<span style="color:#10b981; font-weight:700; margin-left:3px;">(Doldu)</span>`}
+        </div>
+      `;
+      scoreCol1Html = `
+        <div style="font-weight:700; color:#60a5fa; font-size:0.88rem;">${item.min_2026_e && item.min_2026_e !== '--' ? item.min_2026_e : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">
+          ${item.max_2026_e && item.max_2026_e !== '--' ? `Tavan: ${item.max_2026_e}` : ''}
+          ${item.puan_2025_e && item.puan_2025_e !== '--' ? ` <span style="color:var(--text-muted);">(25: ${item.puan_2025_e})</span>` : ''}
+        </div>
+      `;
+      scoreCol2Html = `
+        <div style="font-weight:700; color:#f472b6; font-size:0.88rem;">${item.min_2026_k && item.min_2026_k !== '--' ? item.min_2026_k : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">
+          ${item.max_2026_k && item.max_2026_k !== '--' ? `Tavan: ${item.max_2026_k}` : ''}
+          ${item.puan_2025_k && item.puan_2025_k !== '--' ? ` <span style="color:var(--text-muted);">(25: ${item.puan_2025_k})</span>` : ''}
+        </div>
+      `;
     }
-
-    const pEText = pE && pE !== '--' ? pE : '<span style="color:var(--text-muted);">Yeni</span>';
-    const sEText = sE && sE !== '--' ? `Sıra: ${sE}` : '<span style="color:var(--text-muted);">—</span>';
-
-    const pKText = pK && pK !== '--' ? pK : '<span style="color:var(--text-muted);">Yeni</span>';
-    const sKText = sK && sK !== '--' ? `Sıra: ${sK}` : '<span style="color:var(--text-muted);">—</span>';
 
     tr.innerHTML = `
       <td>
@@ -495,21 +600,10 @@ function render() {
         <div style="font-weight:700; color:var(--text-primary); font-size:0.85rem; line-height:1.3;">${item.prog}</div>
         <div style="margin-top:3px;">${akredTag}</div>
       </td>
-      <td style="text-align:center;">
-        <span class="badge-kont" style="background:rgba(59,130,246,0.18); color:#60a5fa; font-weight:800; font-size:0.85rem; padding:3px 7px;" title="Erkek Kontenjanı">${qE}</span>
-      </td>
-      <td style="text-align:center;">
-        <span class="badge-kont" style="background:rgba(236,72,153,0.18); color:#f472b6; font-weight:800; font-size:0.85rem; padding:3px 7px;" title="Kadın Kontenjanı">${qK}</span>
-      </td>
+      <td style="text-align:center;">${qCellHtml}</td>
       <td style="text-align:center;">${condBadges}</td>
-      <td style="text-align:right;">
-        <div style="font-weight:700; color:#60a5fa; font-size:0.85rem;">${pEText}</div>
-        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">${sEText}</div>
-      </td>
-      <td style="text-align:right;">
-        <div style="font-weight:700; color:#f472b6; font-size:0.85rem;">${pKText}</div>
-        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">${sKText}</div>
-      </td>
+      <td style="text-align:right;">${scoreCol1Html}</td>
+      <td style="text-align:right;">${scoreCol2Html}</td>
     `;
     tableBody.appendChild(tr);
   });
@@ -519,37 +613,78 @@ function updateTableHeaders() {
   const theadEl = document.querySelector('#mainTable thead');
   if (!theadEl) return;
 
-  let quotaHeadE = '♂ Erkek Kont.';
-  let quotaHeadK = '♀ Kadın Kont.';
-  let scoreHeadE = '2025 Erkek Taban';
-  let scoreHeadK = '2025 Kadın Taban';
-
-  if (currentCategory === 'milli') {
-    quotaHeadE = '♂ Milli Erkek Kont.';
-    quotaHeadK = '♀ Milli Kadın Kont.';
-    scoreHeadE = '2025 Milli Erkek';
-    scoreHeadK = '2025 Milli Kadın';
+  if (currentCategory === 'erkek') {
+    theadEl.innerHTML = `
+      <tr>
+        <th style="width:30px;">⭐</th>
+        <th style="width:75px;">ÖSYM Kodu</th>
+        <th class="col-city" style="width:70px;">İl</th>
+        <th>Üniversite / Fakülte</th>
+        <th>Program Adı</th>
+        <th style="text-align:center; width:85px; color:#60a5fa;" title="2026 Erkek Kontenjanı ve Yerleşen Sayısı">♂ Kont. / Yer.</th>
+        <th style="width:70px; text-align:center;">Özel Koşullar</th>
+        <th style="text-align:right; width:115px; color:#60a5fa;" title="2026 Yerleştirme Taban & Tavan Puanı">2026 Erkek Taban (Tavan)</th>
+        <th style="text-align:right; width:95px; color:var(--text-secondary);" title="2025 Yerleştirme Taban Puanı ve Sırası">2025 Erkek Taban</th>
+      </tr>
+    `;
+  } else if (currentCategory === 'kadin') {
+    theadEl.innerHTML = `
+      <tr>
+        <th style="width:30px;">⭐</th>
+        <th style="width:75px;">ÖSYM Kodu</th>
+        <th class="col-city" style="width:70px;">İl</th>
+        <th>Üniversite / Fakülte</th>
+        <th>Program Adı</th>
+        <th style="text-align:center; width:85px; color:#f472b6;" title="2026 Kadın Kontenjanı ve Yerleşen Sayısı">♀ Kont. / Yer.</th>
+        <th style="width:70px; text-align:center;">Özel Koşullar</th>
+        <th style="text-align:right; width:115px; color:#f472b6;" title="2026 Yerleştirme Taban & Tavan Puanı">2026 Kadın Taban (Tavan)</th>
+        <th style="text-align:right; width:95px; color:var(--text-secondary);" title="2025 Yerleştirme Taban Puanı ve Sırası">2025 Kadın Taban</th>
+      </tr>
+    `;
+  } else if (currentCategory === 'milli') {
+    theadEl.innerHTML = `
+      <tr>
+        <th style="width:30px;">⭐</th>
+        <th style="width:75px;">ÖSYM Kodu</th>
+        <th class="col-city" style="width:70px;">İl</th>
+        <th>Üniversite / Fakülte</th>
+        <th>Program Adı</th>
+        <th style="text-align:center; width:95px;" title="Millî Sporcu Kontenjan ve Yerleşen">Millî Kont. / Yer.</th>
+        <th style="width:70px; text-align:center;">Özel Koşullar</th>
+        <th style="text-align:right; width:110px; color:#60a5fa;" title="2026 Millî Erkek Taban Puanı">♂ 2026 Millî Erkek</th>
+        <th style="text-align:right; width:110px; color:#f472b6;" title="2026 Millî Kadın Taban Puanı">♀ 2026 Millî Kadın</th>
+      </tr>
+    `;
   } else if (currentCategory === 'engelli') {
-    quotaHeadE = '♂ Engelli Erkek Kont.';
-    quotaHeadK = '♀ Engelli Kadın Kont.';
-    scoreHeadE = '2025 Engelli Erkek';
-    scoreHeadK = '2025 Engelli Kadın';
+    theadEl.innerHTML = `
+      <tr>
+        <th style="width:30px;">⭐</th>
+        <th style="width:75px;">ÖSYM Kodu</th>
+        <th class="col-city" style="width:70px;">İl</th>
+        <th>Üniversite / Fakülte</th>
+        <th>Program Adı</th>
+        <th style="text-align:center; width:95px;" title="Engelli Aday Kontenjan ve Yerleşen">Engelli Kont. / Yer.</th>
+        <th style="width:70px; text-align:center;">Özel Koşullar</th>
+        <th style="text-align:right; width:110px; color:#60a5fa;" title="2026 Engelli Erkek Taban Puanı">♂ 2026 Engelli Erkek</th>
+        <th style="text-align:right; width:110px; color:#f472b6;" title="2026 Engelli Kadın Taban Puanı">♀ 2026 Engelli Kadın</th>
+      </tr>
+    `;
+  } else {
+    // 'tum'
+    theadEl.innerHTML = `
+      <tr>
+        <th style="width:30px;">⭐</th>
+        <th style="width:75px;">ÖSYM Kodu</th>
+        <th class="col-city" style="width:70px;">İl</th>
+        <th>Üniversite / Fakülte</th>
+        <th>Program Adı</th>
+        <th style="text-align:center; width:95px;" title="2026 Toplam Kontenjan, Yerleşen ve Boş">2026 Kont. / Yer.</th>
+        <th style="width:70px; text-align:center;">Özel Koşullar</th>
+        <th style="text-align:right; width:110px; color:#60a5fa;" title="2026 Erkek Yerleştirme Taban ve Tavan Puanı">♂ 2026 Erkek Taban</th>
+        <th style="text-align:right; width:110px; color:#f472b6;" title="2026 Kadın Yerleştirme Taban ve Tavan Puanı">♀ 2026 Kadın Taban</th>
+      </tr>
+    `;
   }
-
-  theadEl.innerHTML = `
-    <tr>
-      <th style="width:30px;">⭐</th>
-      <th style="width:75px;">ÖSYM Kodu</th>
-      <th class="col-city" style="width:70px;">İl</th>
-      <th>Üniversite / Fakülte</th>
-      <th>Program Adı</th>
-      <th style="text-align:center; width:65px; color:#60a5fa;" title="2026 Resmî Erkek Kontenjanı">${quotaHeadE}</th>
-      <th style="text-align:center; width:65px; color:#f472b6;" title="2026 Resmî Kadın Kontenjanı">${quotaHeadK}</th>
-      <th style="width:75px; text-align:center;">Özel Koşullar</th>
-      <th style="text-align:right; width:95px; color:#60a5fa;">${scoreHeadE}</th>
-      <th style="text-align:right; width:95px; color:#f472b6;">${scoreHeadK}</th>
-    </tr>
-  `;
 }
 
 // Special Condition Modal
@@ -638,9 +773,11 @@ function renderFavModal() {
       </td>
       <td>${item.prog}</td>
       <td><strong>${item.city}</strong></td>
-      <td style="text-align:center; font-weight:600;">${item.kont_toplam} (E:${item.kont_genel_e} K:${item.kont_genel_k})</td>
-      <td style="text-align:right; font-weight:700; color:var(--accent-primary);">${item.puan_2025_e || '--'}</td>
-      <td style="text-align:right; font-weight:700; color:#f472b6;">${item.puan_2025_k || '--'}</td>
+      <td style="text-align:center; font-weight:600;">
+        ${item.kont_2026_toplam || item.kont_toplam} / <span style="color:#10b981;">${item.yer_2026_toplam || 0}</span>
+      </td>
+      <td style="text-align:right; font-weight:700; color:#60a5fa;">${item.min_2026_e || item.puan_2025_e || '--'}</td>
+      <td style="text-align:right; font-weight:700; color:#f472b6;">${item.min_2026_k || item.puan_2025_k || '--'}</td>
       <td style="text-align:center;">
         <button class="fav-btn active" onclick="toggleFav('${item.code}')" title="Listeden Kaldır">★</button>
       </td>
@@ -668,25 +805,25 @@ function exportFavsPDF() {
     .replace(/Ç/g,'C').replace(/ç/g,'c');
 
   doc.setFontSize(16);
-  doc.setTextColor(99, 102, 241);
-  doc.text('2026 OZYES SPOR BILIMLERI TERCIH LISTEM', 14, 15);
+  doc.setTextColor(16, 185, 129);
+  doc.text('2026 OZYES SPOR BILIMLERI TERCIH & SONUC LISTEM', 14, 15);
 
   doc.setFontSize(10);
   doc.setTextColor(100);
   doc.text(`tercihrobutu.github.io  |  ${new Date().toLocaleDateString('tr-TR')}  |  Toplam: ${favorites.length}/30 Program`, 14, 22);
 
-  const head = [['Sira', 'OSYM Kodu', 'Universite', 'Fakulte / Bolum', 'Program', 'Il', '2026 Kont.', '2025 Erkek', '2025 Kadin', 'Kosullar']];
+  const head = [['Sira', 'OSYM Kodu', 'Universite', 'Program', 'Il', 'Kont/Yer', '26 E.Taban', '26 K.Taban', '25 E.Taban', '25 K.Taban']];
   const body = favorites.map((item, idx) => [
     idx + 1,
     item.code,
     toAscii(item.univ),
-    toAscii(item.fac || '-'),
     toAscii(item.prog),
     toAscii(item.city),
-    `${item.kont_toplam} (E:${item.kont_genel_e} K:${item.kont_genel_k})`,
+    `${item.kont_2026_toplam || item.kont_toplam}/${item.yer_2026_toplam || 0}`,
+    item.min_2026_e || '--',
+    item.min_2026_k || '--',
     item.puan_2025_e || '--',
-    item.puan_2025_k || '--',
-    item.kosul || '-'
+    item.puan_2025_k || '--'
   ]);
 
   doc.autoTable({
@@ -694,19 +831,19 @@ function exportFavsPDF() {
     head: head,
     body: body,
     theme: 'grid',
-    headStyles: { fillColor: [99, 102, 241], textColor: 255, fontStyle: 'bold' },
+    headStyles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: 'bold' },
     styles: { fontSize: 8, cellPadding: 2.5 },
     columnStyles: {
       0: { cellWidth: 10, halign: 'center' },
-      1: { cellWidth: 22, halign: 'center' },
-      2: { cellWidth: 46 },
-      3: { cellWidth: 38 },
-      4: { cellWidth: 50 },
-      5: { cellWidth: 20 },
-      6: { cellWidth: 24, halign: 'center' },
-      7: { cellWidth: 20, halign: 'right' },
-      8: { cellWidth: 20, halign: 'right' },
-      9: { cellWidth: 24 }
+      1: { cellWidth: 24, halign: 'center' },
+      2: { cellWidth: 60 },
+      3: { cellWidth: 55 },
+      4: { cellWidth: 24 },
+      5: { cellWidth: 22, halign: 'center' },
+      6: { cellWidth: 24, halign: 'right' },
+      7: { cellWidth: 24, halign: 'right' },
+      8: { cellWidth: 22, halign: 'right' },
+      9: { cellWidth: 22, halign: 'right' }
     }
   });
 
@@ -728,17 +865,15 @@ function exportFavsExcel() {
     'Program': item.prog,
     'Şehir': item.city,
     'Üniversite Türü': item.univ_type,
-    '2026 Toplam Kontenjan': item.kont_toplam,
-    '2026 Genel Kont. Erkek': item.kont_genel_e,
-    '2026 Genel Kont. Kadın': item.kont_genel_k,
-    '2026 Milli Sporcu Erkek': item.kont_milli_e,
-    '2026 Milli Sporcu Kadın': item.kont_milli_k,
-    '2026 Engelli Erkek': item.kont_engelli_e,
-    '2026 Engelli Kadın': item.kont_engelli_k,
+    '2026 Toplam Kontenjan': item.kont_2026_toplam || item.kont_toplam,
+    '2026 Toplam Yerleşen': item.yer_2026_toplam || 0,
+    '2026 Boş Kontenjan': item.bos_2026_toplam || 0,
+    '2026 Erkek Taban Puanı': item.min_2026_e || '--',
+    '2026 Erkek Tavan Puanı': item.max_2026_e || '--',
+    '2026 Kadın Taban Puanı': item.min_2026_k || '--',
+    '2026 Kadın Tavan Puanı': item.max_2026_k || '--',
     '2025 Erkek Taban Puanı': item.puan_2025_e || '--',
-    '2025 Erkek Başarı Sırası': item.sira_2025_e || '--',
     '2025 Kadın Taban Puanı': item.puan_2025_k || '--',
-    '2025 Kadın Başarı Sırası': item.sira_2025_k || '--',
     'Akreditasyon': item.akreditasyon || '',
     'TYÇ': item.tyc || '',
     'Özel Koşullar': item.kosul || ''

@@ -14,7 +14,26 @@ const progs = sandbox.window.DATA_OZYES_PROGRAMS;
 const conds = sandbox.window.DATA_OZYES_CONDITIONS;
 
 console.log('Programs count:', progs.length);
+console.assert(progs.length === 384, 'Expected exactly 384 programs');
 console.log('Conditions count:', Object.keys(conds).length);
+
+// 2026 Placement Metrics Assertions
+const totalKont26 = progs.reduce((acc, p) => acc + (p.kont_2026_toplam || p.kont_toplam || 0), 0);
+const totalYer26 = progs.reduce((acc, p) => acc + (p.yer_2026_toplam || 0), 0);
+const totalBos26 = progs.reduce((acc, p) => acc + (p.bos_2026_toplam || 0), 0);
+const tabanECount26 = progs.filter(p => p.has_2026 && p.min_2026_e && p.min_2026_e !== '--').length;
+const tabanKCount26 = progs.filter(p => p.has_2026 && p.min_2026_k && p.min_2026_k !== '--').length;
+
+console.log(`Total 2026 Quota: ${totalKont26}`);
+console.assert(totalKont26 === 13119, `Expected 13119 quota, got ${totalKont26}`);
+console.log(`Total 2026 Placed: ${totalYer26}`);
+console.assert(totalYer26 === 11410, `Expected 11410 placed, got ${totalYer26}`);
+console.log(`Total 2026 Vacant: ${totalBos26}`);
+console.assert(totalBos26 === 1709, `Expected 1709 vacant, got ${totalBos26}`);
+console.log(`Programs with 2026 Erkek Taban Score: ${tabanECount26}`);
+console.assert(tabanECount26 === 380, `Expected 380 male taban scores, got ${tabanECount26}`);
+console.log(`Programs with 2026 Kadın Taban Score: ${tabanKCount26}`);
+console.assert(tabanKCount26 === 362, `Expected 362 female taban scores, got ${tabanKCount26}`);
 
 // 2. Validate condition codes referenced in programs
 let missingConds = new Set();
@@ -30,6 +49,7 @@ progs.forEach(p => {
 });
 console.log('Total condition references in programs:', allProgConds);
 console.log('Missing condition codes in dictionary:', Array.from(missingConds));
+console.assert(missingConds.size === 0, 'No missing condition codes allowed');
 
 // 3. Check DOM IDs referenced in ozyes.js exist in ozyes.html
 const idMatches = Array.from(ozyesJs.matchAll(/document\.getElementById\(['"]([^'"]+)['"]\)/g)).map(m => m[1]);
@@ -48,7 +68,4 @@ if (missingIds.length > 0) {
   console.log('ALL DOM IDs VERIFIED IN ozyes.html! SUCCESS!');
 }
 
-// 4. Sample verification of programs
-console.log('Sample program 1 (Adıyaman):', JSON.stringify(progs[0], null, 2));
-console.log('Sample program 2:', JSON.stringify(progs[10], null, 2));
-console.log('Sample program 3:', JSON.stringify(progs[100], null, 2));
+console.log('\n=== ALL 2026 ÖZYES VERIFICATION TESTS PASSED SUCCESSFULLY! ===');

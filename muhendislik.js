@@ -30,7 +30,7 @@ let selectedCities = [];
 let selectedUniv = '';
 let selectedStatus = '';
 let searchQuery = '';
-let sortBy = 'kont_desc';
+let sortBy = 'min26_desc';
 let currentPage = 1;
 const itemsPerPage = 50;
 let favorites = JSON.parse(localStorage.getItem('muhendislik_favs') || '[]');
@@ -415,7 +415,7 @@ function resetAllFilters() {
   selectedUniv = '';
   selectedStatus = '';
   searchQuery = '';
-  sortBy = 'kont_desc';
+  sortBy = 'min26_desc';
   currentPage = 1;
 
   if (searchInput) searchInput.value = '';
@@ -423,7 +423,7 @@ function resetAllFilters() {
   if (filterDiscipline) filterDiscipline.value = '';
   if (filterUniv) filterUniv.value = '';
   if (filterStatus) filterStatus.value = '';
-  if (sortBySelect) sortBySelect.value = 'kont_desc';
+  if (sortBySelect) sortBySelect.value = 'min26_desc';
   if (mezuniyetInfoBanner) mezuniyetInfoBanner.style.display = 'none';
 
   populateDisciplineFilter();
@@ -476,7 +476,13 @@ function getFilteredAndSortedData() {
       return false;
     }
 
-    // 5. Past status filter
+    // 5. Status filter
+    if (selectedStatus === 'placed2026' && !(p.has_2026 && p.yer_2026 > 0)) {
+      return false;
+    }
+    if (selectedStatus === 'empty2026' && !(p.has_2026 && p.bos_2026 > 0)) {
+      return false;
+    }
     if (selectedStatus === 'empty2025' && !(p.has_2025 && p.bos_2025 > 0)) {
       return false;
     }
@@ -498,6 +504,18 @@ function getFilteredAndSortedData() {
   // Sorting
   filtered.sort((a, b) => {
     switch (sortBy) {
+      case 'min26_desc':
+        if (a.min_2026_val === null && b.min_2026_val === null) return (b.yer_2026 || 0) - (a.yer_2026 || 0);
+        if (a.min_2026_val === null) return 1;
+        if (b.min_2026_val === null) return -1;
+        return b.min_2026_val - a.min_2026_val;
+      case 'min26_asc':
+        if (a.min_2026_val === null && b.min_2026_val === null) return (b.yer_2026 || 0) - (a.yer_2026 || 0);
+        if (a.min_2026_val === null) return 1;
+        if (b.min_2026_val === null) return -1;
+        return a.min_2026_val - b.min_2026_val;
+      case 'yer26_desc':
+        return (b.yer_2026 || 0) - (a.yer_2026 || 0);
       case 'kont_desc':
         return b.kont_2026 - a.kont_2026;
       case 'kont_asc':
@@ -562,7 +580,7 @@ function render() {
   if (pageData.length === 0) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="10" style="text-align:center; padding:40px; color:var(--text-muted);">
+        <td colspan="11" style="text-align:center; padding:40px; color:var(--text-muted);">
           🔍 Arama kriterlerinize uygun mühendislik programı bulunamadı.<br>
           <button class="btn" style="margin-top:10px; padding:6px 14px; font-size:0.85rem;" onclick="resetAllFilters()">Filtreleri Sıfırla</button>
         </td>
@@ -584,36 +602,47 @@ function render() {
       ).join(' ');
     }
 
-    // 2025 Taban Score formatting
-    let score25Html = '<span style="color:var(--text-muted); font-size:0.85rem;">-- (Boş)</span>';
-    if (item.has_2025 && item.min_2025 && item.min_2025 !== '--') {
-      score25Html = `
-        <div style="font-weight:700; color:#10b981;">${item.min_2025}</div>
-        <div style="font-size:0.75rem; color:var(--text-muted);" title="Yerleşen: ${item.yer_2025}, Kontenjan: ${item.kont_2025}">${item.yer_2025}/${item.kont_2025} Yerleşen</div>
-      `;
-    } else if (item.has_2025 && item.bos_2025 > 0) {
-      score25Html = `
-        <span style="color:#ef4444; font-size:0.82rem; font-weight:600;">Dolmadı (${item.bos_2025} Boş)</span>
+    // 2026 Placement Status
+    let res26Html = '';
+    if (item.has_2026) {
+      if (item.yer_2026 > 0) {
+        res26Html = `
+          <div style="font-weight:800; color:#10b981; font-size:0.88rem;">${item.yer_2026} Yerleşen</div>
+          ${item.bos_2026 > 0 ? `<div style="font-size:0.75rem; color:#ef4444;">${item.bos_2026} Boş</div>` : `<div style="font-size:0.72rem; color:#10b981; font-weight:600;">Doldu ✓</div>`}
+        `;
+      } else {
+        res26Html = `<span style="color:#ef4444; font-size:0.8rem; font-weight:600;">Dolmadı (${item.bos_2026} Boş)</span>`;
+      }
+    } else {
+      res26Html = '<span style="color:var(--text-muted);">-</span>';
+    }
+
+    // 2026 Taban Score formatting
+    let score26Html = '<span style="color:var(--text-muted); font-size:0.82rem;">-- (Oluşmadı)</span>';
+    if (item.has_2026 && item.min_2026 && item.min_2026 !== '--') {
+      score26Html = `
+        <div style="font-weight:800; color:#f59e0b; font-size:0.92rem;">${item.min_2026}</div>
+        <div style="font-size:0.72rem; color:var(--text-muted);" title="En Büyük Puan: ${item.max_2026}">Tavan: ${item.max_2026}</div>
       `;
     }
 
-    // 2024 Taban Score formatting
-    let score24Html = '<span style="color:var(--text-muted); font-size:0.85rem;">-- (Boş)</span>';
-    if (item.has_2024 && item.min_2024 && item.min_2024 !== '--') {
-      score24Html = `
-        <div style="font-weight:700; color:#3b82f6;">${item.min_2024}</div>
-        <div style="font-size:0.75rem; color:var(--text-muted);" title="Yerleşen: ${item.yer_2024}, Kontenjan: ${item.kont_2024}">${item.yer_2024}/${item.kont_2024} Yerleşen</div>
+    // 2025 Taban Score formatting
+    let score25Html = '<span style="color:var(--text-muted); font-size:0.82rem;">-- (Boş)</span>';
+    if (item.has_2025 && item.min_2025 && item.min_2025 !== '--') {
+      score25Html = `
+        <div style="font-weight:700; color:#10b981;">${item.min_2025}</div>
+        <div style="font-size:0.72rem; color:var(--text-muted);" title="Yerleşen: ${item.yer_2025}, Kontenjan: ${item.kont_2025}">${item.yer_2025}/${item.kont_2025} Yerleşen</div>
       `;
-    } else if (item.has_2024 && item.bos_2024 > 0) {
-      score24Html = `
-        <span style="color:#ef4444; font-size:0.82rem; font-weight:600;">Dolmadı (${item.bos_2024} Boş)</span>
+    } else if (item.has_2025 && item.bos_2025 > 0) {
+      score25Html = `
+        <span style="color:#ef4444; font-size:0.8rem; font-weight:600;">Dolmadı (${item.bos_2025} Boş)</span>
       `;
     }
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="text-align:center; color:var(--text-muted); font-size:0.85rem;">${rowNum}</td>
-      <td style="font-family:monospace; font-weight:700; color:var(--text-primary);">${item.code}</td>
+      <td style="font-family:monospace; font-weight:700; color:var(--text-primary); font-size:0.88rem;">${item.code}</td>
       <td>
         <div style="font-weight:700; color:var(--text-primary); font-size:0.92rem;">${item.univ}</div>
         <div style="font-size:0.8rem; color:var(--text-muted);">${item.fac}</div>
@@ -626,12 +655,13 @@ function render() {
         <span style="font-size:0.85rem; color:var(--text-primary);">📍 ${item.city}</span>
       </td>
       <td style="text-align:center;">
-        <span style="display:inline-block; background:rgba(245,158,11,0.18); color:#f59e0b; border:1px solid rgba(245,158,11,0.4); border-radius:8px; padding:3px 10px; font-weight:800; font-size:0.95rem;">
+        <span style="display:inline-block; background:rgba(245,158,11,0.18); color:#f59e0b; border:1px solid rgba(245,158,11,0.4); border-radius:8px; padding:2px 8px; font-weight:800; font-size:0.9rem;">
           ${item.kont_2026}
         </span>
       </td>
+      <td style="text-align:center;">${res26Html}</td>
+      <td style="text-align:right;">${score26Html}</td>
       <td style="text-align:right;">${score25Html}</td>
-      <td style="text-align:right;">${score24Html}</td>
       <td style="text-align:center;">${condHtml}</td>
       <td style="text-align:center;">
         <button type="button" class="btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${item.code}')" title="${isFav ? 'Tercih listesinden çıkar' : 'Tercih listesine ekle'}">

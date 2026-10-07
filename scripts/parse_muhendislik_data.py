@@ -8,6 +8,7 @@ REPO_DIR = r"C:\Users\yakupcontarli\Documents\GitHub\tercihrobutu.github.io"
 DATA_DIR = os.path.join(REPO_DIR, "data")
 
 GUIDE_PDF = os.path.join(BASE_DIR, "2026-teknik-ogretmenler-cin-muhendislik-tamamlama-programlari-tercih-kilavuzu-x3ihe9-23085953.pdf")
+MINMAX_2026_PDF = r"C:\Users\yakupcontarli\Downloads\Compressed\OSYM\2026-teknik-ogretmenler-cin-muhendislik-tamamlama-programlari-yerlestirme-sonuclarina-liskin-en-kucuk-ve-en-buyuk-puanlar-1npqva-07104317.pdf"
 MINMAX_2025_PDF = os.path.join(BASE_DIR, "minmax_mtyd30092025.pdf")
 MINMAX_2024_PDF = os.path.join(BASE_DIR, "minmax_mtd08102024.pdf")
 
@@ -209,6 +210,10 @@ def main():
     programs = parse_tablo1(doc_guide)
     print(f"Parsed {len(programs)} Tablo-1 programs.")
     
+    print("Parsing 2026 Min-Max (Placement Results)...")
+    data_2026 = parse_minmax(MINMAX_2026_PDF)
+    print(f"Parsed {len(data_2026)} 2026 result entries.")
+
     print("Parsing 2025 Min-Max...")
     data_2025 = parse_minmax(MINMAX_2025_PDF)
     print(f"Parsed {len(data_2025)} 2025 entries.")
@@ -217,14 +222,37 @@ def main():
     data_2024 = parse_minmax(MINMAX_2024_PDF)
     print(f"Parsed {len(data_2024)} 2024 entries.")
     
-    # Merge historical data into programs
+    # Merge results and historical data into programs
     merged_programs = []
+    matched_2026 = 0
     matched_2025 = 0
     matched_2024 = 0
     
     for p in programs:
         code = p["code"]
         item = dict(p)
+
+        # 2026 Yerleştirme Sonuçları
+        if code in data_2026:
+            matched_2026 += 1
+            d26 = data_2026[code]
+            item["kont_2026"] = d26["kont"]
+            item["yer_2026"] = d26["yer"]
+            item["bos_2026"] = d26["bos"]
+            item["min_2026"] = d26["min"]
+            item["min_2026_val"] = d26["min_val"]
+            item["max_2026"] = d26["max"]
+            item["max_2026_val"] = d26["max_val"]
+            item["has_2026"] = True
+        else:
+            item["yer_2026"] = 0
+            item["bos_2026"] = p.get("kont_2026", 0)
+            item["min_2026"] = "--"
+            item["min_2026_val"] = None
+            item["max_2026"] = "--"
+            item["max_2026_val"] = None
+            item["has_2026"] = False
+
         if code in data_2025:
             matched_2025 += 1
             d25 = data_2025[code]
@@ -269,6 +297,7 @@ def main():
             
         merged_programs.append(item)
 
+    print(f"2026 Programs matched with 2026 Results: {matched_2026} / {len(programs)}")
     print(f"2026 Programs matched with 2025: {matched_2025} / {len(programs)}")
     print(f"2026 Programs matched with 2024: {matched_2024} / {len(programs)}")
 

@@ -21,6 +21,17 @@ const totalKont = progs.reduce((acc, p) => acc + p.kont_2026, 0);
 console.log(`Total 2026 Quota: ${totalKont}`);
 console.assert(totalKont === 611, 'Expected exactly 611 quota');
 
+const totalYer26 = progs.reduce((acc, p) => acc + (p.yer_2026 || 0), 0);
+const totalBos26 = progs.reduce((acc, p) => acc + (p.bos_2026 || 0), 0);
+const taban26Count = progs.filter(p => p.has_2026 && p.min_2026 && p.min_2026 !== '--').length;
+
+console.log(`Total 2026 Placed: ${totalYer26}`);
+console.assert(totalYer26 === 13, `Expected 13 placed candidates, got ${totalYer26}`);
+console.log(`Total 2026 Vacant: ${totalBos26}`);
+console.assert(totalBos26 === 598, `Expected 598 vacant quotas, got ${totalBos26}`);
+console.log(`Programs with 2026 Taban Score: ${taban26Count}`);
+console.assert(taban26Count === 13, `Expected 13 taban score programs, got ${taban26Count}`);
+
 console.log(`Total Mezuniyet Rules: ${mezun.length}`);
 console.assert(mezun.length === 33, 'Expected 33 graduation rules');
 
