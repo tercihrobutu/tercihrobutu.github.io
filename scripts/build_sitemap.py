@@ -147,8 +147,10 @@ def build_sitemap():
     urls.add((BASE_URL, '1.0', 'daily'))
     DGS_URL = f"{BASE_URL}dgs.html"
     urls.add((DGS_URL, '0.95', 'daily'))
+    urls.add((f"{DGS_URL}?ek=only_ek", '0.9', 'daily'))
     for puan in ['SAY', 'EA', 'SÖZ']:
         urls.add((f"{DGS_URL}?puan={puan}", '0.85', 'weekly'))
+        urls.add((f"{DGS_URL}?ek=only_ek&puan={puan}", '0.85', 'weekly'))
     for tur in ['Devlet', 'Vakıf', 'KKTC']:
         urls.add((f"{DGS_URL}?tur={tur}", '0.8', 'weekly'))
 
