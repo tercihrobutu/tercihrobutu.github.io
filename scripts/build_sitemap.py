@@ -175,6 +175,7 @@ def build_sitemap():
     urls.add((TUS_URL, '0.95', 'daily'))
     urls.add((f"{TUS_URL}?pt=K", '0.85', 'weekly'))
     urls.add((f"{TUS_URL}?pt=T", '0.85', 'weekly'))
+    urls.add((f"{TUS_URL}?kont=bos_var", '0.9', 'daily'))
 
     TUS_PROGRAMS_JS = os.path.join(REPO_ROOT, 'data', 'tus_programs.js')
     if os.path.exists(TUS_PROGRAMS_JS):
@@ -187,7 +188,7 @@ def build_sitemap():
             tus_cities = set()
             for prog in tus_data:
                 b = prog.get('brans', '')
-                c = prog.get('sehir', '')
+                c = prog.get('city', '') or prog.get('sehir', '')
                 if b: tus_branches.add(b)
                 if c: tus_cities.add(c)
             for b in sorted(tus_branches):

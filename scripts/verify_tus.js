@@ -51,12 +51,41 @@ const branches = new Set(progs.map(p => p.brans));
 console.log(`✓ Unique Specialties / Branches: ${branches.size}`);
 console.assert(branches.size === 42, `Expected 42 specialties, got ${branches.size}`);
 
+// 2026/2 Yerleştirme Sonuçları Checks
+console.log('\n=== 2. 2026/2 YERLEŞTİRME SONUÇLARI DOĞRULAMA ===');
+const has26_2 = progs.filter(p => p.has_2026_2).length;
+console.log(`✓ 2026/2 Verisi Bulunan Program: ${has26_2}`);
+console.assert(has26_2 === 2941, `Expected 2941 programs with 2026/2 data, got ${has26_2}`);
+
+const totalKont26_2 = progs.reduce((acc, p) => acc + (p.kont_2026_2 || 0), 0);
+const totalYer26_2 = progs.reduce((acc, p) => acc + (p.yer_2026_2 || 0), 0);
+const totalBos26_2 = progs.reduce((acc, p) => acc + (p.bos_2026_2 || 0), 0);
+
+console.log(`✓ 2026/2 Toplam Kontenjan: ${totalKont26_2}`);
+console.assert(totalKont26_2 === 8637, `Expected 8637 total 2026/2 kontenjan, got ${totalKont26_2}`);
+
+console.log(`✓ 2026/2 Toplam Yerleşen Hekim: ${totalYer26_2}`);
+console.assert(totalYer26_2 === 7625, `Expected 7625 total yerleşen, got ${totalYer26_2}`);
+
+console.log(`✓ 2026/2 Toplam Boş Kontenjan: ${totalBos26_2}`);
+console.assert(totalBos26_2 === 1013, `Expected 1013 total boş kontenjan, got ${totalBos26_2}`);
+
+const progsWithScore26_2 = progs.filter(p => p.min_2026_2_val !== null).length;
+const progsEmpty26_2 = progs.filter(p => p.min_2026_2 === '--').length;
+
+console.log(`✓ 2026/2 Taban Puanı Oluşan Program: ${progsWithScore26_2}`);
+console.assert(progsWithScore26_2 === 2660, `Expected 2660 programs with formed score, got ${progsWithScore26_2}`);
+
+console.log(`✓ 2026/2 Yerleşen Olmayan / Dolmayan Kadro: ${progsEmpty26_2}`);
+console.assert(progsEmpty26_2 === 281, `Expected 281 empty programs, got ${progsEmpty26_2}`);
+
 // Past Data Matching Checks
 const matched26_1 = progs.filter(p => p.has_2026_1).length;
 const matched25_2 = progs.filter(p => p.has_2025_2).length;
 const matched25_1 = progs.filter(p => p.has_2025_1).length;
 const matchedAny = progs.filter(p => p.has_2026_1 || p.has_2025_2 || p.has_2025_1).length;
 
+console.log(`\n=== 3. GEÇMİŞ DÖNEM EŞLEŞMELERİ ===`);
 console.log(`✓ 2026/1 Eşleşen Program Sayısı: ${matched26_1} (%${((matched26_1 / progs.length) * 100).toFixed(1)})`);
 console.assert(matched26_1 === 2747, `Expected 2747 matches for 2026/1, got ${matched26_1}`);
 
