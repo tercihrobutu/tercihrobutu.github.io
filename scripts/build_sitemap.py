@@ -205,7 +205,8 @@ def build_sitemap():
     urls.add((f"{BASE_URL}muhendislik.html?durum=placed2026", '0.85', 'weekly'))
     urls.add((f"{BASE_URL}muhendislik.html?durum=empty2026", '0.85', 'weekly'))
 
-    urls.add((f"{BASE_URL}ozyes.html", '0.9', 'daily'))
+    urls.add((f"{BASE_URL}ozyes.html", '0.95', 'daily'))
+    urls.add((f"{BASE_URL}ozyes.html?durum=only_ek", '0.95', 'daily'))
     urls.add((f"{BASE_URL}ozyes.html?kategori=erkek", '0.85', 'weekly'))
     urls.add((f"{BASE_URL}ozyes.html?kategori=kadin", '0.85', 'weekly'))
     urls.add((f"{BASE_URL}ozyes.html?kategori=milli", '0.8', 'weekly'))

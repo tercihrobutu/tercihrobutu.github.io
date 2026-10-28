@@ -104,11 +104,11 @@ function updateSortOptions() {
 
   if (currentCategory === 'erkek') {
     optionsHtml = `
+      <option value="ek_e_desc">🔥 2026 Erkek Ek Kontenjan (Çoktan Aza)</option>
       <option value="min26_e_desc">2026 Erkek Taban Puanı (Yüksek -> Düşük)</option>
       <option value="min26_e_asc">2026 Erkek Taban Puanı (Düşük -> Yüksek)</option>
-      <option value="yer26_e_desc">2026 Erkek Yerleşen (Çoktan Aza)</option>
-      <option value="bos26_tot_desc">2026 Boş Kontenjan (Çoktan Aza)</option>
-      <option value="kont_e_desc">2026 Erkek Kontenjanı (Çoktan Aza)</option>
+      <option value="yer26_e_desc">İlk Erkek Yerleşen (Çoktan Aza)</option>
+      <option value="kont_e_desc">İlk Erkek Kontenjanı (Çoktan Aza)</option>
       <option value="puan_e_desc">2025 Erkek Taban Puanı (Yüksek -> Düşük)</option>
       <option value="sira_e_asc">2025 Erkek Başarı Sırası (En İyi -> Son)</option>
       <option value="prog_asc">Program Adı (A-Z)</option>
@@ -116,13 +116,22 @@ function updateSortOptions() {
     `;
   } else if (currentCategory === 'kadin') {
     optionsHtml = `
+      <option value="ek_k_desc">🔥 2026 Kadın Ek Kontenjan (Çoktan Aza)</option>
       <option value="min26_k_desc">2026 Kadın Taban Puanı (Yüksek -> Düşük)</option>
       <option value="min26_k_asc">2026 Kadın Taban Puanı (Düşük -> Yüksek)</option>
-      <option value="yer26_k_desc">2026 Kadın Yerleşen (Çoktan Aza)</option>
-      <option value="bos26_tot_desc">2026 Boş Kontenjan (Çoktan Aza)</option>
-      <option value="kont_k_desc">2026 Kadın Kontenjanı (Çoktan Aza)</option>
+      <option value="yer26_k_desc">İlk Kadın Yerleşen (Çoktan Aza)</option>
+      <option value="kont_k_desc">İlk Kadın Kontenjanı (Çoktan Aza)</option>
       <option value="puan_k_desc">2025 Kadın Taban Puanı (Yüksek -> Düşük)</option>
       <option value="sira_k_asc">2025 Kadın Başarı Sırası (En İyi -> Son)</option>
+      <option value="prog_asc">Program Adı (A-Z)</option>
+      <option value="univ_asc">Üniversite Adı (A-Z)</option>
+    `;
+  } else if (currentCategory === 'engelli') {
+    optionsHtml = `
+      <option value="ek_eng_desc">🔥 2026 Engelli Ek Kontenjan (Çoktan Aza)</option>
+      <option value="min26_eng_e_desc">2026 Engelli Erkek Taban (Yüksek -> Düşük)</option>
+      <option value="min26_eng_k_desc">2026 Engelli Kadın Taban (Yüksek -> Düşük)</option>
+      <option value="yer26_tot_desc">İlk Toplam Yerleşen (Çoktan Aza)</option>
       <option value="prog_asc">Program Adı (A-Z)</option>
       <option value="univ_asc">Üniversite Adı (A-Z)</option>
     `;
@@ -130,28 +139,22 @@ function updateSortOptions() {
     optionsHtml = `
       <option value="min26_milli_e_desc">2026 Millî Erkek Taban Puanı (Yüksek -> Düşük)</option>
       <option value="min26_milli_k_desc">2026 Millî Kadın Taban Puanı (Yüksek -> Düşük)</option>
-      <option value="yer26_tot_desc">2026 Toplam Yerleşen (Çoktan Aza)</option>
-      <option value="kont_tot_desc">2026 Toplam Kontenjan (Çoktan Aza)</option>
-      <option value="prog_asc">Program Adı (A-Z)</option>
-      <option value="univ_asc">Üniversite Adı (A-Z)</option>
-    `;
-  } else if (currentCategory === 'engelli') {
-    optionsHtml = `
-      <option value="min26_eng_e_desc">2026 Engelli Erkek Taban Puanı (Yüksek -> Düşük)</option>
-      <option value="min26_eng_k_desc">2026 Engelli Kadın Taban Puanı (Yüksek -> Düşük)</option>
-      <option value="yer26_tot_desc">2026 Toplam Yerleşen (Çoktan Aza)</option>
-      <option value="kont_tot_desc">2026 Toplam Kontenjan (Çoktan Aza)</option>
+      <option value="yer26_tot_desc">İlk Toplam Yerleşen (Çoktan Aza)</option>
+      <option value="kont_tot_desc">İlk Toplam Kontenjan (Çoktan Aza)</option>
       <option value="prog_asc">Program Adı (A-Z)</option>
       <option value="univ_asc">Üniversite Adı (A-Z)</option>
     `;
   } else {
     // 'tum'
     optionsHtml = `
+      <option value="ek_tot_desc">🔥 2026 Ek Kontenjan (Çoktan Aza)</option>
       <option value="min26_e_desc">2026 Erkek Taban Puanı (Yüksek -> Düşük)</option>
+      <option value="min26_e_asc">2026 Erkek Taban Puanı (Düşük -> Yüksek)</option>
       <option value="min26_k_desc">2026 Kadın Taban Puanı (Yüksek -> Düşük)</option>
-      <option value="yer26_tot_desc">2026 Toplam Yerleşen (Çoktan Aza)</option>
-      <option value="bos26_tot_desc">2026 Boş Kontenjan (Çoktan Aza)</option>
-      <option value="kont_tot_desc">2026 Toplam Kontenjan (Çoktan Aza)</option>
+      <option value="min26_k_asc">2026 Kadın Taban Puanı (Düşük -> Yüksek)</option>
+      <option value="yer26_tot_desc">İlk Yerleşen Sayısı (Çoktan Aza)</option>
+      <option value="bos26_tot_desc">İlk Boş Kontenjan (Çoktan Aza)</option>
+      <option value="kont_tot_desc">İlk Kontenjan (Çoktan Aza)</option>
       <option value="puan_e_desc">2025 Erkek Taban Puanı (Yüksek -> Düşük)</option>
       <option value="puan_k_desc">2025 Kadın Taban Puanı (Yüksek -> Düşük)</option>
       <option value="prog_asc">Program Adı (A-Z)</option>
@@ -160,7 +163,6 @@ function updateSortOptions() {
   }
 
   sortBySelect.innerHTML = optionsHtml;
-  // Retain selection if available in new options
   if (Array.from(sortBySelect.options).some(o => o.value === currentVal)) {
     sortBySelect.value = currentVal;
   }
@@ -275,7 +277,7 @@ function setupEventListeners() {
     filterUnivType.value = '';
     filterProgramType.value = '';
     filterAkreditasyon.value = '';
-    if (filterStatus) filterStatus.value = '';
+    if (filterStatus) filterStatus.value = 'only_ek';
     selectedCities = [];
     cityOptionsList.querySelectorAll('input').forEach(i => i.checked = false);
     updateCityMultiLabel();
@@ -347,7 +349,7 @@ function getFilteredData() {
   const univType = filterUnivType.value;
   const progFilter = filterProgramType.value;
   const akred = filterAkreditasyon.value;
-  const statusVal = filterStatus ? filterStatus.value : '';
+  const statusVal = filterStatus ? filterStatus.value : 'only_ek';
   const sortBy = sortBySelect.value;
 
   let filtered = programsData.filter(item => {
@@ -371,21 +373,67 @@ function getFilteredData() {
     if (akred === 'TYC' && !item.tyc) return false;
 
     // 6. Kontenjan Durumu
-    if (statusVal === 'placed2026' && (item.yer_2026_toplam || 0) <= 0) return false;
-    if (statusVal === 'full2026' && (item.bos_2026_toplam !== 0)) return false;
-    if (statusVal === 'empty2026' && (item.bos_2026_toplam || 0) <= 0) return false;
+    if (statusVal === 'only_ek') {
+      if (!item.has_ek_2026 || (item.ek_kont_toplam || 0) <= 0) return false;
+    } else if (statusVal === 'no_ek') {
+      if (item.has_ek_2026 && (item.ek_kont_toplam || 0) > 0) return false;
+    } else if (statusVal === 'placed2026') {
+      if ((item.yer_2026_toplam || 0) <= 0) return false;
+    } else if (statusVal === 'full2026') {
+      if (item.bos_2026_toplam !== 0) return false;
+    } else if (statusVal === 'empty2026') {
+      if ((item.bos_2026_toplam || 0) <= 0) return false;
+    }
 
-    // 7. Category specific minimum filter (e.g. must have quota in selected category)
-    if (currentCategory === 'erkek' && item.kont_genel_e <= 0) return false;
-    if (currentCategory === 'kadin' && item.kont_genel_k <= 0) return false;
-    if (currentCategory === 'milli' && (item.kont_milli_e + item.kont_milli_k) <= 0) return false;
-    if (currentCategory === 'engelli' && (item.kont_engelli_e + item.kont_engelli_k) <= 0) return false;
+    // 7. Category specific quota filter
+    if (currentCategory === 'erkek') {
+      if (statusVal === 'only_ek') {
+        const maleEk = (item.ek_kont_genel_e || 0) + (item.ek_kont_engelli_e || 0);
+        if (maleEk <= 0) return false;
+      } else {
+        if (item.kont_genel_e <= 0 && (item.ek_kont_genel_e || 0) <= 0) return false;
+      }
+    } else if (currentCategory === 'kadin') {
+      if (statusVal === 'only_ek') {
+        const femEk = (item.ek_kont_genel_k || 0) + (item.ek_kont_engelli_k || 0);
+        if (femEk <= 0) return false;
+      } else {
+        if (item.kont_genel_k <= 0 && (item.ek_kont_genel_k || 0) <= 0) return false;
+      }
+    } else if (currentCategory === 'engelli') {
+      if (statusVal === 'only_ek') {
+        const engEk = (item.ek_kont_engelli_e || 0) + (item.ek_kont_engelli_k || 0);
+        if (engEk <= 0) return false;
+      } else {
+        if ((item.kont_engelli_e + item.kont_engelli_k) <= 0 && ((item.ek_kont_engelli_e || 0) + (item.ek_kont_engelli_k || 0)) <= 0) return false;
+      }
+    } else if (currentCategory === 'milli') {
+      if ((item.kont_milli_e + item.kont_milli_k) <= 0) return false;
+    }
 
     return true;
   });
 
   // Sorting
   filtered.sort((a, b) => {
+    // 2026 Ek Kontenjan Sıralamaları
+    if (sortBy === 'ek_tot_desc') return (b.ek_kont_toplam || 0) - (a.ek_kont_toplam || 0);
+    if (sortBy === 'ek_e_desc') {
+      const eb = (b.ek_kont_genel_e || 0) + (b.ek_kont_engelli_e || 0);
+      const ea = (a.ek_kont_genel_e || 0) + (a.ek_kont_engelli_e || 0);
+      return eb - ea;
+    }
+    if (sortBy === 'ek_k_desc') {
+      const kb = (b.ek_kont_genel_k || 0) + (b.ek_kont_engelli_k || 0);
+      const ka = (a.ek_kont_genel_k || 0) + (a.ek_kont_engelli_k || 0);
+      return kb - ka;
+    }
+    if (sortBy === 'ek_eng_desc') {
+      const engB = (b.ek_kont_engelli_e || 0) + (b.ek_kont_engelli_k || 0);
+      const engA = (a.ek_kont_engelli_e || 0) + (a.ek_kont_engelli_k || 0);
+      return engB - engA;
+    }
+
     // 2026 Yerleştirme Taban Puanları & Sıralamaları
     if (sortBy === 'min26_e_desc') return (b.min_2026_e_val || 0) - (a.min_2026_e_val || 0);
     if (sortBy === 'min26_e_asc') {
@@ -476,7 +524,7 @@ function render() {
 
   tableBody.innerHTML = '';
   if (pageItems.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding:40px; color:var(--text-muted);">Aramanıza uygun ÖZYES programı bulunamadı.</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:40px; color:var(--text-muted);">Aramanıza uygun ÖZYES ek tercih programı bulunamadı.</td></tr>`;
     return;
   }
 
@@ -485,7 +533,8 @@ function render() {
     const tr = document.createElement('tr');
 
     const badgeUnivClass = item.univ_type.includes('Vakıf') ? 'badge-vakif' : (item.univ_type.includes('KKTC') ? 'badge-kktc' : 'badge-devlet');
-    const condBadges = buildCondBadges(item.kosul, item.prog);
+    const condCodes = item.kosul_ek || item.kosul;
+    const condBadges = buildCondBadges(condCodes, item.prog);
 
     // Accreditation tag
     let akredTag = '';
@@ -496,16 +545,25 @@ function render() {
       akredTag += `<span class="badge" style="background:rgba(59,130,246,0.15); color:#60a5fa; font-size:0.7rem; padding:1px 6px; margin-left:3px;">TYÇ</span>`;
     }
 
-    let qE, qK, pE, sE, pK, sK;
-
+    let ekCellHtml = '';
     let qCellHtml = '';
     let scoreCol1Html = '';
     let scoreCol2Html = '';
 
     if (currentCategory === 'erkek') {
+      const totMaleEk = (item.ek_kont_genel_e || 0) + (item.ek_kont_engelli_e || 0);
+      if (totMaleEk > 0) {
+        ekCellHtml = `
+          <span class="badge" style="background:rgba(59,130,246,0.18); color:#60a5fa; font-weight:800; font-size:0.86rem; padding:3px 8px; border-radius:6px; border:1px solid rgba(59,130,246,0.3);">${totMaleEk} Erkek Ek</span>
+          <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">Genel: ${item.ek_kont_genel_e || 0} | Eng: ${item.ek_kont_engelli_e || 0}</div>
+        `;
+      } else {
+        ekCellHtml = '<span style="color:var(--text-muted); font-size:0.8rem;">—</span>';
+      }
+
       qCellHtml = `
-        <span class="badge-kont" style="background:rgba(59,130,246,0.18); color:#60a5fa; font-weight:800; font-size:0.85rem; padding:3px 7px;">${item.kont_genel_e} Kont.</span>
-        <div style="font-size:0.75rem; margin-top:3px; font-weight:700; color:#10b981;">${item.yer_2026_e || 0} Yerleşen</div>
+        <div style="font-weight:700; color:#60a5fa; font-size:0.82rem;">${item.kont_genel_e} Kont.</div>
+        <div style="font-size:0.74rem; margin-top:2px; font-weight:700; color:#10b981;">${item.yer_2026_e || 0} Yerleşen</div>
       `;
       scoreCol1Html = `
         <div style="font-weight:700; color:#60a5fa; font-size:0.88rem;">${item.min_2026_e && item.min_2026_e !== '--' ? item.min_2026_e : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
@@ -518,9 +576,19 @@ function render() {
         <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.sira_2025_e && item.sira_2025_e !== '--' ? `Sıra: ${item.sira_2025_e}` : '—'}</div>
       `;
     } else if (currentCategory === 'kadin') {
+      const totFemEk = (item.ek_kont_genel_k || 0) + (item.ek_kont_engelli_k || 0);
+      if (totFemEk > 0) {
+        ekCellHtml = `
+          <span class="badge" style="background:rgba(236,72,153,0.18); color:#f472b6; font-weight:800; font-size:0.86rem; padding:3px 8px; border-radius:6px; border:1px solid rgba(236,72,153,0.3);">${totFemEk} Kadın Ek</span>
+          <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">Genel: ${item.ek_kont_genel_k || 0} | Eng: ${item.ek_kont_engelli_k || 0}</div>
+        `;
+      } else {
+        ekCellHtml = '<span style="color:var(--text-muted); font-size:0.8rem;">—</span>';
+      }
+
       qCellHtml = `
-        <span class="badge-kont" style="background:rgba(236,72,153,0.18); color:#f472b6; font-weight:800; font-size:0.85rem; padding:3px 7px;">${item.kont_genel_k} Kont.</span>
-        <div style="font-size:0.75rem; margin-top:3px; font-weight:700; color:#10b981;">${item.yer_2026_k || 0} Yerleşen</div>
+        <div style="font-weight:700; color:#f472b6; font-size:0.82rem;">${item.kont_genel_k} Kont.</div>
+        <div style="font-size:0.74rem; margin-top:2px; font-weight:700; color:#10b981;">${item.yer_2026_k || 0} Yerleşen</div>
       `;
       scoreCol1Html = `
         <div style="font-weight:700; color:#f472b6; font-size:0.88rem;">${item.min_2026_k && item.min_2026_k !== '--' ? item.min_2026_k : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
@@ -531,6 +599,29 @@ function render() {
       scoreCol2Html = `
         <div style="font-weight:600; color:var(--text-primary); font-size:0.85rem;">${item.puan_2025_k && item.puan_2025_k !== '--' ? item.puan_2025_k : '<span style="color:var(--text-muted);">—</span>'}</div>
         <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.sira_2025_k && item.sira_2025_k !== '--' ? `Sıra: ${item.sira_2025_k}` : '—'}</div>
+      `;
+    } else if (currentCategory === 'engelli') {
+      const totEngEk = (item.ek_kont_engelli_e || 0) + (item.ek_kont_engelli_k || 0);
+      if (totEngEk > 0) {
+        ekCellHtml = `
+          <span class="badge" style="background:rgba(168,85,247,0.18); color:#c084fc; font-weight:800; font-size:0.86rem; padding:3px 8px; border-radius:6px; border:1px solid rgba(168,85,247,0.3);">${totEngEk} Engelli Ek</span>
+          <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">♂ ${item.ek_kont_engelli_e || 0} &bull; ♀ ${item.ek_kont_engelli_k || 0}</div>
+        `;
+      } else {
+        ekCellHtml = '<span style="color:var(--text-muted); font-size:0.8rem;">—</span>';
+      }
+
+      qCellHtml = `
+        <div style="font-size:0.75rem; font-weight:700; color:#60a5fa;">♂ ${item.kont_engelli_e} (Yer: ${item.yer_2026_eng_e || 0})</div>
+        <div style="font-size:0.75rem; font-weight:700; color:#f472b6; margin-top:2px;">♀ ${item.kont_engelli_k} (Yer: ${item.yer_2026_eng_k || 0})</div>
+      `;
+      scoreCol1Html = `
+        <div style="font-weight:700; color:#60a5fa; font-size:0.88rem;">${item.min_2026_eng_e && item.min_2026_eng_e !== '--' ? item.min_2026_eng_e : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.puan_2025_eng_e && item.puan_2025_eng_e !== '--' ? `25: ${item.puan_2025_eng_e}` : '—'}</div>
+      `;
+      scoreCol2Html = `
+        <div style="font-weight:700; color:#f472b6; font-size:0.88rem;">${item.min_2026_eng_k && item.min_2026_eng_k !== '--' ? item.min_2026_eng_k : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.puan_2025_eng_k && item.puan_2025_eng_k !== '--' ? `25: ${item.puan_2025_eng_k}` : '—'}</div>
       `;
     } else if (currentCategory === 'milli') {
       qCellHtml = `
@@ -545,26 +636,24 @@ function render() {
         <div style="font-weight:700; color:#f472b6; font-size:0.88rem;">${item.min_2026_milli_k && item.min_2026_milli_k !== '--' ? item.min_2026_milli_k : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
         <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.puan_2025_milli_k && item.puan_2025_milli_k !== '--' ? `25: ${item.puan_2025_milli_k}` : '—'}</div>
       `;
-    } else if (currentCategory === 'engelli') {
-      qCellHtml = `
-        <div style="font-size:0.8rem; font-weight:700; color:#60a5fa;">♂ ${item.kont_engelli_e} (Yer: ${item.yer_2026_eng_e || 0})</div>
-        <div style="font-size:0.8rem; font-weight:700; color:#f472b6; margin-top:2px;">♀ ${item.kont_engelli_k} (Yer: ${item.yer_2026_eng_k || 0})</div>
-      `;
-      scoreCol1Html = `
-        <div style="font-weight:700; color:#60a5fa; font-size:0.88rem;">${item.min_2026_eng_e && item.min_2026_eng_e !== '--' ? item.min_2026_eng_e : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
-        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.puan_2025_eng_e && item.puan_2025_eng_e !== '--' ? `25: ${item.puan_2025_eng_e}` : '—'}</div>
-      `;
-      scoreCol2Html = `
-        <div style="font-weight:700; color:#f472b6; font-size:0.88rem;">${item.min_2026_eng_k && item.min_2026_eng_k !== '--' ? item.min_2026_eng_k : '<span style="color:var(--text-muted); font-size:0.8rem;">Dolmadı</span>'}</div>
-        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">${item.puan_2025_eng_k && item.puan_2025_eng_k !== '--' ? `25: ${item.puan_2025_eng_k}` : '—'}</div>
-      `;
     } else {
       // 'tum' (Tüm Kontenjanlar)
+      if (item.has_ek_2026 && item.ek_kont_toplam > 0) {
+        ekCellHtml = `
+          <span class="badge" style="background:rgba(16,185,129,0.18); color:#10b981; font-weight:800; font-size:0.86rem; padding:3px 8px; border:1px solid rgba(16,185,129,0.35); border-radius:6px;">${item.ek_kont_toplam} Ek Kont.</span>
+          <div style="font-size:0.74rem; margin-top:3px; color:var(--text-secondary);">
+            <span style="color:#60a5fa; font-weight:700;">♂ ${item.ek_kont_genel_e + item.ek_kont_engelli_e}</span> &bull; <span style="color:#f472b6; font-weight:700;">♀ ${item.ek_kont_genel_k + item.ek_kont_engelli_k}</span>
+          </div>
+        `;
+      } else {
+        ekCellHtml = '<span style="color:var(--text-muted); font-size:0.8rem;">—</span>';
+      }
+
       qCellHtml = `
-        <div style="font-weight:800; font-size:0.85rem; color:var(--text-primary);">${item.kont_2026_toplam} Kont.</div>
-        <div style="font-size:0.75rem; margin-top:2px;">
-          <span style="color:#10b981; font-weight:700;">${item.yer_2026_toplam} Yer.</span>
-          ${item.bos_2026_toplam > 0 ? `<span style="color:#ef4444; font-weight:700; margin-left:3px;">(${item.bos_2026_toplam} Boş)</span>` : `<span style="color:#10b981; font-weight:700; margin-left:3px;">(Doldu)</span>`}
+        <div style="font-weight:700; font-size:0.82rem; color:var(--text-primary);">${item.kont_2026_toplam} Kont.</div>
+        <div style="font-size:0.74rem; margin-top:2px; color:var(--text-secondary);">
+          <span style="color:#10b981; font-weight:600;">${item.yer_2026_toplam} Yer.</span>
+          ${item.bos_2026_toplam > 0 ? `<span style="color:#ef4444; font-weight:600;">(${item.bos_2026_toplam} Boş)</span>` : `<span style="color:#10b981; font-weight:600;">(Doldu)</span>`}
         </div>
       `;
       scoreCol1Html = `
@@ -583,28 +672,54 @@ function render() {
       `;
     }
 
-    tr.innerHTML = `
-      <td>
-        <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav('${item.code}')" title="Tercih Listenize Ekleyin">
-          ${isFav ? '★' : '☆'}
-        </button>
-      </td>
-      <td class="code-cell">${item.code}</td>
-      <td class="cell-city"><strong>${item.city}</strong></td>
-      <td class="cell-univ">
-        <div style="font-weight:700; color:var(--text-primary); font-size:0.85rem; line-height:1.3;">${item.univ}</div>
-        <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">${item.fac}</div>
-        <span class="badge ${badgeUnivClass}" style="margin-top:3px; font-size:0.7rem; padding:1px 6px;">${item.univ_type}</span>
-      </td>
-      <td class="cell-prog">
-        <div style="font-weight:700; color:var(--text-primary); font-size:0.85rem; line-height:1.3;">${item.prog}</div>
-        <div style="margin-top:3px;">${akredTag}</div>
-      </td>
-      <td style="text-align:center;">${qCellHtml}</td>
-      <td style="text-align:center;">${condBadges}</td>
-      <td style="text-align:right;">${scoreCol1Html}</td>
-      <td style="text-align:right;">${scoreCol2Html}</td>
-    `;
+    if (currentCategory === 'milli') {
+      tr.innerHTML = `
+        <td>
+          <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav('${item.code}')" title="Tercih Listenize Ekleyin">
+            ${isFav ? '★' : '☆'}
+          </button>
+        </td>
+        <td class="code-cell">${item.code}</td>
+        <td class="cell-city"><strong>${item.city}</strong></td>
+        <td class="cell-univ">
+          <div style="font-weight:700; color:var(--text-primary); font-size:0.85rem; line-height:1.3;">${item.univ}</div>
+          <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">${item.fac}</div>
+          <span class="badge ${badgeUnivClass}" style="margin-top:3px; font-size:0.7rem; padding:1px 6px;">${item.univ_type}</span>
+        </td>
+        <td class="cell-prog">
+          <div style="font-weight:700; color:var(--text-primary); font-size:0.85rem; line-height:1.3;">${item.prog}</div>
+          <div style="margin-top:3px;">${akredTag}</div>
+        </td>
+        <td style="text-align:center;">${qCellHtml}</td>
+        <td style="text-align:center;">${condBadges}</td>
+        <td style="text-align:right;">${scoreCol1Html}</td>
+        <td style="text-align:right;">${scoreCol2Html}</td>
+      `;
+    } else {
+      tr.innerHTML = `
+        <td>
+          <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav('${item.code}')" title="Tercih Listenize Ekleyin">
+            ${isFav ? '★' : '☆'}
+          </button>
+        </td>
+        <td class="code-cell">${item.code}</td>
+        <td class="cell-city"><strong>${item.city}</strong></td>
+        <td class="cell-univ">
+          <div style="font-weight:700; color:var(--text-primary); font-size:0.85rem; line-height:1.3;">${item.univ}</div>
+          <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">${item.fac}</div>
+          <span class="badge ${badgeUnivClass}" style="margin-top:3px; font-size:0.7rem; padding:1px 6px;">${item.univ_type}</span>
+        </td>
+        <td class="cell-prog">
+          <div style="font-weight:700; color:var(--text-primary); font-size:0.85rem; line-height:1.3;">${item.prog}</div>
+          <div style="margin-top:3px;">${akredTag}</div>
+        </td>
+        <td style="text-align:center;">${ekCellHtml}</td>
+        <td style="text-align:center;">${qCellHtml}</td>
+        <td style="text-align:center;">${condBadges}</td>
+        <td style="text-align:right;">${scoreCol1Html}</td>
+        <td style="text-align:right;">${scoreCol2Html}</td>
+      `;
+    }
     tableBody.appendChild(tr);
   });
 }
@@ -621,7 +736,8 @@ function updateTableHeaders() {
         <th class="col-city" style="width:70px;">İl</th>
         <th>Üniversite / Fakülte</th>
         <th>Program Adı</th>
-        <th style="text-align:center; width:85px; color:#60a5fa;" title="2026 Erkek Kontenjanı ve Yerleşen Sayısı">♂ Kont. / Yer.</th>
+        <th style="text-align:center; width:100px; color:#60a5fa;" title="2026 Erkek Ek Kontenjanı">🔥 2026 Erkek Ek</th>
+        <th style="text-align:center; width:85px;" title="İlk Yerleştirme Erkek Kontenjanı ve Yerleşen">♂ İlk Kont./Yer.</th>
         <th style="width:70px; text-align:center;">Özel Koşullar</th>
         <th style="text-align:right; width:115px; color:#60a5fa;" title="2026 Yerleştirme Taban & Tavan Puanı">2026 Erkek Taban (Tavan)</th>
         <th style="text-align:right; width:95px; color:var(--text-secondary);" title="2025 Yerleştirme Taban Puanı ve Sırası">2025 Erkek Taban</th>
@@ -635,24 +751,11 @@ function updateTableHeaders() {
         <th class="col-city" style="width:70px;">İl</th>
         <th>Üniversite / Fakülte</th>
         <th>Program Adı</th>
-        <th style="text-align:center; width:85px; color:#f472b6;" title="2026 Kadın Kontenjanı ve Yerleşen Sayısı">♀ Kont. / Yer.</th>
+        <th style="text-align:center; width:100px; color:#f472b6;" title="2026 Kadın Ek Kontenjanı">🔥 2026 Kadın Ek</th>
+        <th style="text-align:center; width:85px;" title="İlk Yerleştirme Kadın Kontenjanı ve Yerleşen">♀ İlk Kont./Yer.</th>
         <th style="width:70px; text-align:center;">Özel Koşullar</th>
         <th style="text-align:right; width:115px; color:#f472b6;" title="2026 Yerleştirme Taban & Tavan Puanı">2026 Kadın Taban (Tavan)</th>
         <th style="text-align:right; width:95px; color:var(--text-secondary);" title="2025 Yerleştirme Taban Puanı ve Sırası">2025 Kadın Taban</th>
-      </tr>
-    `;
-  } else if (currentCategory === 'milli') {
-    theadEl.innerHTML = `
-      <tr>
-        <th style="width:30px;">⭐</th>
-        <th style="width:75px;">ÖSYM Kodu</th>
-        <th class="col-city" style="width:70px;">İl</th>
-        <th>Üniversite / Fakülte</th>
-        <th>Program Adı</th>
-        <th style="text-align:center; width:95px;" title="Millî Sporcu Kontenjan ve Yerleşen">Millî Kont. / Yer.</th>
-        <th style="width:70px; text-align:center;">Özel Koşullar</th>
-        <th style="text-align:right; width:110px; color:#60a5fa;" title="2026 Millî Erkek Taban Puanı">♂ 2026 Millî Erkek</th>
-        <th style="text-align:right; width:110px; color:#f472b6;" title="2026 Millî Kadın Taban Puanı">♀ 2026 Millî Kadın</th>
       </tr>
     `;
   } else if (currentCategory === 'engelli') {
@@ -663,10 +766,25 @@ function updateTableHeaders() {
         <th class="col-city" style="width:70px;">İl</th>
         <th>Üniversite / Fakülte</th>
         <th>Program Adı</th>
-        <th style="text-align:center; width:95px;" title="Engelli Aday Kontenjan ve Yerleşen">Engelli Kont. / Yer.</th>
+        <th style="text-align:center; width:100px; color:#c084fc;" title="2026 Engelli Aday Ek Kontenjanı">🔥 2026 Engelli Ek</th>
+        <th style="text-align:center; width:85px;" title="İlk Engelli Kontenjan ve Yerleşen">Engelli İlk Kont.</th>
         <th style="width:70px; text-align:center;">Özel Koşullar</th>
         <th style="text-align:right; width:110px; color:#60a5fa;" title="2026 Engelli Erkek Taban Puanı">♂ 2026 Engelli Erkek</th>
         <th style="text-align:right; width:110px; color:#f472b6;" title="2026 Engelli Kadın Taban Puanı">♀ 2026 Engelli Kadın</th>
+      </tr>
+    `;
+  } else if (currentCategory === 'milli') {
+    theadEl.innerHTML = `
+      <tr>
+        <th style="width:30px;">⭐</th>
+        <th style="width:75px;">ÖSYM Kodu</th>
+        <th class="col-city" style="width:70px;">İl</th>
+        <th>Üniversite / Fakülte</th>
+        <th>Program Adı</th>
+        <th style="text-align:center; width:95px;" title="Millî Sporcu Kontenjan ve Yerleşen">Millî İlk Kont./Yer.</th>
+        <th style="width:70px; text-align:center;">Özel Koşullar</th>
+        <th style="text-align:right; width:110px; color:#60a5fa;" title="2026 Millî Erkek Taban Puanı">♂ 2026 Millî Erkek</th>
+        <th style="text-align:right; width:110px; color:#f472b6;" title="2026 Millî Kadın Taban Puanı">♀ 2026 Millî Kadın</th>
       </tr>
     `;
   } else {
@@ -678,7 +796,8 @@ function updateTableHeaders() {
         <th class="col-city" style="width:70px;">İl</th>
         <th>Üniversite / Fakülte</th>
         <th>Program Adı</th>
-        <th style="text-align:center; width:95px;" title="2026 Toplam Kontenjan, Yerleşen ve Boş">2026 Kont. / Yer.</th>
+        <th style="text-align:center; width:105px; color:#10b981;" title="2026 Toplam Ek Kontenjan">🔥 2026 Ek Kont.</th>
+        <th style="text-align:center; width:90px;" title="İlk Merkezi Yerleştirme Kontenjan ve Yerleşen">İlk Kont./Yer.</th>
         <th style="width:70px; text-align:center;">Özel Koşullar</th>
         <th style="text-align:right; width:110px; color:#60a5fa;" title="2026 Erkek Yerleştirme Taban ve Tavan Puanı">♂ 2026 Erkek Taban</th>
         <th style="text-align:right; width:110px; color:#f472b6;" title="2026 Kadın Yerleştirme Taban ve Tavan Puanı">♀ 2026 Kadın Taban</th>
@@ -806,24 +925,23 @@ function exportFavsPDF() {
 
   doc.setFontSize(16);
   doc.setTextColor(16, 185, 129);
-  doc.text('2026 OZYES SPOR BILIMLERI TERCIH & SONUC LISTEM', 14, 15);
+  doc.text('2026 OZYES SPOR BILIMLERI EK TERCIH LISTEM', 14, 15);
 
   doc.setFontSize(10);
   doc.setTextColor(100);
   doc.text(`tercihrobutu.github.io  |  ${new Date().toLocaleDateString('tr-TR')}  |  Toplam: ${favorites.length}/30 Program`, 14, 22);
 
-  const head = [['Sira', 'OSYM Kodu', 'Universite', 'Program', 'Il', 'Kont/Yer', '26 E.Taban', '26 K.Taban', '25 E.Taban', '25 K.Taban']];
+  const head = [['Sira', 'OSYM Kodu', 'Universite', 'Program', 'Il', 'Ek Kont', 'Ilk Kont/Yer', '26 E.Taban', '26 K.Taban']];
   const body = favorites.map((item, idx) => [
     idx + 1,
     item.code,
     toAscii(item.univ),
     toAscii(item.prog),
     toAscii(item.city),
+    item.has_ek_2026 ? `${item.ek_kont_toplam || 0}` : '0',
     `${item.kont_2026_toplam || item.kont_toplam}/${item.yer_2026_toplam || 0}`,
     item.min_2026_e || '--',
-    item.min_2026_k || '--',
-    item.puan_2025_e || '--',
-    item.puan_2025_k || '--'
+    item.min_2026_k || '--'
   ]);
 
   doc.autoTable({
@@ -836,18 +954,17 @@ function exportFavsPDF() {
     columnStyles: {
       0: { cellWidth: 10, halign: 'center' },
       1: { cellWidth: 24, halign: 'center' },
-      2: { cellWidth: 60 },
-      3: { cellWidth: 55 },
+      2: { cellWidth: 62 },
+      3: { cellWidth: 58 },
       4: { cellWidth: 24 },
-      5: { cellWidth: 22, halign: 'center' },
-      6: { cellWidth: 24, halign: 'right' },
-      7: { cellWidth: 24, halign: 'right' },
-      8: { cellWidth: 22, halign: 'right' },
-      9: { cellWidth: 22, halign: 'right' }
+      5: { cellWidth: 18, halign: 'center' },
+      6: { cellWidth: 24, halign: 'center' },
+      7: { cellWidth: 25, halign: 'right' },
+      8: { cellWidth: 25, halign: 'right' }
     }
   });
 
-  doc.save('2026_OZYES_Tercih_Listem.pdf');
+  doc.save('2026_OZYES_Ek_Tercih_Listem.pdf');
 }
 
 // Export Favorites to Excel (.xlsx)
@@ -865,9 +982,14 @@ function exportFavsExcel() {
     'Program': item.prog,
     'Şehir': item.city,
     'Üniversite Türü': item.univ_type,
-    '2026 Toplam Kontenjan': item.kont_2026_toplam || item.kont_toplam,
-    '2026 Toplam Yerleşen': item.yer_2026_toplam || 0,
-    '2026 Boş Kontenjan': item.bos_2026_toplam || 0,
+    '2026 Ek Kontenjan Toplam': item.has_ek_2026 ? (item.ek_kont_toplam || 0) : 0,
+    'Genel Erkek Ek': item.ek_kont_genel_e || 0,
+    'Genel Kadın Ek': item.ek_kont_genel_k || 0,
+    'Engelli Erkek Ek': item.ek_kont_engelli_e || 0,
+    'Engelli Kadın Ek': item.ek_kont_engelli_k || 0,
+    '2026 İlk Toplam Kontenjan': item.kont_2026_toplam || item.kont_toplam,
+    '2026 İlk Toplam Yerleşen': item.yer_2026_toplam || 0,
+    '2026 İlk Boş Kontenjan': item.bos_2026_toplam || 0,
     '2026 Erkek Taban Puanı': item.min_2026_e || '--',
     '2026 Erkek Tavan Puanı': item.max_2026_e || '--',
     '2026 Kadın Taban Puanı': item.min_2026_k || '--',
@@ -876,13 +998,13 @@ function exportFavsExcel() {
     '2025 Kadın Taban Puanı': item.puan_2025_k || '--',
     'Akreditasyon': item.akreditasyon || '',
     'TYÇ': item.tyc || '',
-    'Özel Koşullar': item.kosul || ''
+    'Ek Tercih Özel Koşulları': item.kosul_ek || item.kosul || ''
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(exportData);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'ÖZYES Tercihlerim');
-  XLSX.writeFile(workbook, '2026_OZYES_Tercih_Listem.xlsx');
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'ÖZYES Ek Tercihlerim');
+  XLSX.writeFile(workbook, '2026_OZYES_Ek_Tercih_Listem.xlsx');
 }
 
 // URL Parameters
@@ -900,5 +1022,12 @@ function checkURLParams() {
   const cat = params.get('kategori') || params.get('cinsiyet');
   if (cat && ['erkek', 'kadin', 'milli', 'engelli', 'tum'].includes(cat)) {
     setCategory(cat);
+  }
+
+  const durum = params.get('durum') || params.get('ek') || params.get('status');
+  if (durum && filterStatus) {
+    if (['only_ek', 'all', 'placed2026', 'full2026', 'no_ek'].includes(durum)) {
+      filterStatus.value = durum;
+    }
   }
 }
