@@ -288,9 +288,9 @@ function setupEventListeners() {
     filterUnivType.value = '';
     filterPuanType.value = '';
     filterEgitimType.value = '';
-    if (filterEk) filterEk.value = 'only_ek';
+    if (filterEk) filterEk.value = 'all';
     if (filterMinKont) filterMinKont.value = '';
-    if (sortBySelect) sortBySelect.value = 'ek_min26_desc';
+    if (sortBySelect) sortBySelect.value = 'kont_desc';
     selectedCities = [];
     populateCityFilter();
     currentPage = 1;
@@ -344,9 +344,9 @@ function getFilteredData() {
   const univType = filterUnivType.value;
   const puanType = filterPuanType.value;
   const egitimType = filterEgitimType.value;
-  const ekFilter = filterEk ? filterEk.value : 'only_ek';
+  const ekFilter = filterEk ? filterEk.value : 'all';
   const minKont = filterMinKont && filterMinKont.value ? parseInt(filterMinKont.value, 10) : null;
-  const sortBy = sortBySelect ? sortBySelect.value : 'ek_min26_desc';
+  const sortBy = sortBySelect ? sortBySelect.value : 'kont_desc';
 
   let allowedCodes = null;
   if (mezuniyet && mappingData[mezuniyet]) {
@@ -359,6 +359,7 @@ function getFilteredData() {
     if (ekFilter === 'ek_bos' && (!item.has_ek_sonuc_2026 || (item.ek_bos_2026 || 0) <= 0)) return false;
     if (ekFilter === 'ek_dolan' && (!item.has_ek_sonuc_2026 || (item.ek_bos_2026 !== 0) || (item.ek_yerlesen_2026 || 0) === 0)) return false;
     if (ekFilter === 'ek_puan_olusan' && (!item.has_ek_sonuc_2026 || !item.ek_min_2026 || item.ek_min_2026 === '--')) return false;
+    if (ekFilter === 'ilk_dolan' && (item.yerlesen === undefined || item.yerlesen < item.kont || item.kont === 0)) return false;
     if (ekFilter === 'no_ek' && (item.has_ek_sonuc_2026 || item.has_ek_2026)) return false;
 
     // 1. Ön Lisans Mezuniyet Alanı Filter (Tablo-2)
@@ -392,8 +393,8 @@ function getFilteredData() {
 
     // 7. Min Kontenjan Filter
     if (minKont !== null && !isNaN(minKont)) {
-      const kontVal = item.has_ek_sonuc_2026 ? (item.ek_kont_2026 || 0) : item.kont;
-      if (kontVal < minKont) return false;
+      const maxAvailableKont = Math.max(item.kont || 0, item.ek_kont_2026 || 0);
+      if (maxAvailableKont < minKont) return false;
     }
 
     return true;
@@ -401,6 +402,11 @@ function getFilteredData() {
 
   // Sorting
   filtered.sort((a, b) => {
+    if (sortBy === 'kont_desc') return (b.kont || 0) - (a.kont || 0);
+    if (sortBy === 'yer_desc') return (b.yerlesen || 0) - (a.yerlesen || 0);
+    if (sortBy === 'ek_kont_desc') return (b.ek_kont_2026 || 0) - (a.ek_kont_2026 || 0);
+    if (sortBy === 'ek_yer_desc') return (b.ek_yerlesen_2026 || 0) - (a.ek_yerlesen_2026 || 0);
+    if (sortBy === 'ek_bos_desc') return (b.ek_bos_2026 || 0) - (a.ek_bos_2026 || 0);
     if (sortBy === 'ek_min26_desc') {
       const valA = a.ek_min_2026_val !== null && a.ek_min_2026_val !== undefined ? a.ek_min_2026_val : -1;
       const valB = b.ek_min_2026_val !== null && b.ek_min_2026_val !== undefined ? b.ek_min_2026_val : -1;
@@ -411,16 +417,12 @@ function getFilteredData() {
       const valB = b.ek_min_2026_val !== null && b.ek_min_2026_val !== undefined ? b.ek_min_2026_val : 9999;
       return valA - valB;
     }
-    if (sortBy === 'ek_bos_desc') return (b.ek_bos_2026 || 0) - (a.ek_bos_2026 || 0);
-    if (sortBy === 'ek_yer_desc') return (b.ek_yerlesen_2026 || 0) - (a.ek_yerlesen_2026 || 0);
-    if (sortBy === 'ek_kont_desc') return (b.ek_kont_2026 || 0) - (a.ek_kont_2026 || 0);
     if (sortBy === 'puan26_desc') return (b.puan_2026_val || 0) - (a.puan_2026_val || 0);
     if (sortBy === 'puan26_asc') {
       const valA = a.puan_2026_val || 9999;
       const valB = b.puan_2026_val || 9999;
       return valA - valB;
     }
-    if (sortBy === 'kont_desc') return (b.kont || 0) - (a.kont || 0);
     if (sortBy === 'bos_desc') return (b.bos || 0) - (a.bos || 0);
     if (sortBy === 'puan25_desc') return (b.puan_2025_val || 0) - (a.puan_2025_val || 0);
     if (sortBy === 'prog_asc') return a.prog.localeCompare(b.prog, 'tr');
@@ -460,7 +462,7 @@ function render() {
 
   tableBody.innerHTML = '';
   if (pageItems.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:40px; color:var(--text-muted);">Aramanıza uygun DGS üniversite programı bulunamadı.</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="14" style="text-align:center; padding:40px; color:var(--text-muted);">Aramanıza uygun DGS üniversite programı bulunamadı.</td></tr>`;
     return;
   }
 
@@ -486,13 +488,15 @@ function render() {
     }
 
     const condBadges = buildCondBadges(item.kosul, item.prog);
+    const initialKont = item.kont !== undefined ? item.kont : '-';
+    const initialYer = item.yerlesen !== undefined ? item.yerlesen : '-';
     const ekKont = item.ek_kont_2026 !== undefined ? item.ek_kont_2026 : (item.has_ek_2026 ? item.bos : 0);
     const ekYer = item.ek_yerlesen_2026 !== undefined ? item.ek_yerlesen_2026 : '-';
     const ekBos = item.ek_bos_2026 !== undefined ? item.ek_bos_2026 : '-';
 
-    const ekBadge = item.has_ek_sonuc_2026 || item.has_ek_2026
-      ? `<span class="badge" style="background:rgba(16, 185, 129, 0.2); color:#10b981; font-weight:800; font-size:0.88rem; padding:2px 8px; border:1px solid rgba(16, 185, 129, 0.4);" title="2026 ÖSYM Ek Kontenjan: ${ekKont}">${ekKont}</span>`
-      : `<span class="badge" style="background:rgba(148, 163, 184, 0.1); color:var(--text-muted); font-size:0.75rem;">—</span>`;
+    const ekBadge = (item.has_ek_sonuc_2026 || item.has_ek_2026) && ekKont > 0
+      ? `<span class="badge" style="background:rgba(16, 185, 129, 0.2); color:#10b981; font-weight:800; font-size:0.86rem; padding:2px 7px; border:1px solid rgba(16, 185, 129, 0.4);" title="2026 ÖSYM Ek Kontenjan: ${ekKont}">${ekKont}</span>`
+      : `<span style="color:var(--text-muted); font-size:0.8rem;">—</span>`;
 
     const ekYerBadge = item.has_ek_sonuc_2026
       ? `<span style="font-weight:700; color:#38bdf8;">${ekYer}</span>`
@@ -505,17 +509,13 @@ function render() {
       : `<span style="color:var(--text-muted); font-size:0.8rem;">—</span>`;
 
     const ekMinDisplay = item.ek_min_2026 && item.ek_min_2026 !== '--'
-      ? `<span style="font-weight:800; color:#10b981; font-size:0.92rem;" title="2026 Ek Yerleştirme Taban Puanı">${item.ek_min_2026}</span>`
+      ? `<span style="font-weight:800; color:#10b981; font-size:0.92rem;" title="2026 Ek Yerleştirme Taban Puanı (Tavan: ${item.ek_max_2026 || '--'})">${item.ek_min_2026}</span>`
       : (item.has_ek_sonuc_2026 
           ? `<span class="badge" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8; font-weight:700; font-size:0.72rem;" title="Ek yerleştirmede dolmayan / taban puanı oluşmayan program">Dolmadı (--)</span>`
           : `<span style="color:var(--text-muted); font-size:0.8rem;">—</span>`);
 
-    const ekMaxDisplay = item.ek_max_2026 && item.ek_max_2026 !== '--'
-      ? `<span style="font-weight:600; color:#a7f3d0; font-size:0.85rem;" title="2026 Ek Yerleştirme Tavan Puanı">${item.ek_max_2026}</span>`
-      : (item.has_ek_sonuc_2026 ? `<span style="color:var(--text-muted); font-size:0.8rem;">--</span>` : `<span style="color:var(--text-muted); font-size:0.8rem;">—</span>`);
-
     const ilkMinDisplay = item.puan_2026 && item.puan_2026 !== '--'
-      ? `<span style="font-weight:600; color:var(--text-secondary);" title="2026 İlk Yerleştirme Taban Puanı">${item.puan_2026}</span>`
+      ? `<span style="font-weight:600; color:var(--text-secondary);" title="2026 İlk Merkezi Yerleştirme Taban Puanı (Tavan: ${item.puan_2026_max || '--'})">${item.puan_2026}</span>`
       : `<span style="color:var(--text-muted); font-size:0.75rem;">Dolmadı</span>`;
 
     const safeUniv = item.univ.replace(/'/g, "\\'");
@@ -543,12 +543,13 @@ function render() {
         </div>
       </td>
       <td><span class="badge" style="background:rgba(255,255,255,0.08); font-size:0.75rem;">${item.puan}</span></td>
-      <td style="text-align:center;">${ekBadge}</td>
-      <td style="text-align:center;">${ekYerBadge}</td>
-      <td style="text-align:center;">${ekBosBadge}</td>
-      <td style="text-align:right;">${ekMinDisplay}</td>
-      <td style="text-align:right;">${ekMaxDisplay}</td>
-      <td style="text-align:right;">${ilkMinDisplay}</td>
+      <td style="text-align:center; font-weight:700;" title="Tercih Kılavuzu Toplam Kontenjan">${initialKont}</td>
+      <td style="text-align:center; font-weight:600; color:var(--text-secondary);" title="İlk Yerleşen">${initialYer}</td>
+      <td style="text-align:center;" title="2026 Ek Kontenjan">${ekBadge}</td>
+      <td style="text-align:center;" title="2026 Ek Yerleşen">${ekYerBadge}</td>
+      <td style="text-align:center;" title="Kalan Boş Kontenjan">${ekBosBadge}</td>
+      <td style="text-align:right;" title="2026 Ek Taban">${ekMinDisplay}</td>
+      <td style="text-align:right;" title="2026 İlk Taban">${ilkMinDisplay}</td>
       <td style="white-space:nowrap;">${condBadges}</td>
     `;
     tableBody.appendChild(tr);
@@ -562,7 +563,7 @@ function openCurriculumSearch(univ, prog) {
   window.open(url, '_blank');
 }
 
-// Conditions Modal (TYT / YKS Style with full ÖSYM official texts)
+// Conditions Modal
 function showConditions(kosulCodes, progName) {
   condModalTitle.innerHTML = '📋 ÖSYM Özel Koşul Açıklamaları';
   const codes = kosulCodes.split(/[\s,]+/).map(c => c.trim()).filter(c => c && /\d/.test(c));
@@ -650,17 +651,17 @@ function renderTrendChart(code) {
   let badgeHTML = `
     <span class="badge" style="background:rgba(99,102,241,0.15); color:#818cf8; border:1px solid rgba(99,102,241,0.3); font-weight:700;">${puanType} Puanı</span>
     ${alanKodu ? `<span class="badge" style="background:rgba(148,163,184,0.15); color:#cbd5e1; border:1px solid rgba(148,163,184,0.3); font-weight:700;">Alan Kodu: ${alanKodu}</span>` : ''}
-    <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700;">2026 İlk Kont: ${h26?.kont ?? '-'} (Yer: ${h26?.yer ?? '-'} / Boş: ${h26?.bos ?? '-'})</span>
+    <span class="badge" style="background:rgba(167,139,250,0.2); color:#c4b5fd; border:1px solid rgba(167,139,250,0.4); font-weight:700;">Kılavuz Kont: ${h26?.kont ?? '-'} (İlk Yer: ${h26?.yer ?? '-'})</span>
   `;
 
-  if (e26?.kont !== undefined) {
-    badgeHTML += `<span class="badge" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid rgba(16,185,129,0.4); font-weight:800;">2026 Ek Kont: ${e26.kont} (Yer: ${e26.yer ?? 0} / Boş: ${e26.bos ?? 0})</span>`;
+  if (e26?.kont !== undefined && e26.kont > 0) {
+    badgeHTML += `<span class="badge" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid rgba(16,185,129,0.4); font-weight:800;">Ek Kont: ${e26.kont} (Ek Yer: ${e26.yer ?? 0} / Kalan: ${e26.bos ?? 0})</span>`;
   }
   if (e26?.min && e26.min !== '--') {
-    badgeHTML += `<span class="badge" style="background:rgba(16,185,129,0.25); color:#34d399; border:1px solid rgba(16,185,129,0.5); font-weight:800;">🔥 2026 Ek Taban: ${e26.min}</span>`;
+    badgeHTML += `<span class="badge" style="background:rgba(16,185,129,0.25); color:#34d399; border:1px solid rgba(16,185,129,0.5); font-weight:800;">🔥 Ek Taban: ${e26.min}</span>`;
   }
   if (h26?.min && h26.min !== '--') {
-    badgeHTML += `<span class="badge" style="background:rgba(99,102,241,0.2); color:#a5b4fc; border:1px solid rgba(99,102,241,0.4); font-weight:700;">2026 İlk Taban: ${h26.min}</span>`;
+    badgeHTML += `<span class="badge" style="background:rgba(99,102,241,0.2); color:#a5b4fc; border:1px solid rgba(99,102,241,0.4); font-weight:700;">İlk Taban: ${h26.min}</span>`;
   }
   if (h25?.min && h25.min !== '--') {
     badgeHTML += `<span class="badge" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); font-weight:700;">2025 Taban: ${h25.min}</span>`;
@@ -682,7 +683,6 @@ function renderTrendChart(code) {
   const textColor = isDark ? '#94a3b8' : '#64748b';
 
   if (activeTrendMetric === 'score') {
-    // Score Trend: 2024 Merkezi, 2024 Ek, 2025 Merkezi, 2025 Ek, 2026 Merkezi, 2026 Ek
     const labels = ['2024 Merkezi', '2024 Ek', '2025 Merkezi', '2025 Ek', '2026 Merkezi', '2026 Ek'];
     const minScores = [
       h24?.min_val || null,
@@ -879,6 +879,8 @@ function renderFavModal() {
 
   favorites.forEach((item, idx) => {
     const tr = document.createElement('tr');
+    const initialKont = item.kont !== undefined ? item.kont : '-';
+    const initialYer = item.yerlesen !== undefined ? item.yerlesen : '-';
     const ekKont = item.ek_kont_2026 !== undefined ? item.ek_kont_2026 : (item.has_ek_2026 ? item.bos : 0);
     const ekYer = item.ek_yerlesen_2026 !== undefined ? item.ek_yerlesen_2026 : '-';
     const ekBos = item.ek_bos_2026 !== undefined ? item.ek_bos_2026 : '-';
@@ -892,6 +894,8 @@ function renderFavModal() {
       <td>${item.prog}</td>
       <td>${item.city}</td>
       <td><span class="badge" style="background:rgba(255,255,255,0.08);">${item.puan}</span></td>
+      <td style="text-align:center; font-weight:700;">${initialKont}</td>
+      <td style="text-align:center; color:var(--text-secondary);">${initialYer}</td>
       <td style="text-align:center; font-weight:700; color:#10b981;">${ekKont}</td>
       <td style="text-align:center; font-weight:700; color:#38bdf8;">${ekYer}</td>
       <td style="text-align:center; font-weight:700; color:#f87171;">${ekBos}</td>
@@ -918,14 +922,14 @@ function exportFavsPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
   doc.setTextColor(16, 185, 129);
-  doc.text('2026 DGS Ek Yerlestirme Sonuclari ve Tercih Listem', 14, 15);
+  doc.text('2026 DGS Yerlestirme ve Ek Yerlestirme Tercih Listem', 14, 15);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(100, 116, 139);
   doc.text(`Olusturulma Tarihi: ${new Date().toLocaleDateString('tr-TR')} | Toplam Program: ${favorites.length} | Kaynak: tercihrobutu.github.io/dgs.html`, 14, 21);
 
-  const head = [['#', 'Kod', 'Universite', 'Program', 'Sehir', 'Puan', 'Ek Kont.', 'Yerlesen', 'Bos', 'Ek Taban', 'Ilk Taban']];
+  const head = [['#', 'Kod', 'Universite', 'Program', 'Sehir', 'Puan', 'Top. Kont', 'Ilk Yer.', 'Ek Kont.', 'Ek Yer.', 'Kalan Bos', 'Ek Taban', 'Ilk Taban']];
   const body = favorites.map((item, idx) => [
     idx + 1,
     item.code,
@@ -933,6 +937,8 @@ function exportFavsPDF() {
     item.prog.replace(/Ğ/g, 'G').replace(/ğ/g, 'g').replace(/Ü/g, 'U').replace(/ü/g, 'u').replace(/Ş/g, 'S').replace(/ş/g, 's').replace(/İ/g, 'I').replace(/ı/g, 'i').replace(/Ö/g, 'O').replace(/ö/g, 'o').replace(/Ç/g, 'C').replace(/ç/g, 'c'),
     item.city.replace(/Ğ/g, 'G').replace(/ğ/g, 'g').replace(/Ü/g, 'U').replace(/ü/g, 'u').replace(/Ş/g, 'S').replace(/ş/g, 's').replace(/İ/g, 'I').replace(/ı/g, 'i').replace(/Ö/g, 'O').replace(/ö/g, 'o').replace(/Ç/g, 'C').replace(/ç/g, 'c'),
     item.puan,
+    item.kont !== undefined ? item.kont : '-',
+    item.yerlesen !== undefined ? item.yerlesen : '-',
     item.ek_kont_2026 !== undefined ? item.ek_kont_2026 : (item.has_ek_2026 ? item.bos : 0),
     item.ek_yerlesen_2026 !== undefined ? item.ek_yerlesen_2026 : '-',
     item.ek_bos_2026 !== undefined ? item.ek_bos_2026 : '-',
@@ -946,23 +952,25 @@ function exportFavsPDF() {
     body: body,
     theme: 'grid',
     headStyles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: 'bold' },
-    styles: { fontSize: 8, cellPadding: 2.5 },
+    styles: { fontSize: 8, cellPadding: 2 },
     columnStyles: {
-      0: { cellWidth: 10, halign: 'center' },
-      1: { cellWidth: 22, halign: 'center' },
-      2: { cellWidth: 50 },
-      3: { cellWidth: 55 },
-      4: { cellWidth: 25 },
-      5: { cellWidth: 14, halign: 'center' },
-      6: { cellWidth: 16, halign: 'center' },
-      7: { cellWidth: 16, halign: 'center' },
+      0: { cellWidth: 8, halign: 'center' },
+      1: { cellWidth: 20, halign: 'center' },
+      2: { cellWidth: 44 },
+      3: { cellWidth: 48 },
+      4: { cellWidth: 20 },
+      5: { cellWidth: 12, halign: 'center' },
+      6: { cellWidth: 15, halign: 'center' },
+      7: { cellWidth: 14, halign: 'center' },
       8: { cellWidth: 14, halign: 'center' },
-      9: { cellWidth: 24, halign: 'right' },
-      10: { cellWidth: 24, halign: 'right' }
+      9: { cellWidth: 14, halign: 'center' },
+      10: { cellWidth: 15, halign: 'center' },
+      11: { cellWidth: 22, halign: 'right' },
+      12: { cellWidth: 22, halign: 'right' }
     }
   });
 
-  doc.save('2026_DGS_Ek_Yerlestirme_Listem.pdf');
+  doc.save('2026_DGS_Tercih_ve_Sonuc_Listem.pdf');
 }
 
 // Export Favorites to Excel (.xlsx)
@@ -979,13 +987,15 @@ function exportFavsExcel() {
     'Fakülte': item.fac || '',
     'Lisans Programı': item.prog,
     'Puan Türü': item.puan,
+    'Tercih Kılavuzu Toplam Kontenjan': item.kont !== undefined ? item.kont : '',
+    'İlk Yerleşen Aday Sayısı': item.yerlesen !== undefined ? item.yerlesen : '',
     '2026 Ek Kontenjan': item.ek_kont_2026 !== undefined ? item.ek_kont_2026 : (item.has_ek_2026 ? item.bos : 0),
     '2026 Ek Yerleşen': item.ek_yerlesen_2026 !== undefined ? item.ek_yerlesen_2026 : 0,
-    '2026 Ek Boş Kontenjan': item.ek_bos_2026 !== undefined ? item.ek_bos_2026 : 0,
+    'Kalan Boş Kontenjan': item.ek_bos_2026 !== undefined ? item.ek_bos_2026 : 0,
     '2026 Ek Taban Puan': item.ek_min_2026 && item.ek_min_2026 !== '--' ? item.ek_min_2026 : 'Dolmadı (--)',
     '2026 Ek Tavan Puan': item.ek_max_2026 && item.ek_max_2026 !== '--' ? item.ek_max_2026 : '--',
     '2026 İlk Taban Puan': item.puan_2026 && item.puan_2026 !== '--' ? item.puan_2026 : 'Dolmadı (--)',
-    '2026 İlk Kontenjan': item.kont,
+    '2026 İlk Tavan Puan': item.puan_2026_max || '--',
     '2025 Taban Puan': item.puan_2025 || '--',
     '2024 Taban Puan': item.puan_2024 || '--',
     'Şehir': item.city,
@@ -994,8 +1004,8 @@ function exportFavsExcel() {
 
   const worksheet = XLSX.utils.json_to_sheet(exportData);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, '2026 DGS Ek Sonuçları');
-  XLSX.writeFile(workbook, '2026_DGS_Ek_Yerlestirme_Listem.xlsx');
+  XLSX.utils.book_append_sheet(workbook, worksheet, '2026 DGS Sonuçları');
+  XLSX.writeFile(workbook, '2026_DGS_Sonuc_ve_Kontenjan_Listem.xlsx');
 }
 
 // ============================================================
@@ -1048,7 +1058,7 @@ function checkURLParams() {
 
   // Ek Kontenjan / Sonuç Filter
   const ek = params.get('ek');
-  if (ek && ['only_ek', 'ek_bos', 'ek_dolan', 'ek_puan_olusan', 'all', 'no_ek'].includes(ek) && filterEk) {
+  if (ek && ['all', 'only_ek', 'ek_bos', 'ek_dolan', 'ek_puan_olusan', 'ilk_dolan', 'no_ek'].includes(ek) && filterEk) {
     filterEk.value = ek;
   }
 }
@@ -1060,7 +1070,7 @@ function updateURLParams() {
   if (selectedCities.length > 0) params.set('sehir', selectedCities.join(','));
   if (filterPuanType.value) params.set('puan', filterPuanType.value);
   if (filterUnivType.value) params.set('tur', filterUnivType.value);
-  if (filterEk && filterEk.value && filterEk.value !== 'only_ek') params.set('ek', filterEk.value);
+  if (filterEk && filterEk.value && filterEk.value !== 'all') params.set('ek', filterEk.value);
 
   const str = params.toString();
   const newURL = window.location.pathname + (str ? '?' + str : '');
