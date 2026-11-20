@@ -29,7 +29,7 @@ let selectedTur = '';
 let selectedCities = [];
 let minScore = null;
 let maxScore = null;
-let selectedKontType = '';
+let selectedKontType = 'ek_var';
 let searchQuery = '';
 let sortBy = 'score_26_2_desc';
 let currentPage = 1;
@@ -236,7 +236,9 @@ function checkURLParams() {
   const urlParams = new URLSearchParams(window.location.search);
   const q = urlParams.get('q');
   const brans = urlParams.get('brans');
-  const pt = urlParams.get('puan');
+  const pt = urlParams.get('puan') || urlParams.get('pt');
+  const kont = urlParams.get('kont') || urlParams.get('durum');
+  const sehir = urlParams.get('sehir');
 
   if (q && searchInput) {
     searchInput.value = q;
@@ -245,6 +247,24 @@ function checkURLParams() {
   if (brans && filterBrans) {
     filterBrans.value = brans;
     selectedBrans = brans;
+  }
+  if (sehir && cityOptionsList) {
+    const targetCities = sehir.split(',').map(s => s.trim()).filter(Boolean);
+    cityOptionsList.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      if (targetCities.some(tc => turkishNormalize(tc) === turkishNormalize(cb.value))) {
+        cb.checked = true;
+        if (!selectedCities.includes(cb.value)) selectedCities.push(cb.value);
+      }
+    });
+    updateCityLabel();
+  }
+  if (kont) {
+    if (kont === 'only_ek' || kont === 'ek_var') selectedKontType = 'ek_var';
+    else if (kont === 'all') selectedKontType = '';
+    else selectedKontType = kont;
+    if (filterKontType) filterKontType.value = selectedKontType;
+  } else if (filterKontType) {
+    selectedKontType = filterKontType.value || 'ek_var';
   }
   if (pt) {
     switchPuanType(pt.toUpperCase());
@@ -337,8 +357,8 @@ function setupEventListeners() {
       if (filterMinScore) filterMinScore.value = '';
       maxScore = null;
       if (filterMaxScore) filterMaxScore.value = '';
-      selectedKontType = '';
-      if (filterKontType) filterKontType.value = '';
+      selectedKontType = 'ek_var';
+      if (filterKontType) filterKontType.value = 'ek_var';
       sortBy = 'score_26_2_desc';
       if (sortBySelect) sortBySelect.value = 'score_26_2_desc';
       currentPage = 1;
@@ -397,46 +417,56 @@ function setupEventListeners() {
 // ============================================================
 // FILTER & SORT ENGINE
 // ============================================================
+function matchesBaseFilters(item, ignorePuanType = false) {
+  // Puan Türü (Klinik / Temel)
+  if (!ignorePuanType && selectedPuanType && item.puan_turu !== selectedPuanType) return false;
+
+  // Branş
+  if (selectedBrans && item.brans !== selectedBrans) return false;
+
+  // Kadro Türü
+  if (selectedTur && item.tur_tag !== selectedTur) return false;
+
+  // Şehir
+  if (selectedCities.length > 0 && !selectedCities.includes(item.city)) return false;
+
+  // Kontenjan & Ek Yerleşme Durumu
+  if (selectedKontType === 'ek_var' && (item.ek_kont_2026_2 || 0) <= 0) return false;
+  if (selectedKontType === 'ek_genel' && (item.ek_kont_genel || 0) <= 0) return false;
+  if (selectedKontType === 'ek_yabanci' && (item.ek_kont_yabanci || 0) <= 0) return false;
+  if (selectedKontType === 'ek_yeniden' && !((item.ek_kont_2026_2 || 0) > 0 && (item.bos_2026_2 || 0) === 0)) return false;
+  if (selectedKontType === 'bos_var' && (item.bos_2026_2 || 0) <= 0) return false;
+  if (selectedKontType === 'doldu' && !((item.yer_2026_2 || 0) > 0 && (item.bos_2026_2 || 0) === 0)) return false;
+  if (selectedKontType === 'genel_var' && (item.kont_genel || 0) <= 0) return false;
+  if (selectedKontType === 'yabanci_var' && (item.kont_yabanci || 0) <= 0) return false;
+
+  // Score Range (2026/2 Taban Puanı fallback to latest)
+  const scoreVal = item.min_2026_2_val !== null ? item.min_2026_2_val : (item.min_2026_1_val !== null ? item.min_2026_1_val : item.latest_score_val);
+  if (minScore !== null && (scoreVal === null || scoreVal < minScore)) return false;
+  if (maxScore !== null && (scoreVal === null || scoreVal > maxScore)) return false;
+
+  // Search Query
+  if (searchQuery) {
+    const fullText = turkishNormalize(
+      item.kurum + ' ' + item.brans + ' ' + item.city + ' ' + item.code + ' ' + item.birlikte_univ + ' ' + item.birlikte_fac
+    );
+    if (!fullText.includes(searchQuery)) return false;
+  }
+
+  return true;
+}
+
 function getFilteredData() {
-  let filtered = programsData.filter(item => {
-    // Puan Türü (Klinik / Temel)
-    if (selectedPuanType && item.puan_turu !== selectedPuanType) return false;
-
-    // Branş
-    if (selectedBrans && item.brans !== selectedBrans) return false;
-
-    // Kadro Türü
-    if (selectedTur && item.tur_tag !== selectedTur) return false;
-
-    // Şehir
-    if (selectedCities.length > 0 && !selectedCities.includes(item.city)) return false;
-
-    // Kontenjan & Yerleşme Durumu
-    if (selectedKontType === 'bos_var' && (item.bos_2026_2 || 0) <= 0) return false;
-    if (selectedKontType === 'doldu' && !((item.yer_2026_2 || 0) > 0 && (item.bos_2026_2 || 0) === 0)) return false;
-    if (selectedKontType === 'genel_var' && (item.kont_genel || 0) <= 0) return false;
-    if (selectedKontType === 'yabanci_var' && (item.kont_yabanci || 0) <= 0) return false;
-
-    // Score Range (2026/2 Taban Puanı fallback to latest)
-    const scoreVal = item.min_2026_2_val !== null ? item.min_2026_2_val : (item.min_2026_1_val !== null ? item.min_2026_1_val : item.latest_score_val);
-    if (minScore !== null && (scoreVal === null || scoreVal < minScore)) return false;
-    if (maxScore !== null && (scoreVal === null || scoreVal > maxScore)) return false;
-
-    // Search Query
-    if (searchQuery) {
-      const fullText = turkishNormalize(
-        item.kurum + ' ' + item.brans + ' ' + item.city + ' ' + item.code + ' ' + item.birlikte_univ + ' ' + item.birlikte_fac
-      );
-      if (!fullText.includes(searchQuery)) return false;
-    }
-
-    return true;
-  });
+  let filtered = programsData.filter(item => matchesBaseFilters(item, false));
 
   // Sorting
   filtered.sort((a, b) => {
     if (sortBy === 'score_26_2_desc') return (b.min_2026_2_val || 0) - (a.min_2026_2_val || 0);
     if (sortBy === 'score_26_2_asc') return (a.min_2026_2_val || 999) - (b.min_2026_2_val || 999);
+    if (sortBy === 'ek_26_2_desc') {
+      const diff = (b.ek_kont_2026_2 || 0) - (a.ek_kont_2026_2 || 0);
+      return diff !== 0 ? diff : (b.min_2026_2_val || 0) - (a.min_2026_2_val || 0);
+    }
     if (sortBy === 'bos_26_2_desc') return (b.bos_2026_2 || 0) - (a.bos_2026_2 || 0);
     if (sortBy === 'yer_26_2_desc') return (b.yer_2026_2 || 0) - (a.yer_2026_2 || 0);
     if (sortBy === 'kont_26_2_desc') return (b.kont_2026_2 || b.kont_total || 0) - (a.kont_2026_2 || a.kont_total || 0);
@@ -452,10 +482,23 @@ function getFilteredData() {
   return filtered;
 }
 
+function updateTabBadges() {
+  const baseMatched = programsData.filter(item => matchesBaseFilters(item, true));
+  const klinikCnt = baseMatched.filter(p => p.puan_turu === 'K').length;
+  const temelCnt = baseMatched.filter(p => p.puan_turu === 'T').length;
+  const tabAllBadge = document.getElementById('tabAllBadge');
+  const tabKlinikBadge = document.getElementById('tabKlinikBadge');
+  const tabTemelBadge = document.getElementById('tabTemelBadge');
+  if (tabAllBadge) tabAllBadge.textContent = baseMatched.length.toLocaleString('tr-TR');
+  if (tabKlinikBadge) tabKlinikBadge.textContent = klinikCnt.toLocaleString('tr-TR');
+  if (tabTemelBadge) tabTemelBadge.textContent = temelCnt.toLocaleString('tr-TR');
+}
+
 // ============================================================
 // RENDER FUNCTION
 // ============================================================
 function render() {
+  updateTabBadges();
   const filtered = getFilteredData();
   if (filteredCountEl) filteredCountEl.textContent = filtered.length.toLocaleString('tr-TR');
 
@@ -473,7 +516,7 @@ function render() {
   tableBody.innerHTML = '';
 
   if (pageItems.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="15" style="text-align:center; padding:40px; color:var(--text-muted);">Aramanıza uygun TUS uzmanlık programı bulunamadı.</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="16" style="text-align:center; padding:40px; color:var(--text-muted);">Aramanıza uygun TUS uzmanlık programı bulunamadı.</td></tr>`;
     return;
   }
 
@@ -493,6 +536,18 @@ function render() {
     const ptBadge = item.puan_turu === 'K'
       ? `<span class="badge" style="background:rgba(56,189,248,0.18); color:#38bdf8; font-size:0.72rem; padding:2px 6px;">Klinik</span>`
       : `<span class="badge" style="background:rgba(16,185,129,0.18); color:#34d399; font-size:0.72rem; padding:2px 6px;">Temel</span>`;
+
+    // 2026/2 Ek Kontenjan Display
+    let ekDisplay = `<span style="color:var(--text-muted); font-size:0.85rem;">—</span>`;
+    if ((item.ek_kont_2026_2 || 0) > 0) {
+      let ekSub = '';
+      if (item.ek_kont_genel > 0 && item.ek_kont_yabanci > 0) {
+        ekSub = `<div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">G:${item.ek_kont_genel} Y:${item.ek_kont_yabanci}</div>`;
+      } else if (item.ek_kont_yabanci > 0) {
+        ekSub = `<div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">Yabancı</div>`;
+      }
+      ekDisplay = `<span class="badge" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid rgba(16,185,129,0.45); font-size:0.78rem; padding:2px 7px; font-weight:800;">🔥 ${item.ek_kont_2026_2} Ek</span>${ekSub}`;
+    }
 
     // 2026/2 Kontenjan Display
     const kontDisplay = `<div style="font-weight:700; color:var(--text-primary); font-size:0.92rem;">${item.kont_2026_2 ?? item.kont_total}</div>`;
@@ -556,6 +611,7 @@ function render() {
       </td>
       <td style="text-align:center;">${ptBadge}</td>
       <td style="text-align:center;"><span class="badge ${turBadgeClass}" style="font-size:0.7rem; padding:2px 6px;">${item.tur}</span></td>
+      <td style="text-align:center;">${ekDisplay}</td>
       <td style="text-align:center;">${kontDisplay}</td>
       <td style="text-align:center;">${yerDisplay}</td>
       <td style="text-align:center;">${bosDisplay}</td>
@@ -611,11 +667,17 @@ function showTrendModal(code) {
 
   let trendRowsHtml = `
     <div style="background:var(--bg-primary); border-radius:12px; padding:16px; margin-bottom:16px;">
-      <h4 style="color:#38bdf8; margin-bottom:12px; font-size:0.95rem;">📊 Dönemsel Yerleştirme Sonuçları, Taban/Tavan Puan ve Kontenjan Değişimi</h4>
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px;">
+      <h4 style="color:#38bdf8; margin-bottom:12px; font-size:0.95rem;">📊 Dönemsel Yerleştirme Sonuçları, Ek Kontenjan ve Taban Puan Değişimi</h4>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(125px, 1fr)); gap:10px;">
         
-        <div style="background:var(--bg-card); border:2px solid #10b981; border-radius:10px; padding:12px; text-align:center;">
-          <div style="font-size:0.75rem; color:#10b981; font-weight:800;">2026/2 SONUÇ</div>
+        <div style="background:rgba(16,185,129,0.12); border:2px solid #10b981; border-radius:10px; padding:12px; text-align:center;">
+          <div style="font-size:0.74rem; color:#10b981; font-weight:800;">2026/2 EK TERCİH</div>
+          <div style="font-size:1.3rem; font-weight:800; color:#10b981; margin:4px 0;">${(item.ek_kont_2026_2 || 0) > 0 ? `${item.ek_kont_2026_2} Ek` : 'Yok'}</div>
+          <div style="font-size:0.74rem; color:var(--text-secondary);">Genel: ${item.ek_kont_genel || 0} | Yab: ${item.ek_kont_yabanci || 0}</div>
+        </div>
+
+        <div style="background:var(--bg-card); border:1.5px solid #38bdf8; border-radius:10px; padding:12px; text-align:center;">
+          <div style="font-size:0.75rem; color:#38bdf8; font-weight:800;">2026/2 İLK SONUÇ</div>
           <div style="font-size:1.3rem; font-weight:800; color:#10b981; margin:4px 0;">${item.min_2026_2}</div>
           <div style="font-size:0.75rem; color:var(--text-secondary);">Kont: ${item.kont_2026_2 ?? item.kont_total} | Yer: ${item.yer_2026_2 ?? 0} | Boş: ${item.bos_2026_2 ?? 0}</div>
           ${item.max_2026_2 !== '--' ? `<div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Tavan: ${item.max_2026_2}</div>` : ''}
@@ -712,25 +774,29 @@ function renderFavModal() {
   favTableBody.innerHTML = '';
 
   if (favorites.length === 0) {
-    favTableBody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding:30px; color:var(--text-muted);">Henüz listenize program eklemediniz. Yıldız butonuna basarak ekleyebilirsiniz.</td></tr>`;
+    favTableBody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:30px; color:var(--text-muted);">Henüz listenize program eklemediniz. Yıldız butonuna basarak ekleyebilirsiniz.</td></tr>`;
     return;
   }
 
   favorites.forEach((item, idx) => {
+    // Sync latest item from programsData in case localStorage had older schema
+    const liveItem = programsData.find(p => p.code === item.code) || item;
+    const ekVal = liveItem.ek_kont_2026_2 || 0;
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="font-weight:700; color:#38bdf8;">${idx + 1}</td>
-      <td class="code-cell">${item.code}</td>
-      <td><strong>${item.kurum}</strong></td>
-      <td style="color:#38bdf8; font-weight:700;">${item.brans}</td>
-      <td>${item.city}</td>
-      <td style="text-align:center;">${item.puan_turu}</td>
-      <td style="text-align:center; font-weight:700;">${item.kont_2026_2 ?? item.kont_total}</td>
-      <td style="text-align:center; font-weight:700; color:#10b981;">${item.yer_2026_2 ?? '—'}</td>
-      <td style="text-align:center;">${(item.bos_2026_2 || 0) > 0 ? `<span style="color:#f87171; font-weight:700;">${item.bos_2026_2}</span>` : '0'}</td>
-      <td style="text-align:right; font-weight:700; color:#10b981;">${item.min_2026_2 !== '--' ? item.min_2026_2 : '—'}</td>
-      <td style="text-align:right;">${item.max_2026_2 !== '--' ? item.max_2026_2 : '—'}</td>
-      <td><button class="btn" style="color:#f87171; padding:4px 8px;" onclick="toggleFav('${item.code}')">✕</button></td>
+      <td class="code-cell">${liveItem.code}</td>
+      <td><strong>${liveItem.kurum}</strong></td>
+      <td style="color:#38bdf8; font-weight:700;">${liveItem.brans}</td>
+      <td>${liveItem.city}</td>
+      <td style="text-align:center;">${liveItem.puan_turu}</td>
+      <td style="text-align:center;">${ekVal > 0 ? `<span style="color:#10b981; font-weight:800;">${ekVal} Ek</span>` : '—'}</td>
+      <td style="text-align:center; font-weight:700;">${liveItem.kont_2026_2 ?? liveItem.kont_total}</td>
+      <td style="text-align:center; font-weight:700; color:#10b981;">${liveItem.yer_2026_2 ?? '—'}</td>
+      <td style="text-align:center;">${(liveItem.bos_2026_2 || 0) > 0 ? `<span style="color:#f87171; font-weight:700;">${liveItem.bos_2026_2}</span>` : '0'}</td>
+      <td style="text-align:right; font-weight:700; color:#10b981;">${liveItem.min_2026_2 !== '--' ? liveItem.min_2026_2 : '—'}</td>
+      <td style="text-align:right;">${liveItem.max_2026_2 !== '--' ? liveItem.max_2026_2 : '—'}</td>
+      <td><button class="btn" style="color:#f87171; padding:4px 8px;" onclick="toggleFav('${liveItem.code}')">✕</button></td>
     `;
     favTableBody.appendChild(tr);
   });
@@ -753,36 +819,42 @@ function exportFavsXLSX() {
   if (favorites.length === 0) return alert('Listeniz boş!');
 
   try {
-    const data = favorites.map((item, idx) => ({
-      'Sıra': idx + 1,
-      'ÖSYM Kodu': item.code,
-      'İl': item.city,
-      'Kurum / Hastane': item.kurum,
-      'Birlikte Kullanım Fakültesi': [item.birlikte_univ, item.birlikte_fac].filter(Boolean).join(' '),
-      'Uzmanlık Branşı': item.brans,
-      'Puan Türü': item.puan_turu_tag,
-      'Kadro Türü': item.tur_tag,
-      '2026/2 Kontenjan': item.kont_2026_2 ?? item.kont_total,
-      '2026/2 Yerleşen': item.yer_2026_2 ?? 0,
-      '2026/2 Boş Kontenjan': item.bos_2026_2 ?? 0,
-      '2026/2 Taban Puanı': item.min_2026_2,
-      '2026/2 Tavan Puanı': item.max_2026_2,
-      '2026 1. Dönem Taban Puanı': item.min_2026_1,
-      '2025 2. Dönem Taban Puanı': item.min_2025_2,
-      '2025 1. Dönem Taban Puanı': item.min_2025_1,
-      'Özel Koşul Açıklamaları': item.kosullar ? item.kosullar.split(',').map(c => `Bk. ${c.trim()}: ${conditionsData[c.trim()] || ''}`).join(' | ') : ''
-    }));
+    const data = favorites.map((fav, idx) => {
+      const item = programsData.find(p => p.code === fav.code) || fav;
+      return {
+        'Sıra': idx + 1,
+        'ÖSYM Kodu': item.code,
+        'İl': item.city,
+        'Kurum / Hastane': item.kurum,
+        'Birlikte Kullanım Fakültesi': [item.birlikte_univ, item.birlikte_fac].filter(Boolean).join(' '),
+        'Uzmanlık Branşı': item.brans,
+        'Puan Türü': item.puan_turu_tag,
+        'Kadro Türü': item.tur_tag,
+        '2026/2 Ek Kontenjan': item.ek_kont_2026_2 ?? 0,
+        'Ek Genel Kontenjan': item.ek_kont_genel ?? 0,
+        'Ek Yabancı Kontenjan': item.ek_kont_yabanci ?? 0,
+        '2026/2 İlk Kontenjan': item.kont_2026_2 ?? item.kont_total,
+        '2026/2 İlk Yerleşen': item.yer_2026_2 ?? 0,
+        '2026/2 İlk Boş Kontenjan': item.bos_2026_2 ?? 0,
+        '2026/2 Taban Puanı': item.min_2026_2,
+        '2026/2 Tavan Puanı': item.max_2026_2,
+        '2026 1. Dönem Taban Puanı': item.min_2026_1,
+        '2025 2. Dönem Taban Puanı': item.min_2025_2,
+        '2025 1. Dönem Taban Puanı': item.min_2025_1,
+        'Özel Koşul Açıklamaları': item.kosullar ? item.kosullar.split(',').map(c => `Bk. ${c.trim()}: ${conditionsData[c.trim()] || ''}`).join(' | ') : ''
+      };
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     worksheet['!cols'] = [
       { wch: 6 }, { wch: 12 }, { wch: 14 }, { wch: 38 }, { wch: 32 },
-      { wch: 28 }, { wch: 16 }, { wch: 24 }, { wch: 12 }, { wch: 12 },
-      { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 40 }
+      { wch: 28 }, { wch: 16 }, { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+      { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 40 }
     ];
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'TUS 2026-2 Sonuçlarım');
-    const fileName = `TUS_2026_2_Donem_Yerlestirme_Sonuclari_${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'TUS 2026-2 Ek Tercih');
+    const fileName = `TUS_2026_2_Donem_Ek_Tercih_Listem_${new Date().toISOString().slice(0,10)}.xlsx`;
     XLSX.writeFile(workbook, fileName);
   } catch (err) {
     console.error('Excel export error:', err);
@@ -801,17 +873,17 @@ function exportFavsPDF() {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
     // Başlık
-    doc.setFillColor(2, 132, 199);
+    doc.setFillColor(16, 185, 129);
     doc.rect(0, 0, 297, 20, 'F');
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('2026 TUS 2. DONEM YERLESTIRME SONUCLARI VE TERCIH LISTEM', 14, 13);
+    doc.text('2026 TUS 2. DONEM EK TERCIH VE TABAN PUAN LISTEM', 14, 13);
 
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text(`tercihrobutu.github.io  |  ${new Date().toLocaleDateString('tr-TR')}  |  Toplam: ${favorites.length} Uzmanlık Kadrosu`, 150, 13);
+    doc.text(`tercihrobutu.github.io  |  ${new Date().toLocaleDateString('tr-TR')}  |  Toplam: ${favorites.length} Uzmanlık Kadrosu`, 155, 13);
 
     // ASCII normalizer for jsPDF default fonts
     const toAscii = s => String(s || '')
@@ -822,23 +894,27 @@ function exportFavsPDF() {
       .replace(/Ö/g,'O').replace(/ö/g,'o')
       .replace(/Ç/g,'C').replace(/ç/g,'c');
 
-    const tableData = favorites.map((item, idx) => [
-      idx + 1,
-      item.code,
-      toAscii(item.city),
-      toAscii(item.kurum),
-      toAscii(item.brans),
-      item.puan_turu,
-      String(item.kont_2026_2 ?? item.kont_total),
-      String(item.yer_2026_2 !== null && item.yer_2026_2 !== undefined ? item.yer_2026_2 : '-'),
-      String(item.bos_2026_2 !== null && item.bos_2026_2 !== undefined ? item.bos_2026_2 : '-'),
-      item.min_2026_2 !== '--' ? item.min_2026_2 : '-',
-      item.max_2026_2 !== '--' ? item.max_2026_2 : '-'
-    ]);
+    const tableData = favorites.map((fav, idx) => {
+      const item = programsData.find(p => p.code === fav.code) || fav;
+      return [
+        idx + 1,
+        item.code,
+        toAscii(item.city),
+        toAscii(item.kurum),
+        toAscii(item.brans),
+        item.puan_turu,
+        String(item.ek_kont_2026_2 ?? 0),
+        String(item.kont_2026_2 ?? item.kont_total),
+        String(item.yer_2026_2 !== null && item.yer_2026_2 !== undefined ? item.yer_2026_2 : '-'),
+        String(item.bos_2026_2 !== null && item.bos_2026_2 !== undefined ? item.bos_2026_2 : '-'),
+        item.min_2026_2 !== '--' ? item.min_2026_2 : '-',
+        item.max_2026_2 !== '--' ? item.max_2026_2 : '-'
+      ];
+    });
 
     doc.autoTable({
       startY: 24,
-      head: [['#', 'OSYM Kodu', 'Il', 'Kurum / Hastane', 'Uzmanlik Bransi', 'Puan', 'Kont.', 'Yer.', 'Bos', '2026/2 Taban', '2026/2 Tavan']],
+      head: [['#', 'OSYM Kodu', 'Il', 'Kurum / Hastane', 'Uzmanlik Bransi', 'Puan', 'Ek Kont.', 'Ilk Kont.', 'Yer.', 'Bos', '2026/2 Taban', '2026/2 Tavan']],
       body: tableData,
       theme: 'grid',
       headStyles: {
@@ -857,16 +933,17 @@ function exportFavsPDF() {
       },
       columnStyles: {
         0: { cellWidth: 8, halign: 'center', fontStyle: 'bold', textColor: [2, 132, 199] },
-        1: { cellWidth: 22, fontStyle: 'bold' },
-        2: { cellWidth: 20 },
-        3: { cellWidth: 80 },
-        4: { cellWidth: 50, fontStyle: 'bold' },
-        5: { cellWidth: 14, halign: 'center' },
-        6: { cellWidth: 16, halign: 'center', fontStyle: 'bold' },
-        7: { cellWidth: 16, halign: 'center', fontStyle: 'bold', textColor: [16, 185, 129] },
-        8: { cellWidth: 16, halign: 'center', fontStyle: 'bold', textColor: [239, 68, 68] },
-        9: { cellWidth: 24, halign: 'right', fontStyle: 'bold', textColor: [16, 185, 129] },
-        10: { cellWidth: 24, halign: 'right' }
+        1: { cellWidth: 21, fontStyle: 'bold' },
+        2: { cellWidth: 19 },
+        3: { cellWidth: 74 },
+        4: { cellWidth: 46, fontStyle: 'bold' },
+        5: { cellWidth: 12, halign: 'center' },
+        6: { cellWidth: 16, halign: 'center', fontStyle: 'bold', textColor: [16, 185, 129] },
+        7: { cellWidth: 16, halign: 'center', fontStyle: 'bold' },
+        8: { cellWidth: 13, halign: 'center', fontStyle: 'bold', textColor: [16, 185, 129] },
+        9: { cellWidth: 13, halign: 'center', fontStyle: 'bold', textColor: [239, 68, 68] },
+        10: { cellWidth: 22, halign: 'right', fontStyle: 'bold', textColor: [16, 185, 129] },
+        11: { cellWidth: 22, halign: 'right' }
       },
       margin: { left: 8, right: 8 },
       didDrawPage: (data) => {
@@ -880,7 +957,7 @@ function exportFavsPDF() {
       }
     });
 
-    doc.save('TUS_2026_2_Donem_Yerlestirme_Sonuclari.pdf');
+    doc.save('TUS_2026_2_Donem_Ek_Tercih_Listem.pdf');
   } catch (err) {
     console.error('PDF export error:', err);
     alert('PDF oluşturulurken bir hata oluştu: ' + err.message);
@@ -891,7 +968,7 @@ function exportFavsPDF() {
 // SHARE & COPY FUNCTIONS
 // ============================================================
 function shareSiteWhatsApp() {
-  const text = `🩺 2026 TUS 2. Dönem Yerleştirme Sonuçları ve Taban Puanları Açıklandı: ÖSYM resmi sonuçları (2.941 kadro, 8.637 kontenjan, 7.625 yerleşen hekim, 1.013 boş kontenjan ve oluşan tüm taban/tavan puanlar) ışık hızında ve reklamsız burada:\n\n👉 https://tercihrobutu.github.io/tus.html`;
+  const text = `🩺 2026 TUS 2. Dönem Ek Yerleştirme Kontenjanları Açıklandı (20-26 Kasım 2026): 788 uzmanlık kadrosunda 1.442 ek kontenjan (1.287 Genel + 155 Yabancı) ve 2026/2 ilk yerleştirme taban puanları ışık hızında ve reklamsız burada:\n\n👉 https://tercihrobutu.github.io/tus.html`;
   const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
   window.open(url, '_blank');
 }
@@ -923,12 +1000,14 @@ function shareFavsWhatsApp() {
     return;
   }
 
-  let text = `🩺 2026 TUS 2. Dönem Tercih & Sonuç Listem (${favorites.length} Program):\n\n`;
+  let text = `🩺 2026 TUS 2. Dönem Ek Tercih Listem (${favorites.length} Program):\n\n`;
   favorites.forEach((fav, i) => {
-    const score = fav.min_2026_2 && fav.min_2026_2 !== '--' ? `(26/2 Taban: ${fav.min_2026_2})` : (fav.min_2026_1 && fav.min_2026_1 !== '--' ? `(26/1: ${fav.min_2026_1})` : '');
-    text += `${i + 1}. ${fav.code} - ${fav.kurum} | ${fav.brans} [${fav.city}] ${score}\n`;
+    const item = programsData.find(p => p.code === fav.code) || fav;
+    const ekInfo = (item.ek_kont_2026_2 || 0) > 0 ? `[Ek: ${item.ek_kont_2026_2}]` : '';
+    const score = item.min_2026_2 && item.min_2026_2 !== '--' ? `(26/2 Taban: ${item.min_2026_2})` : (item.min_2026_1 && item.min_2026_1 !== '--' ? `(26/1: ${item.min_2026_1})` : '');
+    text += `${i + 1}. ${item.code} - ${item.kurum} | ${item.brans} [${item.city}] ${ekInfo} ${score}\n`;
   });
-  text += `\n🔗 Sonuç Robotu: https://tercihrobutu.github.io/tus.html`;
+  text += `\n🔗 TUS Ek Tercih Robotu: https://tercihrobutu.github.io/tus.html`;
 
   const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
   window.open(url, '_blank');

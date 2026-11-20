@@ -173,6 +173,9 @@ def build_sitemap():
     # ============================================================
     TUS_URL = f"{BASE_URL}tus.html"
     urls.add((TUS_URL, '0.95', 'daily'))
+    urls.add((f"{TUS_URL}?kont=ek_var", '0.95', 'daily'))
+    urls.add((f"{TUS_URL}?kont=ek_genel", '0.9', 'daily'))
+    urls.add((f"{TUS_URL}?kont=ek_yabanci", '0.85', 'daily'))
     urls.add((f"{TUS_URL}?pt=K", '0.85', 'weekly'))
     urls.add((f"{TUS_URL}?pt=T", '0.85', 'weekly'))
     urls.add((f"{TUS_URL}?kont=bos_var", '0.9', 'daily'))

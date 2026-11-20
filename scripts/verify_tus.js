@@ -79,6 +79,29 @@ console.assert(progsWithScore26_2 === 2660, `Expected 2660 programs with formed 
 console.log(`✓ 2026/2 Yerleşen Olmayan / Dolmayan Kadro: ${progsEmpty26_2}`);
 console.assert(progsEmpty26_2 === 281, `Expected 281 empty programs, got ${progsEmpty26_2}`);
 
+// 2026/2 Ek Yerleştirme Kontenjanları Checks
+console.log('\n=== 2B. 2026/2 EK YERLEŞTİRME KONTENJANLARI DOĞRULAMA ===');
+const ekProgs = progs.filter(p => p.has_ek_2026_2);
+const ekGenelSum = progs.reduce((acc, p) => acc + (p.ek_kont_genel || 0), 0);
+const ekYabanciSum = progs.reduce((acc, p) => acc + (p.ek_kont_yabanci || 0), 0);
+const ekTotalSum = progs.reduce((acc, p) => acc + (p.ek_kont_2026_2 || 0), 0);
+const ekYenidenCount = ekProgs.filter(p => (p.bos_2026_2 || 0) === 0).length;
+
+console.log(`✓ 2026/2 Ek Kontenjanı Olan Program: ${ekProgs.length}`);
+if (ekProgs.length !== 788) throw new Error(`Expected 788 ek programs, got ${ekProgs.length}`);
+
+console.log(`✓ 2026/2 Genel Ek Kontenjan: ${ekGenelSum}`);
+if (ekGenelSum !== 1287) throw new Error(`Expected 1287 genel ek kontenjan, got ${ekGenelSum}`);
+
+console.log(`✓ 2026/2 Yabancı Uyruklu Ek Kontenjan: ${ekYabanciSum}`);
+if (ekYabanciSum !== 155) throw new Error(`Expected 155 yabanci ek kontenjan, got ${ekYabanciSum}`);
+
+console.log(`✓ 2026/2 Toplam Ek Kontenjan: ${ekTotalSum}`);
+if (ekTotalSum !== 1442) throw new Error(`Expected 1442 total ek kontenjan, got ${ekTotalSum}`);
+
+console.log(`✓ İlk Yerleştirmede Dolup Ek Kontenjan Açılan Kadro: ${ekYenidenCount}`);
+if (ekYenidenCount !== 308) throw new Error(`Expected 308 ekYenidenCount, got ${ekYenidenCount}`);
+
 // Past Data Matching Checks
 const matched26_1 = progs.filter(p => p.has_2026_1).length;
 const matched25_2 = progs.filter(p => p.has_2025_2).length;
@@ -103,6 +126,10 @@ console.log(`\n=== 2. SPECIAL CONDITIONS (BK.) CHECKS ===`);
 const conditionKeys = Object.keys(conds);
 console.log(`✓ Total Extracted Conditions: ${conditionKeys.length}`);
 console.assert(conditionKeys.length >= 12, 'Expected at least 12 conditions');
+if (conds['9'] && conds['9'].includes('EK YERLEŞTİRMEYE İLİŞKİN BİLGİ')) {
+  throw new Error('Bk. 9 contains polluted callout text!');
+}
+console.log('✓ Bk. 9 text integrity verified (no callout overlap)');
 
 let missingConds = 0;
 progs.forEach(p => {
@@ -132,7 +159,7 @@ const requiredIds = [
   'btnShareWhatsApp', 'btnCopyLink',
   'condModal', 'btnCloseCondModal', 'condModalTitle', 'condModalBody',
   'trendModal', 'btnCloseTrendModal', 'trendModalTitle', 'trendModalSub', 'trendContent',
-  'themeToggle', 'tabAll', 'tabKlinik', 'tabTemel'
+  'themeToggle', 'tabAll', 'tabKlinik', 'tabTemel', 'tabAllBadge', 'tabKlinikBadge', 'tabTemelBadge'
 ];
 
 let missingIds = 0;
@@ -144,7 +171,7 @@ requiredIds.forEach(id => {
   }
 });
 console.log(`✓ Checked ${requiredIds.length} required DOM IDs. Missing: ${missingIds}`);
-console.assert(missingIds === 0, 'All required DOM IDs must exist in tus.html');
+if (missingIds !== 0) throw new Error('All required DOM IDs must exist in tus.html');
 
 // 4. Portal and Navigation Links Checks
 console.log(`\n=== 4. CROSS-NAVIGATION VERIFICATION ===`);
