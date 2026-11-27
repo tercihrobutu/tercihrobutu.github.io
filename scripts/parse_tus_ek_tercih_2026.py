@@ -3,8 +3,8 @@
 """
 ÖSYM 2026 TUS 2. Dönem Ek Yerleştirme Kontenjanları Ayrıştırıcı & Veri Birleştirici
 ----------------------------------------------------------------------------------
-Bu betik ÖSYM 2026-TUS 2. Dönem (Ek Dönem) resmi kontenjan kılavuzunu ayrıştırır:
-Dosya: 2026-tus-2-donem-ek-uzmanlik-ogrencisi-kontenjanlari-1i4j2x-20084121.pdf
+Bu betik ÖSYM 2026-TUS 2. Dönem (Ek Dönem) güncel resmi kontenjan kılavuzunu ayrıştırır:
+Dosya: 2026-tus-2donem-ek-donem-uzmanlik-ogrencisi-kontenjanlari-tt8pli-23144358.pdf
 
 Çıktılar:
 - data/tus_programs.js (window.DATA_TUS_PROGRAMS güncellenir)
@@ -19,7 +19,7 @@ import fitz
 sys.stdout.reconfigure(encoding='utf-8')
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PDF_PATH = r"C:\Users\yakupcontarli\Downloads\2026-tus-2-donem-ek-uzmanlik-ogrencisi-kontenjanlari-1i4j2x-20084121.pdf"
+PDF_PATH = r"C:\Users\yakupcontarli\Downloads\2026-tus-2donem-ek-donem-uzmanlik-ogrencisi-kontenjanlari-tt8pli-23144358.pdf"
 COND_PDF_PATH = r"C:\Users\yakupcontarli\Downloads\genel-bilgiler-temel-lke-ve-kurallar-5vfj5w-20083849.pdf"
 PROGRAMS_JS_PATH = os.path.join(REPO_ROOT, "data", "tus_programs.js")
 CONDITIONS_JS_PATH = os.path.join(REPO_ROOT, "data", "tus_conditions.js")
@@ -147,10 +147,10 @@ def merge_and_update(ek_data):
     print(f"Yabancı Uyruklu Ek Kontenjan: {total_ek_yabanci:,}")
     print(f"TOPLAM 2026/2 EK KONTENJAN: {total_ek:,}")
 
-    assert matched_count == 788, f"Expected 788 matched ek programs, got {matched_count}"
-    assert total_ek_genel == 1287, f"Expected 1287 genel ek kontenjan, got {total_ek_genel}"
+    assert matched_count == 774, f"Expected 774 matched ek programs, got {matched_count}"
+    assert total_ek_genel == 1261, f"Expected 1261 genel ek kontenjan, got {total_ek_genel}"
     assert total_ek_yabanci == 155, f"Expected 155 yabanci ek kontenjan, got {total_ek_yabanci}"
-    assert total_ek == 1442, f"Expected 1442 total ek kontenjan, got {total_ek}"
+    assert total_ek == 1416, f"Expected 1416 total ek kontenjan, got {total_ek}"
 
     out_js = f"window.DATA_TUS_PROGRAMS = {json.dumps(programs, ensure_ascii=False, indent=2)};\n"
     with open(PROGRAMS_JS_PATH, "w", encoding="utf-8") as f:

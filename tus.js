@@ -968,7 +968,7 @@ function exportFavsPDF() {
 // SHARE & COPY FUNCTIONS
 // ============================================================
 function shareSiteWhatsApp() {
-  const text = `🩺 2026 TUS 2. Dönem Ek Yerleştirme Kontenjanları Açıklandı (20-26 Kasım 2026): 788 uzmanlık kadrosunda 1.442 ek kontenjan (1.287 Genel + 155 Yabancı) ve 2026/2 ilk yerleştirme taban puanları ışık hızında ve reklamsız burada:\n\n👉 https://tercihrobutu.github.io/tus.html`;
+  const text = `🩺 2026 TUS 2. Dönem Ek Yerleştirme Güncel Kontenjanları (20-26 Kasım 2026): 774 uzmanlık kadrosunda 1.416 ek kontenjan (1.261 Genel + 155 Yabancı) ve 2026/2 ilk yerleştirme taban puanları ışık hızında ve reklamsız burada:\n\n👉 https://tercihrobutu.github.io/tus.html`;
   const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
   window.open(url, '_blank');
 }

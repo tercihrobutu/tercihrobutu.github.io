@@ -88,19 +88,32 @@ const ekTotalSum = progs.reduce((acc, p) => acc + (p.ek_kont_2026_2 || 0), 0);
 const ekYenidenCount = ekProgs.filter(p => (p.bos_2026_2 || 0) === 0).length;
 
 console.log(`✓ 2026/2 Ek Kontenjanı Olan Program: ${ekProgs.length}`);
-if (ekProgs.length !== 788) throw new Error(`Expected 788 ek programs, got ${ekProgs.length}`);
+if (ekProgs.length !== 774) throw new Error(`Expected 774 ek programs, got ${ekProgs.length}`);
 
 console.log(`✓ 2026/2 Genel Ek Kontenjan: ${ekGenelSum}`);
-if (ekGenelSum !== 1287) throw new Error(`Expected 1287 genel ek kontenjan, got ${ekGenelSum}`);
+if (ekGenelSum !== 1261) throw new Error(`Expected 1261 genel ek kontenjan, got ${ekGenelSum}`);
 
 console.log(`✓ 2026/2 Yabancı Uyruklu Ek Kontenjan: ${ekYabanciSum}`);
 if (ekYabanciSum !== 155) throw new Error(`Expected 155 yabanci ek kontenjan, got ${ekYabanciSum}`);
 
 console.log(`✓ 2026/2 Toplam Ek Kontenjan: ${ekTotalSum}`);
-if (ekTotalSum !== 1442) throw new Error(`Expected 1442 total ek kontenjan, got ${ekTotalSum}`);
+if (ekTotalSum !== 1416) throw new Error(`Expected 1416 total ek kontenjan, got ${ekTotalSum}`);
 
 console.log(`✓ İlk Yerleştirmede Dolup Ek Kontenjan Açılan Kadro: ${ekYenidenCount}`);
-if (ekYenidenCount !== 308) throw new Error(`Expected 308 ekYenidenCount, got ${ekYenidenCount}`);
+if (ekYenidenCount !== 294) throw new Error(`Expected 294 ekYenidenCount, got ${ekYenidenCount}`);
+
+const removedKocCodes = [
+  '203900115', '203900122', '203900129', '203900136', '203900143', '203900150', '203900164',
+  '203900171', '203900178', '203900185', '203900192', '203900199', '203900206', '203900213'
+];
+removedKocCodes.forEach(code => {
+  const prog = progs.find(p => p.code === code);
+  if (!prog) throw new Error(`Removed Koc program missing from base dataset: ${code}`);
+  if (prog.has_ek_2026_2 || (prog.ek_kont_2026_2 || 0) !== 0) {
+    throw new Error(`Program ${code} should be removed from Ek Yerleştirme!`);
+  }
+});
+console.log(`✓ 23 Kasım 2026 Duyurusu: Koç Üniversitesi'nin ${removedKocCodes.length} programı ek tablodan çıkarıldı.`);
 
 // Past Data Matching Checks
 const matched26_1 = progs.filter(p => p.has_2026_1).length;

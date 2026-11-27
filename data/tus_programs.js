@@ -144530,10 +144530,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "70,68645",
     "max_2026_2_val": 70.68645,
     "branch_avg_26_2": 49.86,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 2,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 2
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900122",
@@ -144588,10 +144588,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "76,80271",
     "max_2026_2_val": 76.80271,
     "branch_avg_26_2": 74.73,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 2,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 2
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900129",
@@ -144646,10 +144646,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "68,50906",
     "max_2026_2_val": 68.50906,
     "branch_avg_26_2": 65.41,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 2,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 2
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900136",
@@ -144704,10 +144704,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "74,07402",
     "max_2026_2_val": 74.07402,
     "branch_avg_26_2": 70.39,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 1,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 1
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900143",
@@ -144762,10 +144762,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "61,47877",
     "max_2026_2_val": 61.47877,
     "branch_avg_26_2": 61.67,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 1,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 1
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900150",
@@ -144820,10 +144820,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "68,41001",
     "max_2026_2_val": 68.41001,
     "branch_avg_26_2": 52.14,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 2,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 2
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900157",
@@ -144936,10 +144936,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "73,99334",
     "max_2026_2_val": 73.99334,
     "branch_avg_26_2": 55.17,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 4,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 4
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900171",
@@ -144994,10 +144994,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "66,69293",
     "max_2026_2_val": 66.69293,
     "branch_avg_26_2": 57.8,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 2,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 2
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900178",
@@ -145052,10 +145052,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "70,94282",
     "max_2026_2_val": 70.94282,
     "branch_avg_26_2": 58.45,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 2,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 2
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900185",
@@ -145110,10 +145110,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "70,37228",
     "max_2026_2_val": 70.37228,
     "branch_avg_26_2": 68.3,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 2,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 2
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900192",
@@ -145168,10 +145168,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "71,50399",
     "max_2026_2_val": 71.50399,
     "branch_avg_26_2": 65.55,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 2,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 2
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900199",
@@ -145226,10 +145226,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "65,34512",
     "max_2026_2_val": 65.34512,
     "branch_avg_26_2": 64.95,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 1,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 1
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900206",
@@ -145284,10 +145284,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "68,16243",
     "max_2026_2_val": 68.16243,
     "branch_avg_26_2": 67.71,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 1,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 1
+    "ek_kont_2026_2": 0
   },
   {
     "code": "203900213",
@@ -145342,10 +145342,10 @@ window.DATA_TUS_PROGRAMS = [
     "max_2026_2": "68,71299",
     "max_2026_2_val": 68.71299,
     "branch_avg_26_2": 63.48,
-    "has_ek_2026_2": true,
-    "ek_kont_genel": 2,
+    "has_ek_2026_2": false,
+    "ek_kont_genel": 0,
     "ek_kont_yabanci": 0,
-    "ek_kont_2026_2": 2
+    "ek_kont_2026_2": 0
   },
   {
     "code": "111400101",
